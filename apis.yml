@@ -1,0 +1,71 @@
+name: Adanos Market Sentiment API
+description: >-
+  Key-authenticated REST/JSON API for financial market sentiment analytics across Reddit, X.com, news, and Polymarket,
+  plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment signals for
+  traders, fintech, quant/research teams, and AI agents.
+url: https://adanos-market-sentiment-api.apievangelist.com/apis.yml
+created: '2026-07-17'
+modified: '2026-07-17'
+specificationVersion: '0.21'
+tags:
+  - market
+  - sentiment
+  - stocks
+  - crypto
+  - finance
+  - trading
+  - social-data
+  - news
+  - prediction-markets
+  - reddit
+  - x-twitter
+  - polymarket
+  - ai-agents
+  - rest-api
+  - openapi
+  - llms-txt
+  - agent-skills
+apis:
+  - name: Adanos Market Sentiment API
+    description: >-
+      RESTful JSON API grouping five sentiment services (Reddit Stocks, X.com Stocks, Stock News, Polymarket Stocks,
+      Reddit Crypto) with 41 base endpoints plus PRO raw-mention endpoints. Authenticated via X-API-Key header.
+    humanURL: https://api.adanos.org/docs
+    baseURL: https://api.adanos.org
+    tags:
+      - market
+      - sentiment
+      - stocks
+      - crypto
+      - finance
+      - trading
+      - social-data
+      - news
+      - prediction-markets
+      - reddit
+      - x-twitter
+      - polymarket
+      - ai-agents
+      - rest-api
+      - openapi
+      - llms-txt
+      - agent-skills
+    properties:
+      - type: OpenAPI
+        url: https://api.adanos.org/openapi.json
+      - type: OpenAPI
+        url: https://api.adanos.org/openapi.sentiment.yaml
+      - type: LLMSTxt
+        url: https://api.adanos.org/llms.txt
+      - type: Documentation
+        url: https://api.adanos.org/docs
+      - type: Documentation
+        url: https://api.adanos.org/changelog
+maintainers:
+  - FN: Adanos Software GmbH
+    url: https://adanos.org
+generated:
+  by: apis.io/add
+  model: claude-opus-4-8
+  confidence: 90
+  at: '2026-07-17T12:12:12.906Z'
