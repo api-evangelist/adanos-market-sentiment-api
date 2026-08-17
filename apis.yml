@@ -3,7 +3,7 @@ description: >-
   Key-authenticated REST/JSON API for financial market sentiment analytics across Reddit, X.com, news, and Polymarket,
   plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment signals for
   traders, fintech, quant/research teams, and AI agents.
-url: https://adanos-market-sentiment-api.apievangelist.com/apis.yml
+url: https://raw.githubusercontent.com/api-evangelist/adanos-market-sentiment-api/refs/heads/main/apis.yml
 created: '2026-07-17'
 modified: '2026-07-17'
 specificationVersion: '0.21'
