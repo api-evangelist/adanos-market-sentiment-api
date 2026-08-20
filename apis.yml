@@ -8,6 +8,24 @@ created: '2026-07-17'
 modified: '2026-07-17'
 specificationVersion: '0.23'
 tags:
+  - Market
+  - Sentiment
+  - Stocks
+  - Crypto
+  - Finance
+  - Trading
+  - Social Data
+  - News
+  - Prediction Markets
+  - Reddit
+  - X / Twitter
+  - Polymarket
+  - AI Agents
+  - REST API
+  - OpenAPI
+  - llms-txt
+  - Agent Skills
+tags_raw:
   - market
   - sentiment
   - stocks
@@ -33,6 +51,24 @@ apis:
     humanURL: https://api.adanos.org/docs
     baseURL: https://api.adanos.org
     tags:
+      - Market
+      - Sentiment
+      - Stocks
+      - Crypto
+      - Finance
+      - Trading
+      - Social Data
+      - News
+      - Prediction Markets
+      - Reddit
+      - X / Twitter
+      - Polymarket
+      - AI Agents
+      - REST API
+      - OpenAPI
+      - llms-txt
+      - Agent Skills
+    tags_raw:
       - market
       - sentiment
       - stocks
