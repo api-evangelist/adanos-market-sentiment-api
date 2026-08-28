@@ -4,6 +4,17 @@ description: >-
   plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment signals for
   traders, fintech, quant/research teams, and AI agents.
 url: https://raw.githubusercontent.com/api-evangelist/adanos-market-sentiment-api/refs/heads/main/apis.yml
+deliveryModel:
+  model: unknown
+  open_source: false
+  commercial: false
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - none
+  generated: '2026-08-28'
+  method: derived
 created: '2026-07-17'
 modified: '2026-07-17'
 specificationVersion: '0.23'
