@@ -20,22 +20,22 @@ modified: '2026-07-17'
 specificationVersion: '0.23'
 tags:
   - Market
-  - Sentiment
-  - Stocks
+  - sentiment
+  - stocks
   - Crypto
   - Finance
   - Trading
-  - Social Data
+  - social-data
   - News
-  - Prediction Markets
+  - prediction-markets
   - Reddit
-  - X / Twitter
+  - x-twitter
   - Polymarket
   - AI Agents
   - REST API
   - OpenAPI
   - llms-txt
-  - Agent Skills
+  - agent-skills
 tags_raw:
   - market
   - sentiment
@@ -63,22 +63,22 @@ apis:
     baseURL: https://api.adanos.org
     tags:
       - Market
-      - Sentiment
-      - Stocks
+      - sentiment
+      - stocks
       - Crypto
       - Finance
       - Trading
-      - Social Data
+      - social-data
       - News
-      - Prediction Markets
+      - prediction-markets
       - Reddit
-      - X / Twitter
+      - x-twitter
       - Polymarket
       - AI Agents
       - REST API
       - OpenAPI
       - llms-txt
-      - Agent Skills
+      - agent-skills
     tags_raw:
       - market
       - sentiment
