@@ -1,0 +1,68 @@
+generated: '2026-09-03'
+method: derived
+source: openapi/adanos-market-sentiment-api-openapi.json
+format: json-detail-envelope
+note: >-
+  Errors are application/json with a FastAPI-style `detail` envelope, not RFC 9457 problem+json.
+  Simple errors carry a string detail; several 4xx classes carry a structured detail object with a
+  machine-readable error_code (e.g. unsupported_ticker, unsupported_symbol). Titles and remediation
+  enriched from the provider's llms.txt (https://api.adanos.org/llms.txt).
+envelope:
+  content_type: application/json
+  field: detail
+  structured_detail_schemas:
+    - UnsupportedAssetError
+    - RateLimitError
+    - CompareLimitError
+    - HistoricalLimitError
+    - InvalidPeriodError
+    - InvalidSearchParametersError
+problem_types:
+  - status: 400
+    title: Compare limit exceeded
+    detail: More than 10 assets sent to a /compare endpoint (comma-separated, deduplicated, max 10).
+    schema: CompareLimitError
+    occurrences: 5
+  - status: 401
+    title: Missing or invalid API key
+    detail: X-API-Key header missing, invalid, or revoked on a protected endpoint.
+    remediation: Send X-API-Key with a valid sk_live_ key; register at https://adanos.org/register.
+    occurrences: 47
+  - status: 403
+    title: Plan gate exceeded
+    detail: >-
+      Historical lookback beyond the account's window (free 30 days, hobby 90, professional 365),
+      or a Professional-only endpoint (raw mentions, /sentiment/v1/analyze) on a lower plan.
+    schema: HistoricalLimitError
+    occurrences: 37
+  - status: 404
+    title: Unsupported asset or empty trending window
+    detail: >-
+      Unsupported stock tickers return detail.error_code="unsupported_ticker"; unsupported crypto
+      symbols return detail.error_code="unsupported_symbol". Several trending endpoints 404 when
+      there are no results and offset=0.
+    schema: UnsupportedAssetError
+    occurrences: 15
+  - status: 422
+    title: Validation error
+    detail: >-
+      Pydantic validation envelope (detail[] of {loc,msg,type}). Also raised for from+to+days
+      together, dates before a platform's available_since, invalid source filters, and short
+      search queries.
+    schema: HTTPValidationError
+    occurrences: 43
+  - status: 429
+    title: Rate limit exceeded
+    detail: Burst (per-minute) or monthly quota exhausted; see X-RateLimit-* response headers.
+    schema: RateLimitError
+    occurrences: 47
+  - status: 503
+    title: Service unavailable
+    detail: >-
+      Transient database failure or unavailable internal sentiment-infer service; returned uncached
+      and (for /sentiment/v1/analyze) with Retry-After.
+    occurrences: 48
+  - status: 504
+    title: Deadline exceeded
+    detail: Analytics request exceeded its 90-second request deadline.
+    occurrences: 46

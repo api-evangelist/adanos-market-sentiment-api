@@ -1,0 +1,48 @@
+generated: '2026-09-03'
+method: searched
+source: https://api.adanos.org/llms.txt
+note: >-
+  Published limits from the provider's llms.txt (Plans + Rate Limit and Account Headers sections)
+  and pricing page. Two windows: a per-minute burst limit and a per-account monthly quota. Runtime
+  signaling is header-based.
+limit_count: 6
+limits:
+  - scope: per-key
+    plan: Free
+    window: 1 minute
+    limit: 100
+  - scope: per-account
+    plan: Free
+    window: 1 month
+    limit: 250
+  - scope: per-key
+    plan: Hobby
+    window: 1 minute
+    limit: 1000
+  - scope: per-account
+    plan: Hobby
+    window: 1 month
+    limit: 250000
+  - scope: per-key
+    plan: Professional
+    window: 1 minute
+    limit: 1000
+  - scope: per-account
+    plan: Professional
+    window: 1 month
+    limit: 2500000
+headers:
+  - X-RateLimit-Limit-Monthly
+  - X-RateLimit-Remaining-Monthly
+  - X-RateLimit-Used-Monthly
+  - X-RateLimit-Reset-Monthly
+  - X-RateLimit-Limit-Burst
+  - X-RateLimit-Remaining-Burst
+  - X-RateLimit-Reset-Burst
+  - X-Account-Type
+  - X-Account-Name
+exhaustion_status: 429
+retry_after: Retry-After header on 503 from the sentiment inference service
+quota_reset: >-
+  Monthly windows are per account: free keys reset on their creation-timestamp monthly anchor;
+  paid keys use Stripe current_period_end when available.

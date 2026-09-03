@@ -1,0 +1,87 @@
+generated: '2026-09-03'
+method: derived
+source: openapi/adanos-market-sentiment-api-openapi.json
+note: 'Entity graph derived from the OpenAPI component schemas and path identifiers. The API is read-only analytics:
+  assets (stock tickers, crypto symbols) are the root identifiers, and each of the five data platforms exposes per-asset
+  sentiment aggregates, trending rollups (asset/sector/country), comparisons, search, market-wide sentiment, and
+  (Professional) raw mention rows.'
+schema_count: 113
+entities:
+- name: Stock
+  id_field: ticker
+  id_format: ^\$?[A-Za-z]{1,10}$
+  relationships:
+  - kind: has_many
+    target: NewsMention
+    via: /news/stocks/v1/stock/{ticker}/mentions
+  - kind: has_many
+    target: RedditMention
+    via: /reddit/stocks/v1/stock/{ticker}/mentions
+  - kind: has_many
+    target: XMention
+    via: /x/stocks/v1/stock/{ticker}/mentions
+  - kind: has_many
+    target: PolymarketMarketSnapshot
+    via: /polymarket/stocks/v1/stock/{ticker}/mentions
+  - kind: has_one
+    target: SentimentAggregate
+    via: per-platform /stock/{ticker}
+  - kind: has_many
+    target: DailyTrendItem
+    via: trend_history / daily_trend
+- name: CryptoToken
+  id_field: symbol
+  id_format: ^\$?[A-Za-z0-9]{1,20}$
+  relationships:
+  - kind: has_many
+    target: CryptoRawMentionItem
+    via: /reddit/crypto/v1/token/{symbol}/mentions
+  - kind: has_one
+    target: CryptoTokenSentiment
+    via: /reddit/crypto/v1/token/{symbol}
+- name: Sector
+  relationships:
+  - kind: has_many
+    target: Stock
+    via: top_tickers
+- name: Country
+  relationships:
+  - kind: has_many
+    target: Stock
+    via: top_tickers
+- name: PolymarketMarketSnapshot
+  id_field: condition_id
+  relationships:
+  - kind: belongs_to
+    target: Stock
+    via: ticker
+  - kind: belongs_to
+    target: PolymarketEvent
+    via: event_id
+- name: RedditMention
+  id_field: post_id / comment_id
+  relationships:
+  - kind: belongs_to
+    target: Stock
+    via: ticker
+  - kind: belongs_to
+    target: Subreddit
+    via: subreddit
+- name: XMention
+  id_field: tweet_id
+  relationships:
+  - kind: belongs_to
+    target: Stock
+    via: ticker
+- name: NewsMention
+  id_field: url
+  relationships:
+  - kind: belongs_to
+    target: Stock
+    via: ticker
+  - kind: belongs_to
+    target: NewsSource
+    via: source
+- name: SentimentAnalysis
+  note: 'Stateless result of POST /sentiment/v1/analyze: sentiment_score (-1..+1), sentiment_label, engine component
+    audit.'

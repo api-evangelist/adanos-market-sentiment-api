@@ -1,0 +1,46 @@
+generated: '2026-09-03'
+method: searched
+source: https://pypi.org/pypi/adanos/json
+note: >-
+  All four first-party client packages released in lockstep on 2026-08-09. Registry metadata read
+  unauthenticated from PyPI, npm and Packagist on 2026-09-03. GitHub org adanos-software also ships
+  a Homebrew tap (Formula/adanos-cli.rb) for the CLI, plus official platform integrations (n8n node
+  n8n-nodes-market-sentiment 0.1.4 on npm, Dify plugin, elizaOS plugin, Zapier, Node-RED, Haystack,
+  OpenBB, Wealthfolio, Finmars, Singer tap, WordPress plugin, Chrome extension).
+packages:
+  - name: adanos
+    registry: pypi
+    language: Python
+    url: https://pypi.org/project/adanos/
+    repository: https://github.com/adanos-software/adanos-python-sdk
+    official: true
+    version: 2.7.0
+    published: '2026-08-09'
+    note: Python SDK for the Adanos Finance Sentiment API.
+  - name: finance-sentiment
+    registry: npm
+    language: TypeScript
+    url: https://www.npmjs.com/package/finance-sentiment
+    repository: https://github.com/adanos-software/adanos-ts-sdk
+    official: true
+    version: 2.7.0
+    published: '2026-08-09'
+    note: TypeScript SDK (repo adanos-software/adanos-ts-sdk, homepage adanos.org).
+  - name: adanos/adanos-php
+    registry: packagist
+    language: PHP
+    url: https://packagist.org/packages/adanos/adanos-php
+    repository: https://github.com/adanos-software/adanos-php
+    official: true
+    version: v1.2.0
+    published: '2026-08-09'
+    note: PHP SDK for the Adanos Market Sentiment API.
+  - name: adanos-cli
+    registry: pypi
+    language: Python
+    url: https://pypi.org/project/adanos-cli/
+    repository: https://github.com/adanos-software/adanos-cli
+    official: true
+    version: 1.33.0
+    published: '2026-08-09'
+    note: First-party CLI (also installable via the adanos-software/homebrew-tap Homebrew tap).

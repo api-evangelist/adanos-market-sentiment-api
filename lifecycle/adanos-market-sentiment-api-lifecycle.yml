@@ -1,0 +1,31 @@
+generated: '2026-09-03'
+method: searched
+source: https://api.adanos.org/changelog
+note: >-
+  Versioning and change management read from the provider's changelog (Keep a Changelog + Semantic
+  Versioning), llms.txt, and the BetterStack status page at https://status.adanos.org/ (HTTP 200,
+  probed 2026-09-03).
+versioning:
+  scheme: semver
+  current_version: 1.50.0
+  path_versioning: per-platform /v1 segments
+  changelog: https://api.adanos.org/changelog
+status_page:
+  url: https://status.adanos.org/
+  provider: BetterStack
+  probed: '2026-09-03'
+  status: 200
+deprecation:
+  practice: >-
+    Deprecations are documented in the OpenAPI, llms.txt and per-release Migration notes in the
+    changelog. Currently deprecated: the `days` query parameter (v1 shorthand, prefer from/to),
+    legacy sentiment count fields (positive_count/negative_count/neutral_count, prefer
+    bullish_pct/bearish_pct), and the `found` field (planned for v2 removal). No dated sunset
+    schedule or RFC 8594 Sunset/Deprecation headers are documented.
+  deprecated_items:
+    - days query parameter
+    - positive_count / negative_count / neutral_count fields
+    - found field (v2 removal planned)
+data_retention:
+  raw_mentions: 365 days for Reddit, News, X and Reddit Crypto; 90 days for Polymarket snapshots
+sla: not published

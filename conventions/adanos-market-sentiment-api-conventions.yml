@@ -1,0 +1,71 @@
+generated: '2026-09-03'
+method: searched
+source: https://api.adanos.org/llms.txt
+note: >-
+  Cross-cutting semantics read from the provider's own llms.txt (Shared Constraints and Parameter
+  Rules) and the OpenAPI at https://api.adanos.org/openapi.json. Cross-links: errors/, lifecycle/,
+  authentication/, rate-limits/.
+auth:
+  style: api-key-header
+  header: X-API-Key
+  key_format: sk_live_ followed by 32 hex characters
+  public_endpoints: 6 health-check endpoints require no auth
+idempotency:
+  coverage: na
+  note: >-
+    The API is read-only: 52 of 53 operations are GET. The single POST, /sentiment/v1/analyze,
+    is a stateless text-analysis computation that creates or mutates no resource, so idempotency,
+    dry-run and reversibility do not apply. No Idempotency-Key mechanism is documented, and none
+    is needed.
+reversibility:
+  coverage: na
+  note: No write surface — no state-changing operations exist, so there is nothing to reverse.
+dry_run:
+  coverage: na
+  note: Read-only API; no mutating operation to rehearse.
+pagination:
+  style: limit-offset
+  params:
+    limit: default 20 (list endpoints) or 50 (raw mentions), range 1..100
+    offset: default 0, minimum 0
+  response_fields:
+    count: exact total row count before limit/offset (raw mentions)
+  has_more: infer with offset + len(results) < count
+time_windows:
+  params: [from, to, days]
+  rules:
+    - from/to are inclusive UTC calendar days (YYYY-MM-DD)
+    - days is a deprecated v1 shorthand; prefer from/to for reproducible periods
+    - from+to+days together returns HTTP 422
+    - lookback depth is plan-gated (free 30d / hobby 90d / professional 365d, HTTP 403)
+    - dates before a platform's available_since return HTTP 422
+error_envelope:
+  shape: JSON object with `detail` (string, or structured object with error_code, or Pydantic list)
+  reference: errors/adanos-market-sentiment-api-problem-types.yml
+rate_limit_signaling:
+  headers:
+    - X-RateLimit-Limit-Monthly
+    - X-RateLimit-Remaining-Monthly
+    - X-RateLimit-Used-Monthly
+    - X-RateLimit-Reset-Monthly
+    - X-RateLimit-Limit-Burst
+    - X-RateLimit-Remaining-Burst
+    - X-RateLimit-Reset-Burst
+    - X-Account-Type
+    - X-Account-Name
+  exhaustion_status: 429
+  retry_after: Retry-After sent on 503 from the sentiment inference service
+versioning:
+  scheme: semver
+  current: 1.50.0
+  path_versioning: per-platform /v1 path segments (e.g. /news/stocks/v1)
+  changelog: https://api.adanos.org/changelog
+deprecations:
+  - item: days query parameter
+    status: deprecated v1 compatibility shorthand; prefer from/to
+  - item: positive_count / negative_count / neutral_count response fields
+    status: legacy v1 fields; prefer bullish_pct, bearish_pct and activity totals
+  - item: found response field
+    status: legacy in v1, planned for v2 removal
+tracing:
+  request_id_header: x-request-id (observed on responses)

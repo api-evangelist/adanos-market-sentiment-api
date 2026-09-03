@@ -1,0 +1,14 @@
+generated: '2026-09-03'
+method: searched
+source: https://github.com/adanos-software/adanos-market-sentiment-skill
+note: >-
+  Provider-published official Agent Skill, saved verbatim from
+  raw.githubusercontent.com/adanos-software/adanos-market-sentiment-skill/main/skills/adanos-market-sentiment/SKILL.md
+  (MIT-licensed by the provider). The upstream repo also carries references/, scripts/ and test/ directories.
+skills:
+  - name: adanos-market-sentiment
+    file: adanos-market-sentiment/SKILL.md
+    api: Adanos Market Sentiment API
+    official: true
+    author: adanos-software
+    version: 0.1.0

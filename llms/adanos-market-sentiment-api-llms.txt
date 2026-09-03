@@ -1,0 +1,398 @@
+# Adanos Market Sentiment API
+
+Version: 1.50.0
+Base URL: https://api.adanos.org
+Root discovery: https://api.adanos.org/
+OpenAPI JSON: https://api.adanos.org/openapi.json
+OpenAPI YAML: https://api.adanos.org/openapi.yaml
+Split OpenAPI YAML (by platform):
+- https://api.adanos.org/openapi.sentiment.yaml
+- https://api.adanos.org/openapi.news.yaml
+- https://api.adanos.org/openapi.reddit.yaml
+- https://api.adanos.org/openapi.reddit-crypto.yaml
+- https://api.adanos.org/openapi.x.yaml
+- https://api.adanos.org/openapi.polymarket.yaml
+
+## Official CLI (adanos-cli)
+
+- Package: adanos-cli
+- Install: `pip install adanos-cli`
+- API key onboarding: `adanos onboard wizard`
+- Human query mode: `adanos ask "How does TSLA look?"`
+- Machine mode: `adanos --output json capabilities`
+- Full endpoint access: `adanos endpoint list` + `adanos endpoint call <endpoint-id> ...`
+
+## Quick Start
+
+1) Get an API key via the Adanos onboarding flow: https://adanos.org/register
+2) Send it on protected endpoints as `X-API-Key: sk_live_xxx`.
+3) Use https://api.adanos.org/openapi.json or `adanos endpoint list` for endpoint discovery.
+
+## Plans, Auth and Limits
+
+Pricing: https://adanos.org/pricing
+Register: https://adanos.org/register
+Terms: https://adanos.org/terms
+The MIT license on the OpenAPI document applies only to that spec, not to the commercial API.
+
+Public operations: 53 (6 public Health-Check + 47 protected).
+Free and Hobby: 41 protected endpoints, non-commercial.
+Professional: 47 protected endpoints, commercial use allowed.
+
+- Free: $0, 100 req/min, 250 req/month, 30-day lookback, 41 endpoints, no text sentiment API, no raw mentions
+- Hobby: $29/mo ($24.17/mo yearly), 1,000 req/min, 250,000 req/month, 90-day lookback, 41 endpoints, non-commercial
+- Professional: $299/mo ($249.17/mo yearly), 1,000 req/min, 2,500,000 req/month, up to 365-day lookback, 47 endpoints, commercial use, text sentiment + raw mentions
+
+Professional-only:
+- POST /sentiment/v1/analyze
+- GET /news/stocks/v1/stock/{ticker}/mentions
+- GET /reddit/stocks/v1/stock/{ticker}/mentions
+- GET /reddit/crypto/v1/token/{symbol}/mentions
+- GET /x/stocks/v1/stock/{ticker}/mentions
+- GET /polymarket/stocks/v1/stock/{ticker}/mentions
+
+## Authentication
+
+Required header on protected endpoints:
+- X-API-Key: sk_live_xxx
+
+Notes:
+- API key onboarding happens outside the public API surface documented here.
+- Internal `/auth/v1/*` helper routes are intentionally omitted from this document.
+- Public usage begins once you already have a valid `sk_live_...` key.
+
+## Shared Constraints and Parameter Rules
+
+- Authentication: all non-health platform endpoints require X-API-Key.
+- Period windows:
+  - `from`: optional start date in YYYY-MM-DD, inclusive UTC day.
+  - `to`: optional end date in YYYY-MM-DD, inclusive UTC day. Omit to use the current UTC date.
+  - `days`: deprecated v1 compatibility shorthand. Prefer `from` and `to` for reproducible periods.
+  - `from` only means from that date through the current UTC date.
+  - `to` only uses the endpoint's default period length ending on `to`; `to` + `days` uses that explicit length ending on `to`.
+  - If no date is provided, list/market-sentiment endpoints default to the current UTC day and detail/compare endpoints default to the most recent 7 UTC days.
+  - `from` + `to` + `days` returns HTTP 422.
+  - Account gate by historical lookback depth from the earliest requested date to the current UTC date: free max 30 days, hobby max 90 days, professional max 365 days (HTTP 403 if exceeded).
+  - Platform data availability gate: requests return HTTP 422 when the explicit `from` date or the implicit start date from deprecated `days` is before that platform's public `available_since` date.
+- limit: default 20, range 1..100 (list endpoints)
+- offset: default 0, minimum 0
+- type: stock|etf|all (only on /trending for Stocks/X/Polymarket)
+- source filter:
+  - only supported on News trending endpoints: /trending, /trending/sectors, /trending/countries
+  - accepts canonical source ids or known aliases
+  - invalid source => HTTP 422
+  - sending source to unsupported News endpoints => HTTP 422
+- search q:
+  - min length 2 after trim/$ normalization on all platforms
+  - Polymarket additionally enforces max length 50
+- compare input:
+  - comma-separated assets
+  - optional $ prefix is normalized away
+  - deduplicated
+  - maximum 10 assets (HTTP 400 when exceeded)
+- path formats:
+  - stock ticker path: ^\$?[A-Za-z]{1,10}$
+  - crypto symbol path: ^\$?[A-Za-z0-9]{1,20}$
+- Deprecated v1 compatibility fields:
+  - positive_count, negative_count, neutral_count can still appear on detail and market-sentiment payloads
+  - prefer bullish_pct, bearish_pct and activity totals such as mentions, trade_count and market_count
+
+## Platform: Finance Sentiment (/sentiment/v1)
+
+Direct text sentiment analysis:
+- POST /analyze
+  auth: X-API-Key required, Professional account required
+  request: { "text": "TSLA looks like a short squeeze setup, loading calls" }
+  constraints: text is required, trimmed, non-empty, max 2048 characters
+  response core: text, sentiment_score, sentiment_label, components
+  sentiment_score: -1.0 bearish to +1.0 bullish, rounded to 3 decimals
+  sentiment_label: positive|neutral|negative
+  components: engine_version, vader_compound, roberta_score, emoji_score, phrase_adjustment, phrase_matches, contextual_finance_matches
+  errors: 401, 403, 422, 429, 503
+
+Sentiment-specific behavior:
+- The public route is quota-counted as one protected API request.
+- Production API nodes delegate inference to an internal sentiment-infer service.
+- If the internal inference service is unavailable, the public API returns HTTP 503 with Retry-After.
+- Components are a whitelisted engine audit subset and do not expose raw input text.
+
+## Raw Mentions Surface
+
+Shared behavior:
+- Professional account required; Free and Hobby accounts cannot access raw rows.
+- Reads only live raw mention tables, not archived files.
+- Use `from` and `to` for reproducible UTC date windows.
+- Legacy `days` remains accepted when no explicit `from`/`to` window is sent.
+- Date windows use UTC day boundaries: created/fetched timestamp >= from 00:00:00Z and < to+1 day 00:00:00Z.
+- Raw retention: 365 days for Reddit, News, X and Reddit Crypto; 90 days for Polymarket snapshots.
+- limit: default 50, range 1..100.
+- offset: default 0, minimum 0; combine with limit for deterministic newest-first pagination.
+- response envelope: ticker/symbol, period_days, count, results[].
+- count is the exact total row count before limit/offset.
+- infer has_more with offset + len(results) < count.
+- empty result sets return 200 with results=[].
+
+Endpoints:
+- GET /news/stocks/v1/stock/{ticker}/mentions
+  results[] core: ticker, title, summary, url, source, author, published_at, created_utc, sentiment_score, relevance_score
+- GET /reddit/stocks/v1/stock/{ticker}/mentions
+  params: include_inherited=false by default
+  results[] core: ticker, post_id, comment_id, subreddit, author, text, created_utc, sentiment_score, upvotes, is_inherited
+- GET /reddit/crypto/v1/token/{symbol}/mentions
+  params: include_inherited=false by default
+  results[] core: symbol, post_id, comment_id, subreddit, author, text, created_utc, sentiment_score, upvotes, is_inherited
+- GET /x/stocks/v1/stock/{ticker}/mentions
+  results[] core: ticker, tweet_id, author_username, text, created_utc, sentiment_score, likes, retweets, replies, quotes
+- GET /polymarket/stocks/v1/stock/{ticker}/mentions
+  results[] core: condition_id, event_id, market_slug, question, market_type, yes_price, no_price, reference_price, liquidity, volume_24h, trade_count, buy_trades, sell_trades, unique_traders, sentiment_score, sentiment_label, active, fetched_at
+
+## Not Found Behavior
+
+- Base stock/token detail endpoints (/stock/{ticker}, /token/{symbol}; not /explain or /mentions) return 200 with found=false when the asset is supported but the service has no qualifying data for the requested window.
+- Unsupported stock tickers return 404 with structured object detail.error_code="unsupported_ticker"; unsupported crypto symbols return 404 with detail.error_code="unsupported_symbol".
+- The found field is legacy in v1: found=true means service data exists for the asset/window, found=false means supported asset with no qualifying service data. It is planned for v2 removal.
+- /news/stocks/v1/trending, /news/stocks/v1/trending/sectors and /news/stocks/v1/trending/countries return 404 when no results and offset=0.
+- /reddit/stocks/v1/trending, /reddit/stocks/v1/trending/sectors, /reddit/stocks/v1/trending/countries and /reddit/crypto/v1/trending return 404 when no results and offset=0.
+- X and Polymarket trending list endpoints return 200 with an empty list when no results.
+
+## Platform: News Stocks (/news/stocks/v1)
+
+Endpoint matrix:
+- GET /trending
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, type=stock|etf|all(optional), source(optional canonical source id or alias)
+  response item core: ticker, company_name, buzz_score, trend, mentions, source_count, sentiment_score, trend_history
+  errors: 401, 403, 404, 422, 429
+- GET /trending/sectors
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, source(optional canonical source id or alias)
+  response item core: sector, buzz_score, trend, mentions, unique_tickers, source_count, sentiment_score, top_tickers
+  errors: 401, 403, 404, 422, 429
+- GET /trending/countries
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, source(optional canonical source id or alias)
+  response item core: country, buzz_score, trend, mentions, unique_tickers, source_count, sentiment_score, top_tickers
+  errors: 401, 403, 404, 422, 429
+- GET /stock/{ticker}
+  params: ticker path, from(optional), to(optional), days(deprecated optional)
+  response core: found, buzz_score, mentions, sentiment_score, trend, source_count, daily_trend, top_sources, top_mentions
+  daily_trend and top_mentions follow the resolved period
+  errors: 401, 403, 404, 422, 429
+- GET /stock/{ticker}/explain
+  params: ticker path (7-day data window is used internally)
+  response core: ticker, company_name, explanation, cached, generated_at, model
+  errors: 401, 404 (not found or insufficient data), 422, 429, 503
+- GET /search?q={query}
+  params: q(min 2 after trim/$ normalization), limit=20; from/to/days are not accepted
+  response core: query, count, period_days(7 fixed UTC calendar days), results[ticker,name,type,exchange,sector,country,aliases,summary[mentions,buzz_score,trend,sentiment_score]]
+  errors: 401, 422, 429
+- GET /compare?tickers=TSLA,NVDA
+  params: tickers(csv, max 10), from(optional), to(optional), days(deprecated optional)
+  response core: period_days, stocks[ticker,company_name,buzz_score,trend,trend_history,mentions,source_count,sentiment_score,bullish_pct,bearish_pct]
+  errors: 400, 401, 403, 422, 429
+- GET /market-sentiment
+  params: from(optional), to(optional), days(deprecated optional)
+  response core: buzz_score, trend, mentions, unique_articles, source_count, active_tickers, sentiment_score, bullish_pct, bearish_pct, trend_history, drivers[ticker,mentions,buzz_score,sentiment_score]
+  market-sentiment buzz semantics: relative service heat vs trailing 90-day service baseline; ~50 normal, higher hotter, lower quieter
+  errors: 401, 403, 422, 429
+- GET /stats
+  response core: total_mentions, unique_tickers, mentions_today, unique_tickers_today, supported_tickers
+  errors: 401, 422, 429
+- GET /health (public, no auth)
+  response core: status, service, version, total_mentions, tickers_tracked, scheduler
+
+News-specific behavior:
+- `source` filtering is only available on the three trending endpoints.
+- News uses source diversity (`source_count`) instead of subreddit/author diversity.
+- News detail responses expose `top_sources` instead of `top_subreddits`.
+
+## Platform: Reddit Stocks (/reddit/stocks/v1)
+
+Endpoint matrix:
+- GET /trending
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, type=stock|etf|all(optional)
+  response item core: ticker, company_name, buzz_score, trend, mentions, sentiment_score, total_upvotes, trend_history
+  errors: 401, 403, 404, 422, 429
+- GET /trending/sectors
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: sector, buzz_score, trend, mentions, unique_tickers, sentiment_score, total_upvotes, top_tickers
+  errors: 401, 403, 404, 422, 429
+- GET /trending/countries
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: country, buzz_score, trend, mentions, unique_tickers, sentiment_score, total_upvotes, top_tickers
+  errors: 401, 403, 404, 422, 429
+- GET /stock/{ticker}
+  params: ticker path, from(optional), to(optional), days(deprecated optional)
+  response core: found, buzz_score, mentions, sentiment_score, trend, daily_trend, top_mentions, top_subreddits
+  daily_trend, top_mentions and top_subreddits follow the resolved period
+  errors: 401, 403, 404, 422, 429
+- GET /stock/{ticker}/explain
+  params: ticker path (7-day data window is used internally)
+  response core: ticker, company_name, explanation, cached, generated_at, model
+  errors: 401, 404 (not found or insufficient data), 429, 503
+- GET /search?q={query}
+  params: q(min 2 after trim/$ normalization), limit=20; from/to/days are not accepted
+  response core: query, count, period_days(7 fixed UTC calendar days), results[ticker,name,type,exchange,sector,country,aliases,summary[mentions,buzz_score,trend,sentiment_score]]
+  errors: 401, 422, 429
+- GET /compare?tickers=TSLA,NVDA
+  params: tickers(csv, max 10), from(optional), to(optional), days(deprecated optional)
+  response core: period_days, stocks[ticker,company_name,buzz_score,trend,trend_history,mentions,unique_posts,subreddit_count,sentiment_score,bullish_pct,bearish_pct,total_upvotes]
+  errors: 400, 401, 403, 422, 429
+- GET /market-sentiment
+  params: from(optional), to(optional), days(deprecated optional)
+  response core: buzz_score, trend, mentions, unique_posts, subreddit_count, total_upvotes, active_tickers, sentiment_score, bullish_pct, bearish_pct, trend_history, drivers[ticker,mentions,buzz_score,sentiment_score]
+  market-sentiment buzz semantics: relative service heat vs trailing 90-day service baseline; ~50 normal, higher hotter, lower quieter
+  errors: 401, 403, 422, 429
+- GET /stats
+  response core: total_mentions, unique_tickers, mentions_today, unique_tickers_today, supported_tickers
+  errors: 401, 429
+- GET /health (public, no auth)
+  response core: status, service, version, total_mentions, tickers_tracked, scheduler
+
+## Platform: Reddit Crypto (/reddit/crypto/v1)
+
+Endpoint matrix:
+- GET /trending
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: symbol, name, buzz_score, trend, mentions, sentiment_score, total_upvotes, trend_history
+  errors: 401, 403, 404, 422, 429
+- GET /token/{symbol}
+  params: symbol path, from(optional), to(optional), days(deprecated optional)
+  response core: found, buzz_score, mentions, sentiment_score, trend, daily_trend, top_mentions, top_subreddits
+  daily_trend, top_mentions and top_subreddits follow the resolved period
+  errors: 401, 403, 404, 422, 429
+- GET /search?q={query}
+  params: q(min 2 after trim/$ normalization), limit=20; from/to/days are not accepted
+  response core: query, count, period_days(7 fixed UTC calendar days), results[symbol,name,market_cap_rank,market_cap_usd,aliases,summary[mentions,buzz_score,trend,sentiment_score]]
+  errors: 401, 422, 429
+- GET /compare?symbols=BTC,ETH
+  params: symbols(csv, max 10), from(optional), to(optional), days(deprecated optional)
+  response core: period_days, tokens[symbol,name,buzz_score,trend,trend_history,mentions,unique_posts,subreddit_count,sentiment_score,bullish_pct,bearish_pct,total_upvotes]
+  errors: 400, 401, 403, 422, 429
+- GET /market-sentiment
+  params: from(optional), to(optional), days(deprecated optional)
+  response core: buzz_score, trend, mentions, unique_posts, subreddit_count, total_upvotes, active_tickers, sentiment_score, bullish_pct, bearish_pct, trend_history, drivers[symbol,mentions,buzz_score,sentiment_score]
+  market-sentiment buzz semantics: relative service heat vs trailing 90-day service baseline; ~50 normal, higher hotter, lower quieter
+  errors: 401, 403, 422, 429
+- GET /stats
+  response core: total_mentions, unique_tokens, mentions_today, unique_tokens_today, supported_tokens
+  errors: 401, 429
+- GET /health (public, no auth)
+  response core: status, service, version, total_mentions, tokens_tracked, scheduler
+
+Differences vs stock namespaces:
+- no /trending/sectors
+- no /trending/countries
+- detail endpoint is /token/{symbol} (not /stock/{ticker})
+- compare query key is symbols (not tickers)
+
+## Platform: X/Twitter Stocks (/x/stocks/v1)
+
+Endpoint matrix:
+- GET /trending
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, type=stock|etf|all(optional)
+  response item core: ticker, company_name, buzz_score, trend, mentions, sentiment_score, total_upvotes, unique_tweets, trend_history
+  errors: 401, 403, 422, 429
+- GET /trending/sectors
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: sector, buzz_score, trend, mentions, unique_tickers, unique_authors, sentiment_score, total_upvotes, top_tickers
+  errors: 401, 403, 422, 429
+- GET /trending/countries
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: country, buzz_score, trend, mentions, unique_tickers, unique_authors, sentiment_score, total_upvotes, top_tickers
+  errors: 401, 403, 422, 429
+- GET /stock/{ticker}
+  params: ticker path, from(optional), to(optional), days(deprecated optional)
+  response core: found, buzz_score, mentions, sentiment_score, trend, unique_tweets, daily_trend, top_tweets
+  daily_trend and top_tweets follow the resolved period
+  errors: 401, 403, 404, 422, 429
+- GET /stock/{ticker}/explain
+  params: ticker path (7-day data window is used internally)
+  response core: ticker, company_name, explanation, cached, generated_at, model
+  errors: 401, 404 (not found or insufficient data), 429, 503
+- GET /search?q={query}
+  params: q(min 2 after trim/$ normalization), limit=20; from/to/days are not accepted
+  response core: query, count, period_days(7 fixed UTC calendar days), results[ticker,name,type,exchange,sector,country,aliases,summary[mentions,buzz_score,trend,sentiment_score]]
+  errors: 401, 422, 429
+- GET /compare?tickers=TSLA,NVDA
+  params: tickers(csv, max 10), from(optional), to(optional), days(deprecated optional)
+  response core: period_days, stocks[ticker,company_name,buzz_score,trend,trend_history,mentions,unique_tweets,sentiment_score,bullish_pct,bearish_pct,total_upvotes]
+  errors: 400, 401, 403, 422, 429
+- GET /market-sentiment
+  params: from(optional), to(optional), days(deprecated optional)
+  response core: buzz_score, trend, mentions, unique_tweets, unique_authors, total_upvotes, active_tickers, sentiment_score, bullish_pct, bearish_pct, trend_history, drivers[ticker,mentions,buzz_score,sentiment_score]
+  market-sentiment buzz semantics: relative service heat vs trailing 90-day service baseline; ~50 normal, higher hotter, lower quieter
+  errors: 401, 403, 422, 429
+- GET /stats
+  response core: total_mentions, unique_tickers, mentions_today, unique_tickers_today, supported_tickers
+  stats semantics: fields are based on all X mentions in the database
+  errors: 401, 429
+- GET /health (public, no auth)
+  response core: status, service, version, total_mentions, tickers_tracked, scheduler
+
+## Platform: Polymarket Stocks (/polymarket/stocks/v1)
+
+Endpoint matrix:
+- GET /trending
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0, type=stock|etf|all(optional)
+  response item core: bearish_pct, bullish_pct, buzz_score, company_name, current_market_count, market_count, sentiment_score, ticker, total_liquidity, trade_count, trend, trend_history, unique_traders
+  errors: 401, 403, 422, 429
+- GET /trending/sectors
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: bearish_pct, bullish_pct, buzz_score, current_market_count, market_count, sector, sentiment_score, top_tickers, total_liquidity, trade_count, trend, unique_tickers, unique_traders
+  errors: 401, 403, 422, 429
+- GET /trending/countries
+  params: from(optional), to(optional), days(deprecated optional), limit=20, offset=0
+  response item core: bearish_pct, bullish_pct, buzz_score, country, current_market_count, market_count, sentiment_score, top_tickers, total_liquidity, trade_count, trend, unique_tickers, unique_traders
+  errors: 401, 403, 422, 429
+- GET /stock/{ticker}
+  params: ticker path, from(optional), to(optional), days(deprecated optional)
+  response core: bearish_pct, bullish_pct, buzz_score, current_market_count, daily_trend, found, market_count, sentiment_score, top_mentions, total_liquidity, trade_count, trend, unique_traders
+  daily_trend follows the resolved period and includes bullish_pct/bearish_pct; top_mentions is limited to retained live snapshots
+  errors: 401, 403, 404, 422, 429
+- GET /search?q={query}
+  params: q(min 2 after trim/$ normalization, max 50), limit=20; from/to/days are not accepted
+  response core: query, count, period_days(7 fixed UTC calendar days), results[ticker,name,type,exchange,sector,country,aliases,summary[trade_count,buzz_score,trend,sentiment_score]]
+  errors: 401, 422, 429
+- GET /compare?tickers=TSLA,NVDA
+  params: tickers(csv, max 10), from(optional), to(optional), days(deprecated optional)
+  response core: period_days, stocks[bearish_pct,bullish_pct,buzz_score,company_name,current_market_count,market_count,sentiment_score,ticker,total_liquidity,trade_count,trend,trend_history,unique_traders]
+  errors: 400, 401, 403, 422, 429
+- GET /market-sentiment
+  params: from(optional), to(optional), days(deprecated optional)
+  response core: active_tickers, bearish_pct, bullish_pct, buzz_score, current_market_count, market_count, sentiment_score, total_liquidity, trade_count, trend, trend_history, unique_traders, drivers[buzz_score,sentiment_score,ticker,trade_count]
+  market-sentiment buzz semantics: relative service heat vs trailing 90-day service baseline; ~50 normal, higher hotter, lower quieter; trend is null when buzz_score is 0.0
+  errors: 401, 403, 422, 429
+- GET /stats
+  response core: total_trades, total_markets, unique_tickers, open_markets_current, open_tickers_current, traded_markets_today, traded_tickers_today, trades_today, supported_tickers
+  errors: 401, 429
+- GET /health (public, no auth)
+  response core: status, service, version, total_mentions, tickers_tracked, scheduler
+
+## Error Response Summary
+
+Protected endpoint baseline:
+- 401: missing/invalid/revoked API key
+- 403: resolved period exceeds historical limit for account type
+- 422: invalid period (from/to/days inconsistencies, future dates, inverted ranges, window before platform available_since or raw-retention violations) or invalid query/path parameters
+- 429: rate limit exceeded
+- 404: endpoint-specific not-found cases (detail endpoints + selected Reddit trending endpoints)
+- 400: compare validation errors (empty list or >10 assets)
+- 503: stock explain service unavailable
+
+## Rate Limit and Account Headers
+
+Monthly quota windows are per account. Free keys reset on their creation timestamp monthly anchor; paid keys use Stripe current_period_end when available.
+Responses may include:
+- X-RateLimit-Limit-Monthly
+- X-RateLimit-Remaining-Monthly
+- X-RateLimit-Used-Monthly
+- X-RateLimit-Reset-Monthly
+- X-RateLimit-Limit-Burst
+- X-RateLimit-Remaining-Burst
+- X-RateLimit-Reset-Burst
+- X-Account-Type
+- X-Account-Name
+
+## Agent Discovery Links
+
+- https://api.adanos.org/llms.txt
+- https://api.adanos.org/openapi.json
+- https://api.adanos.org/

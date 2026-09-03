@@ -1,0 +1,278 @@
+generated: '2026-09-03'
+method: derived
+source: openapi/adanos-market-sentiment-api-openapi.json
+status: candidate
+note: 'No official MCP server found: https://api.adanos.org/mcp returns 404 ({"detail":"Not Found"}), no /.well-known/mcp.json
+  on any host, no MCP repo in the adanos-software GitHub org, and no MCP package on npm/PyPI (probed 2026-09-03).
+  The provider''s agent surface is instead llms.txt + the official Agent Skill + the adanos-cli machine mode. Candidate
+  tool list below is derived from the 53 OpenAPI operations.'
+deployment:
+  mode: none
+  auth: api-key
+  verified: derived
+candidate_tools:
+- tool: getTrendingStocks
+  method: GET
+  path: /reddit/stocks/v1/trending
+  tag: Reddit Stocks
+  summary: Trending stocks
+- tool: getTrendingSectors
+  method: GET
+  path: /reddit/stocks/v1/trending/sectors
+  tag: Reddit Stocks
+  summary: Trending sectors
+- tool: getTrendingCountries
+  method: GET
+  path: /reddit/stocks/v1/trending/countries
+  tag: Reddit Stocks
+  summary: Trending countries
+- tool: getStockSentiment
+  method: GET
+  path: /reddit/stocks/v1/stock/{ticker}
+  tag: Reddit Stocks
+  summary: Stock Sentiment
+- tool: getRedditMarketSentiment
+  method: GET
+  path: /reddit/stocks/v1/market-sentiment
+  tag: Reddit Stocks
+  summary: Market Sentiment
+- tool: getStockExplanation
+  method: GET
+  path: /reddit/stocks/v1/stock/{ticker}/explain
+  tag: Reddit Stocks
+  summary: AI explanation
+- tool: compareStocks
+  method: GET
+  path: /reddit/stocks/v1/compare
+  tag: Reddit Stocks
+  summary: Compare stocks
+- tool: searchStocks
+  method: GET
+  path: /reddit/stocks/v1/search
+  tag: Reddit Stocks
+  summary: Search stocks
+- tool: getStats
+  method: GET
+  path: /reddit/stocks/v1/stats
+  tag: Reddit Stocks
+  summary: Service statistics
+- tool: getStockRawMentions
+  method: GET
+  path: /reddit/stocks/v1/stock/{ticker}/mentions
+  tag: Reddit Stocks
+  summary: Raw Mentions
+- tool: getRedditCryptoTrending
+  method: GET
+  path: /reddit/crypto/v1/trending
+  tag: Reddit Crypto
+  summary: Trending tokens
+- tool: getRedditCryptoToken
+  method: GET
+  path: /reddit/crypto/v1/token/{symbol}
+  tag: Reddit Crypto
+  summary: Token Sentiment
+- tool: getRedditCryptoMarketSentiment
+  method: GET
+  path: /reddit/crypto/v1/market-sentiment
+  tag: Reddit Crypto
+  summary: Market Sentiment
+- tool: compareRedditCryptoTokens
+  method: GET
+  path: /reddit/crypto/v1/compare
+  tag: Reddit Crypto
+  summary: Compare tokens
+- tool: searchRedditCrypto
+  method: GET
+  path: /reddit/crypto/v1/search
+  tag: Reddit Crypto
+  summary: Search tokens
+- tool: getRedditCryptoStats
+  method: GET
+  path: /reddit/crypto/v1/stats
+  tag: Reddit Crypto
+  summary: Service statistics
+- tool: getRedditCryptoTokenMentions
+  method: GET
+  path: /reddit/crypto/v1/token/{symbol}/mentions
+  tag: Reddit Crypto
+  summary: Raw Mentions
+- tool: getXTrendingStocks
+  method: GET
+  path: /x/stocks/v1/trending
+  tag: X/Twitter Stocks
+  summary: Trending stocks
+- tool: getXTrendingSectors
+  method: GET
+  path: /x/stocks/v1/trending/sectors
+  tag: X/Twitter Stocks
+  summary: Trending sectors
+- tool: getXTrendingCountries
+  method: GET
+  path: /x/stocks/v1/trending/countries
+  tag: X/Twitter Stocks
+  summary: Trending countries
+- tool: getXStockSentiment
+  method: GET
+  path: /x/stocks/v1/stock/{ticker}
+  tag: X/Twitter Stocks
+  summary: Stock Sentiment
+- tool: getXMarketSentiment
+  method: GET
+  path: /x/stocks/v1/market-sentiment
+  tag: X/Twitter Stocks
+  summary: Market Sentiment
+- tool: getXStockExplanation
+  method: GET
+  path: /x/stocks/v1/stock/{ticker}/explain
+  tag: X/Twitter Stocks
+  summary: AI explanation
+- tool: compareXStocks
+  method: GET
+  path: /x/stocks/v1/compare
+  tag: X/Twitter Stocks
+  summary: Compare stocks
+- tool: searchXStocks
+  method: GET
+  path: /x/stocks/v1/search
+  tag: X/Twitter Stocks
+  summary: Search stocks
+- tool: getXStats
+  method: GET
+  path: /x/stocks/v1/stats
+  tag: X/Twitter Stocks
+  summary: Service statistics
+- tool: getXStockRawMentions
+  method: GET
+  path: /x/stocks/v1/stock/{ticker}/mentions
+  tag: X/Twitter Stocks
+  summary: Raw Mentions
+- tool: getPolymarketTrendingStocks
+  method: GET
+  path: /polymarket/stocks/v1/trending
+  tag: Polymarket Stocks
+  summary: Trending stocks
+- tool: getPolymarketTrendingSectors
+  method: GET
+  path: /polymarket/stocks/v1/trending/sectors
+  tag: Polymarket Stocks
+  summary: Trending sectors
+- tool: getPolymarketTrendingCountries
+  method: GET
+  path: /polymarket/stocks/v1/trending/countries
+  tag: Polymarket Stocks
+  summary: Trending countries
+- tool: getPolymarketStock
+  method: GET
+  path: /polymarket/stocks/v1/stock/{ticker}
+  tag: Polymarket Stocks
+  summary: Stock Sentiment
+- tool: getPolymarketMarketSentiment
+  method: GET
+  path: /polymarket/stocks/v1/market-sentiment
+  tag: Polymarket Stocks
+  summary: Market Sentiment
+- tool: comparePolymarketStocks
+  method: GET
+  path: /polymarket/stocks/v1/compare
+  tag: Polymarket Stocks
+  summary: Compare stocks
+- tool: searchPolymarketStocks
+  method: GET
+  path: /polymarket/stocks/v1/search
+  tag: Polymarket Stocks
+  summary: Search stocks
+- tool: getPolymarketStats
+  method: GET
+  path: /polymarket/stocks/v1/stats
+  tag: Polymarket Stocks
+  summary: Service statistics
+- tool: getPolymarketStockRawMentions
+  method: GET
+  path: /polymarket/stocks/v1/stock/{ticker}/mentions
+  tag: Polymarket Stocks
+  summary: Raw Mentions
+- tool: getNewsTrendingStocks
+  method: GET
+  path: /news/stocks/v1/trending
+  tag: News Stocks
+  summary: Trending stocks
+- tool: getNewsTrendingSectors
+  method: GET
+  path: /news/stocks/v1/trending/sectors
+  tag: News Stocks
+  summary: Trending sectors
+- tool: getNewsTrendingCountries
+  method: GET
+  path: /news/stocks/v1/trending/countries
+  tag: News Stocks
+  summary: Trending countries
+- tool: getNewsStockSentiment
+  method: GET
+  path: /news/stocks/v1/stock/{ticker}
+  tag: News Stocks
+  summary: Stock Sentiment
+- tool: getNewsMarketSentiment
+  method: GET
+  path: /news/stocks/v1/market-sentiment
+  tag: News Stocks
+  summary: Market Sentiment
+- tool: getNewsStockExplanation
+  method: GET
+  path: /news/stocks/v1/stock/{ticker}/explain
+  tag: News Stocks
+  summary: AI explanation
+- tool: compareNewsStocks
+  method: GET
+  path: /news/stocks/v1/compare
+  tag: News Stocks
+  summary: Compare stocks
+- tool: searchNewsStocks
+  method: GET
+  path: /news/stocks/v1/search
+  tag: News Stocks
+  summary: Search stocks
+- tool: getNewsStats
+  method: GET
+  path: /news/stocks/v1/stats
+  tag: News Stocks
+  summary: Service statistics
+- tool: getNewsStockMentions
+  method: GET
+  path: /news/stocks/v1/stock/{ticker}/mentions
+  tag: News Stocks
+  summary: Raw Mentions
+- tool: getHealth
+  method: GET
+  path: /reddit/stocks/v1/health
+  tag: Health-Check
+  summary: Reddit Service Health
+- tool: getRedditCryptoHealth
+  method: GET
+  path: /reddit/crypto/v1/health
+  tag: Health-Check
+  summary: Reddit Crypto Service Health
+- tool: getXHealth
+  method: GET
+  path: /x/stocks/v1/health
+  tag: Health-Check
+  summary: X/Twitter Service Health
+- tool: getPolymarketHealth
+  method: GET
+  path: /polymarket/stocks/v1/health
+  tag: Health-Check
+  summary: Polymarket Service Health
+- tool: getNewsHealth
+  method: GET
+  path: /news/stocks/v1/health
+  tag: Health-Check
+  summary: News Service Health
+- tool: getRootHealth
+  method: GET
+  path: /health
+  tag: Health-Check
+  summary: Root Health
+- tool: analyzeSentimentText
+  method: POST
+  path: /sentiment/v1/analyze
+  tag: Finance Sentiment
+  summary: Analyze finance sentiment

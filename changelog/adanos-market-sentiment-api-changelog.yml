@@ -1,0 +1,56 @@
+generated: '2026-09-03'
+method: searched
+source: https://api.adanos.org/changelog
+scheme: keep-a-changelog + semver
+current_version: 1.50.0
+note: >-
+  Dated, versioned changelog served at https://api.adanos.org/changelog (HTTP 200, 2026-09-03),
+  with per-release Migration notes. Recent window only.
+entries:
+  - version: 1.50.0
+    date: '2026-09-03'
+    breaking: false
+    highlights:
+      - Polymarket historical data now reaches back to October 11, 2025.
+  - version: 1.49.1
+    date: '2026-08-12'
+    breaking: false
+    highlights:
+      - Historical Polymarket Daily top_mentions retain markets open during the requested UTC day
+        even when a later snapshot shows them resolved or inactive.
+  - version: 1.49.0
+    date: '2026-07-26'
+    breaking: false
+    highlights:
+      - News sentiment upgraded to v5.5 with more precise company-level attribution and reduced
+        cross-company sentiment spillover; scores can differ from v5.4.
+  - version: 1.48.4
+    date: '2026-07-21'
+    breaking: false
+    highlights:
+      - Canonical Buzz score for a closed UTC day is now consistent between single-day requests
+        and trend_history across News and Polymarket sector/country responses.
+  - version: 1.48.3
+    date: '2026-07-16'
+    breaking: false
+    highlights:
+      - Closed single-day Polymarket responses use the final UTC-day score; less identity data
+        scanned on long X/Polymarket sector/country requests.
+  - version: 1.48.2
+    date: '2026-07-16'
+    breaking: false
+    highlights:
+      - Faster long/custom /trending windows; canceled analytics queries return the documented 503.
+  - version: 1.48.1
+    date: '2026-07-16'
+    breaking: false
+    highlights:
+      - Stable daily semantics for trend_history across all platforms; controlled 503/504 behavior
+        for transient database failures and 90-second deadline overruns.
+      - Clients must not assume trend_history[-1] == buzz_score (supersedes 1.48.0 live-window behavior).
+  - version: 1.48.0
+    date: '2026-07-15'
+    breaking: false
+    highlights:
+      - Analytics endpoints return exact distinct counts across the complete requested UTC window,
+        including custom from/to ranges up to 365 days.

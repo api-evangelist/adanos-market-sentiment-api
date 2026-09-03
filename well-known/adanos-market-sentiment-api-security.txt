@@ -1,0 +1,5 @@
+Contact: mailto:support@adanos.org
+Expires: 2027-04-19T00:00:00.000Z
+Preferred-Languages: en, de
+Canonical: https://adanos.org/.well-known/security.txt
+Policy: https://adanos.org/terms

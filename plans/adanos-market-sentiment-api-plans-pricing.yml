@@ -1,0 +1,39 @@
+generated: '2026-09-03'
+method: searched
+source: https://adanos.org/pricing
+note: >-
+  Tiers as published on https://adanos.org/pricing (HTTP 200, 2026-09-03) and restated in the
+  provider's llms.txt Plans, Auth and Limits section. Monthly quota windows are per account; free
+  keys reset on their creation-timestamp monthly anchor, paid keys on the Stripe current_period_end.
+plan_count: 3
+plans:
+  - name: Free
+    price: 0
+    currency: USD
+    billing_period: monthly
+    included_quota: 250 requests/month
+    rate_limit: 100 requests/minute
+    lookback: 30 days
+    endpoints: 41 protected endpoints
+    restrictions: non-commercial; no text sentiment API; no raw mentions
+  - name: Hobby
+    price: 29
+    currency: USD
+    billing_period: monthly
+    annual_price: 24.17/mo billed yearly
+    included_quota: 250,000 requests/month
+    rate_limit: 1,000 requests/minute
+    lookback: 90 days
+    endpoints: 41 protected endpoints
+    restrictions: non-commercial
+  - name: Professional
+    price: 299
+    currency: USD
+    billing_period: monthly
+    annual_price: 249.17/mo billed yearly
+    included_quota: 2,500,000 requests/month
+    rate_limit: 1,000 requests/minute
+    lookback: up to 365 days
+    endpoints: 47 protected endpoints
+    restrictions: commercial use allowed; includes text sentiment (/sentiment/v1/analyze) and raw mentions
+overage: not published

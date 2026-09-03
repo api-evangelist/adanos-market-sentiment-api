@@ -1,0 +1,33 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Adanos Market Sentiment API
+  version: 1.0.0
+extends: adanos-market-sentiment-api-openapi.json
+x-provenance:
+  generated: '2026-09-03'
+  method: generated
+  source: openapi/adanos-market-sentiment-api-openapi.json
+  note: Catalog annotations only; the original spec is never mutated.
+actions:
+- target: $.info
+  update:
+    x-apis-io:
+      provider: adanos-market-sentiment-api
+      llms_txt: https://api.adanos.org/llms.txt
+      status_page: https://status.adanos.org/
+      changelog: https://api.adanos.org/changelog
+      pricing: https://adanos.org/pricing
+      agent_skill: https://github.com/adanos-software/adanos-market-sentiment-skill
+- target: $.info
+  update:
+    x-plan-gates:
+      professional_only:
+      - POST /sentiment/v1/analyze
+      - GET */mentions raw-mention endpoints
+      lookback:
+        free: 30 days
+        hobby: 90 days
+        professional: 365 days
+- target: $.components.securitySchemes.ApiKeyAuth
+  update:
+    x-key-registration: https://adanos.org/register

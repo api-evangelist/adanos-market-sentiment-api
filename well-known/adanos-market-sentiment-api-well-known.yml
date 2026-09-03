@@ -1,0 +1,55 @@
+generated: '2026-09-03'
+method: probed
+source: https://adanos.org/.well-known/security.txt
+note: >-
+  security.txt is served on adanos.org (Contact mailto:support@adanos.org, Expires 2027-04-19,
+  Canonical https://adanos.org/.well-known/security.txt, Policy https://adanos.org/terms).
+  No other well-known documents are served on any host: adanos.org returns an HTML 404 page,
+  api.adanos.org returns a JSON 404 ({"detail":"Not Found"}), and www.adanos.org 301s to adanos.org.
+  No agent card at /.well-known/agent-card.json or /.well-known/agent.json on any host.
+hosts:
+  - host: adanos.org
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        file: adanos-market-sentiment-api-security.txt
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+      - path: /.well-known/mcp.json
+        status: 404
+  - host: api.adanos.org
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+      - path: /.well-known/mcp.json
+        status: 404
+  - host: www.adanos.org
+    documents:
+      - path: /.well-known/security.txt
+        status: 301

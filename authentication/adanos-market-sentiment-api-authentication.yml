@@ -1,0 +1,30 @@
+generated: '2026-09-03'
+method: derived
+source: openapi/adanos-market-sentiment-api-news-openapi.yaml, openapi/adanos-market-sentiment-api-openapi.json,
+  openapi/adanos-market-sentiment-api-polymarket-openapi.yaml, openapi/adanos-market-sentiment-api-reddit-crypto-openapi.yaml,
+  openapi/adanos-market-sentiment-api-reddit-openapi.yaml, openapi/adanos-market-sentiment-api-sentiment-openapi.yaml,
+  openapi/adanos-market-sentiment-api-x-openapi.yaml
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: X-API-Key
+  description: |-
+    API key for authentication.
+
+    Get your API key at https://adanos.org/register.
+
+    Format: `sk_live_` followed by 32 hexadecimal characters. Example: `REDACTED_STRIPE_KEY`.
+  sources:
+  - openapi/adanos-market-sentiment-api-news-openapi.yaml
+  - openapi/adanos-market-sentiment-api-openapi.json
+  - openapi/adanos-market-sentiment-api-polymarket-openapi.yaml
+  - openapi/adanos-market-sentiment-api-reddit-crypto-openapi.yaml
+  - openapi/adanos-market-sentiment-api-reddit-openapi.yaml
+  - openapi/adanos-market-sentiment-api-sentiment-openapi.yaml
+  - openapi/adanos-market-sentiment-api-x-openapi.yaml

@@ -1,0 +1,22 @@
+generated: '2026-09-03'
+method: searched
+source: https://github.com/adanos-software
+note: >-
+  Client-side / embeddable surfaces published by the provider on its GitHub org (probed via the
+  GitHub API, 2026-09-03). Distinct from the SDKs in packages/.
+components:
+  - name: market-sentiment-wordpress
+    family: WordPress plugin
+    url: https://github.com/adanos-software/market-sentiment-wordpress
+    description: Self-hosted stock sentiment widgets and inline finance content, powered by Adanos.
+    language: PHP
+  - name: adanos-market-sentiment-extension
+    family: Browser extension
+    url: https://github.com/adanos-software/adanos-market-sentiment-extension
+    description: Chrome extension for Adanos Market Sentiment across Reddit, X, News, and Polymarket.
+    language: TypeScript
+  - name: wealthfolio-adanos-sentiment
+    family: Wealthfolio add-on
+    url: https://github.com/adanos-software/wealthfolio-adanos-sentiment
+    description: Wealthfolio add-on for the Adanos Finance Sentiment API.
+    language: TypeScript

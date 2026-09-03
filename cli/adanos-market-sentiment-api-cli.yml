@@ -1,0 +1,33 @@
+generated: '2026-09-03'
+method: searched
+source: https://api.adanos.org/llms.txt
+name: adanos-cli
+description: >-
+  First-party CLI for the Adanos Market Sentiment API, documented in the provider's own llms.txt
+  and API root discovery document. Offers a human query mode, a machine-readable JSON output mode,
+  and generic access to every API endpoint.
+install:
+  - method: pip
+    command: pip install adanos-cli
+  - method: homebrew
+    command: brew install adanos-software/tap/adanos-cli
+    note: Tap published at github.com/adanos-software/homebrew-tap (Formula/adanos-cli.rb).
+  - method: releases
+    url: https://github.com/adanos-software/adanos-cli/releases
+package:
+  registry: pypi
+  name: adanos-cli
+  version: 1.33.0
+  published: '2026-08-09'
+commands:
+  - command: adanos onboard wizard
+    purpose: API key onboarding
+  - command: adanos ask "How does TSLA look?"
+    purpose: Human natural-language query mode
+  - command: adanos --output json capabilities
+    purpose: Machine mode, JSON output
+  - command: adanos endpoint list
+    purpose: Endpoint discovery
+  - command: adanos endpoint call <endpoint-id>
+    purpose: Full endpoint access
+docs: https://github.com/adanos-software/adanos-cli#readme

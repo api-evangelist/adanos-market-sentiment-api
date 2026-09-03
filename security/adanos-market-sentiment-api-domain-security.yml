@@ -1,0 +1,16 @@
+generated: '2026-09-03'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: api.adanos.org
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 23 10:15:45 2026 GMT
+  hsts: null
+domains:
+- domain: adanos.org
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: none
