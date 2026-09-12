@@ -1,0 +1,14 @@
+{
+  "repo": "adanos-market-sentiment-api",
+  "feeds": [
+    {
+      "source": "https://adanos.org/contact",
+      "feed_url": "https://adanos.org/contact",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-09-06T19:17:18Z"
+}
