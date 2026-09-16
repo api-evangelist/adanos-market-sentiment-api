@@ -54,52 +54,123 @@ tags_raw:
 - llms-txt
 - agent-skills
 apis:
-- name: Adanos Market Sentiment API
-  description: RESTful JSON API grouping five sentiment services (Reddit Stocks, X.com Stocks, Stock News, Polymarket
-    Stocks, Reddit Crypto) with 41 base endpoints plus PRO raw-mention endpoints. Authenticated via X-API-Key header.
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-finance-sentiment-api
+  name: Adanos Market Sentiment API Finance Sentiment API
+  description: >-
+    Direct finance-tuned sentiment analysis for client-provided trading, market and investment text.
   humanURL: https://api.adanos.org/docs
   baseURL: https://api.adanos.org
   tags:
-  - Market
-  - Sentiment
-  - Stocks
-  - Crypto
-  - Finance
-  - Trading
-  - Social Data
-  - News
-  - Prediction Markets
-  - Reddit
-  - X / Twitter
-  - Polymarket
-  - AI Agents
-  - REST API
-  - OpenAPI
-  - llms-txt
-  - Agent Skills
-  tags_raw:
-  - market
-  - sentiment
-  - stocks
-  - crypto
-  - finance
-  - trading
-  - social-data
-  - news
-  - prediction-markets
-  - reddit
-  - x-twitter
-  - polymarket
-  - ai-agents
-  - rest-api
-  - openapi
-  - llms-txt
-  - agent-skills
+  - Finance Sentiment
   properties:
   - type: OpenAPI
-    url: https://api.adanos.org/openapi.json
+    url: openapi/adanos-market-sentiment-api-finance-sentiment-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-health-check-api
+  name: Adanos Market Sentiment API Health Check API
+  description: >-
+    Operational health and freshness checks. Useful for monitoring, not required for normal client integrations.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Health-Check
+  properties:
   - type: OpenAPI
-    url: https://api.adanos.org/openapi.sentiment.yaml
+    url: openapi/adanos-market-sentiment-api-health-check-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-news-stocks-api
+  name: Adanos Market Sentiment API News Stocks API
+  description: >-
+    Editorial/news sentiment with source breadth. Use `source` on supported endpoints to isolate a publisher
+    or canonical source id.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - News Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-news-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-polymarket-stocks-api
+  name: Adanos Market Sentiment API Polymarket Stocks API
+  description: >-
+    Prediction-market based stock sentiment and attention from Polymarket prices, trades, liquidity and
+    orderbook signals. Metrics are market-centric rather than mention-based.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Polymarket Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-polymarket-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-reddit-crypto-api
+  name: Adanos Market Sentiment API Reddit Crypto API
+  description: >-
+    Crypto sentiment on Reddit with the same discovery/search/compare pattern as the stock APIs.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Reddit Crypto
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-reddit-crypto-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-reddit-stocks-api
+  name: Adanos Market Sentiment API Reddit Stocks API
+  description: >-
+    Retail stock discussion data from Reddit. Start with `/trending`, then drill into `/stock/{ticker}`
+    or build watchlists with `/compare`.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Reddit Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-reddit-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-x-twitter-stocks-api
+  name: Adanos Market Sentiment API X/Twitter Stocks API
+  description: >-
+    Fast-moving stock attention from X/Twitter cashtags and tweet engagement, useful for momentum discovery
+    and validation.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - X/Twitter Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-x-twitter-stocks-api-openapi.yml
   - type: LLMsTxt
     url: https://api.adanos.org/llms.txt
   - type: Documentation
