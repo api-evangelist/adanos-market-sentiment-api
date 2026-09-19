@@ -18,7 +18,7 @@ created: '2026-07-17'
 modified: '2026-09-03'
 specificationVersion: '0.23'
 tags:
-- Market
+- Markets
 - Sentiment
 - Stocks
 - Crypto
@@ -78,6 +78,8 @@ apis:
   humanURL: https://api.adanos.org/docs
   baseURL: https://api.adanos.org
   tags:
+  - Health Check
+  tags_raw:
   - Health-Check
   properties:
   - type: OpenAPI
