@@ -1,0 +1,45 @@
+{
+  "provider": "adanos-market-sentiment-api",
+  "sources": [
+    "_original/adanos-market-sentiment-api-news-openapi.yaml",
+    "_original/adanos-market-sentiment-api-openapi.json",
+    "_original/adanos-market-sentiment-api-reddit-crypto-openapi.yaml",
+    "_original/adanos-market-sentiment-api-sentiment-openapi.yaml"
+  ],
+  "outputs": [
+    "adanos-market-sentiment-api-news-stocks-api-openapi.yml",
+    "adanos-market-sentiment-api-finance-sentiment-api-openapi.yml",
+    "adanos-market-sentiment-api-health-check-api-openapi.yml",
+    "adanos-market-sentiment-api-polymarket-stocks-api-openapi.yml",
+    "adanos-market-sentiment-api-reddit-crypto-api-openapi.yml",
+    "adanos-market-sentiment-api-reddit-stocks-api-openapi.yml",
+    "adanos-market-sentiment-api-x-twitter-stocks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "3 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (4 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "adanos-market-sentiment-api-news-openapi.yaml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "adanos-market-sentiment-api-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "adanos-market-sentiment-api-reddit-crypto-openapi.yaml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "adanos-market-sentiment-api-sentiment-openapi.yaml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "tag 'News Stocks' spans 2 source specs (adanos-market-sentiment-api-news-openapi.yaml, adanos-market-sentiment-api-openapi.json): per-path servers applied",
+    "tag 'Finance Sentiment' spans 2 source specs (adanos-market-sentiment-api-openapi.json, adanos-market-sentiment-api-sentiment-openapi.yaml): per-path servers applied",
+    "tag 'Reddit Crypto' spans 2 source specs (adanos-market-sentiment-api-openapi.json, adanos-market-sentiment-api-reddit-crypto-openapi.yaml): per-path servers applied",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/adanos-market-sentiment-api-x-openapi.yaml: archived document superseded by a larger archived document",
+    "_original/adanos-market-sentiment-api-reddit-openapi.yaml: archived document superseded by a larger archived document",
+    "_original/adanos-market-sentiment-api-polymarket-openapi.yaml: archived document superseded by a larger archived document",
+    "adanos-market-sentiment-api-finance-sentiment-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-health-check-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-news-stocks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-polymarket-stocks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-reddit-crypto-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-reddit-stocks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "adanos-market-sentiment-api-x-twitter-stocks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

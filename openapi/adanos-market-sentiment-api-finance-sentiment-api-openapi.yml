@@ -1,7 +1,7 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Adanos Finance Sentiment API
-  termsOfService: https://adanos.org/terms
+  title: Adanos Market Sentiment Finance Sentiment API
+  version: 1.50.0
   contact:
     name: API Support
     url: https://api.adanos.org/
@@ -9,19 +9,24 @@ info:
   license:
     name: MIT (OpenAPI document only)
     url: https://opensource.org/licenses/MIT
-  version: 1.50.0
+  termsOfService: https://adanos.org/terms
+  description: 'Operations tagged Finance Sentiment across 2 of this provider''s published API definitions: adanos-market-sentiment-api-openapi.json, adanos-market-sentiment-api-sentiment-openapi.yaml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.adanos.org
+  description: Production
+tags:
+- name: Finance Sentiment
+  description: Direct finance-tuned sentiment analysis for client-provided trading, market and investment text.
 paths:
-  /analyze:
+  /sentiment/v1/analyze:
     post:
       tags:
       - Finance Sentiment
       summary: Analyze finance sentiment
-      description: '**Professional account required.** Free and Hobby accounts cannot
-        use this endpoint.
+      description: '**Professional account required.** Free and Hobby accounts cannot use this endpoint.
 
 
-        Analyze a single financial or trading text using the Adanos finance-tuned
-        sentiment engine.'
+        Analyze a single financial or trading text using the Adanos finance-tuned sentiment engine.'
       operationId: analyzeSentimentText
       requestBody:
         content:
@@ -54,8 +59,7 @@ paths:
                   contextual_finance_matches: []
           headers:
             X-Request-ID:
-              description: Request correlation identifier returned by the API and
-                included in structured application logs.
+              description: Request correlation identifier returned by the API and included in structured application logs.
               schema:
                 type: string
               example: adnos.req-20260423.abc12345
@@ -137,31 +141,162 @@ paths:
               example:
                 detail:
                   error: Professional account required
-                  message: 'This endpoint requires a Professional account. Upgrade
-                    to Professional: https://adanos.org/pricing'
+                  message: 'This endpoint requires a Professional account. Upgrade to Professional: https://adanos.org/pricing'
+                  account_type: free
+      security:
+      - ApiKeyAuth: []
+    servers:
+    - url: https://api.adanos.org
+      description: Production
+  /analyze:
+    post:
+      tags:
+      - Finance Sentiment
+      summary: Analyze finance sentiment
+      description: '**Professional account required.** Free and Hobby accounts cannot use this endpoint.
+
+
+        Analyze a single financial or trading text using the Adanos finance-tuned sentiment engine.'
+      operationId: analyzeSentimentText
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SentimentAnalyzeRequest'
+            example:
+              text: TSLA looks like a short squeeze setup, loading calls
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentimentAnalyzeResponse'
+              example:
+                text: TSLA looks like a short squeeze setup, loading calls
+                sentiment_score: 0.78
+                sentiment_label: positive
+                components:
+                  engine_version: '5.4'
+                  vader_compound: 0.34
+                  roberta_score: 0.61
+                  emoji_score: 0.0
+                  phrase_adjustment: 0.21
+                  phrase_matches:
+                  - phrase: short squeeze
+                    score: 3.5
+                  contextual_finance_matches: []
+          headers:
+            X-Request-ID:
+              description: Request correlation identifier returned by the API and included in structured application logs.
+              schema:
+                type: string
+              example: adnos.req-20260423.abc12345
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing:
+                  summary: Missing API key
+                  value:
+                    detail: Missing API key. Include 'X-API-Key' header.
+                invalid:
+                  summary: Invalid API key
+                  value:
+                    detail: Invalid API key.
+                revoked:
+                  summary: Revoked API key
+                  value:
+                    detail: API key has been revoked.
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+              examples:
+                burst:
+                  summary: Fleet burst limit exceeded
+                  value:
+                    detail:
+                      error: Burst rate limit exceeded
+                      message: Too many requests. Limit is 100 requests per minute.
+                      limit: 100
+                      used: 100
+                      account_type: free
+                local:
+                  summary: Local backup limiter exceeded
+                  value:
+                    detail:
+                      error: Rate limit exceeded
+                      message: 'Rate limit exceeded: 100 per 1 minute'
+                      limit: 100
+                      account_type: free
+        '503':
+          description: Sentiment inference service unavailable
+          headers:
+            Retry-After:
+              description: Seconds clients should wait before retrying
+              schema:
+                type: integer
+                example: 5
+          content:
+            application/json:
+              example:
+                detail: Sentiment inference service unavailable.
+        '422':
+          description: Request body validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+              example:
+                detail:
+                - loc:
+                  - body
+                  - text
+                  msg: String should have at least 1 character
+                  type: string_too_short
+                  input: ''
+                  ctx:
+                    min_length: 1
+        '403':
+          description: Professional account required
+          content:
+            application/json:
+              example:
+                detail:
+                  error: Professional account required
+                  message: 'This endpoint requires a Professional account. Upgrade to Professional: https://adanos.org/pricing'
                   account_type: free
       security:
       - ApiKeyAuth: []
 components:
   schemas:
-    ErrorResponse:
+    SentimentPhraseMatch:
       properties:
-        detail:
+        phrase:
           type: string
-          title: Detail
-          description: Human-readable error message
+          title: Phrase
+          description: Matched finance phrase
           examples:
-          - Invalid API key.
+          - short squeeze
+        score:
+          type: number
+          title: Score
+          description: Internal phrase sentiment score
+          examples:
+          - 3.5
       type: object
       required:
-      - detail
-      title: ErrorResponse
-      description: Standard error response.
-      examples:
-      - detail: Missing API key. Include 'X-API-Key' header.
-      - detail: Invalid API key.
-      - detail: API key has been revoked.
-      - detail: 'Rate limit exceeded: 100 per 1 minute'
+      - phrase
+      - score
+      title: SentimentPhraseMatch
+      description: Whitelisted directional finance phrase metadata.
     HTTPValidationError:
       properties:
         detail:
@@ -182,68 +317,6 @@ components:
           - days
           msg: Input should be greater than or equal to 1
           type: greater_than_equal
-    RateLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/RateLimitErrorDetail'
-          description: Structured rate-limit details
-      type: object
-      required:
-      - detail
-      title: RateLimitError
-      description: Error response for rate-limit exceeded responses.
-    RateLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Limit
-          description: Applied request limit for the window
-        used:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Used
-          description: Requests used in the current window
-        remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Remaining
-          description: Requests remaining in the current window
-        account_type:
-          type: string
-          title: Account Type
-          description: Resolved account type or fallback tier
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-          description: ISO 8601 timestamp when the current window resets
-        contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact
-          description: Plan or support URL for resolving the limit
-      type: object
-      required:
-      - error
-      - message
-      - account_type
-      title: RateLimitErrorDetail
-      description: Structured rate-limit error detail.
     SentimentAnalyzeRequest:
       properties:
         text:
@@ -261,6 +334,65 @@ components:
       description: Direct text sentiment analysis request.
       examples:
       - text: TSLA looks like a short squeeze setup, loading calls
+    ErrorResponse:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          description: Human-readable error message
+          examples:
+          - Invalid API key.
+      type: object
+      required:
+      - detail
+      title: ErrorResponse
+      description: Standard error response.
+      examples:
+      - detail: Missing API key. Include 'X-API-Key' header.
+      - detail: Invalid API key.
+      - detail: API key has been revoked.
+      - detail: 'Rate limit exceeded: 100 per 1 minute'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Loc
+          description: Location of the invalid input
+        msg:
+          type: string
+          title: Msg
+          description: Validation failure message
+        type:
+          type: string
+          title: Type
+          description: Validation error type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      description: FastAPI/Pydantic validation error item.
+      examples:
+      - loc:
+        - query
+        - days
+        msg: Input should be greater than or equal to 1
+        type: greater_than_equal
+    RateLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/RateLimitErrorDetail'
+          description: Structured rate-limit details
+      type: object
+      required:
+      - detail
+      title: RateLimitError
+      description: Error response for rate-limit exceeded responses.
     SentimentAnalyzeResponse:
       properties:
         text:
@@ -373,57 +505,58 @@ components:
       - phrase_adjustment
       title: SentimentComponents
       description: Whitelisted sentiment engine components exposed publicly.
-    SentimentPhraseMatch:
+    RateLimitErrorDetail:
       properties:
-        phrase:
+        error:
           type: string
-          title: Phrase
-          description: Matched finance phrase
-          examples:
-          - short squeeze
-        score:
-          type: number
-          title: Score
-          description: Internal phrase sentiment score
-          examples:
-          - 3.5
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        limit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+          description: Applied request limit for the window
+        used:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Used
+          description: Requests used in the current window
+        remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Remaining
+          description: Requests remaining in the current window
+        account_type:
+          type: string
+          title: Account Type
+          description: Resolved account type or fallback tier
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+          description: ISO 8601 timestamp when the current window resets
+        contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact
+          description: Plan or support URL for resolving the limit
       type: object
       required:
-      - phrase
-      - score
-      title: SentimentPhraseMatch
-      description: Whitelisted directional finance phrase metadata.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Loc
-          description: Location of the invalid input
-        msg:
-          type: string
-          title: Msg
-          description: Validation failure message
-        type:
-          type: string
-          title: Type
-          description: Validation error type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-      description: FastAPI/Pydantic validation error item.
-      examples:
-      - loc:
-        - query
-        - days
-        msg: Input should be greater than or equal to 1
-        type: greater_than_equal
+      - error
+      - message
+      - account_type
+      title: RateLimitErrorDetail
+      description: Structured rate-limit error detail.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -436,7 +569,6 @@ components:
         Format: `sk_live_` followed by 32 hexadecimal characters. Example: `REDACTED_STRIPE_KEY`.'
       in: header
       name: X-API-Key
-tags:
-- name: Finance Sentiment
-  description: Direct finance-tuned sentiment analysis for client-provided trading,
-    market and investment text.
+x-refined-from:
+- adanos-market-sentiment-api-openapi.json
+- adanos-market-sentiment-api-sentiment-openapi.yaml

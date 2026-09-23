@@ -1,6 +1,8 @@
+# x-archived-from: adanos-market-sentiment-api-x-openapi.yaml
+# x-archived-on: 2026-09-16
 openapi: 3.1.0
 info:
-  title: Polymarket Stock Sentiment API
+  title: X/Twitter Stock Sentiment API
   termsOfService: https://adanos.org/terms
   contact:
     name: API Support
@@ -14,32 +16,28 @@ paths:
   /trending:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Trending stocks
-      description: 'Returns the stocks with the strongest Polymarket prediction-market
-        activity in the selected period, ranked by `buzz_score`.
+      description: 'Returns the stocks with the strongest X/Twitter discussion activity
+        in the selected period, ranked by `buzz_score`.
 
 
         **Includes:**
 
-        - `buzz_score`: normalized 0-100 activity score used for ranking; bullish
-        and bearish market activity can both rank highly
+        - `buzz_score`: normalized 0-100 activity score used for ranking
 
-        - `trend`: flow momentum over the current 3 UTC days vs previous 3 UTC days
-        using trades, volume, market breadth and liquidity; not price movement. For
-        `from`/`to`, anchors at `to` (or now when `to` is today)
+        - `trend`: activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today)
 
-        - `sentiment_score`, `bullish_pct`, `bearish_pct`: outcome-aware market sentiment
-        signals
+        - `sentiment_score`, `bullish_pct`, `bearish_pct`: directional sentiment signals
 
-        - `trade_count`, `market_count`, `unique_traders`, `total_liquidity`: activity,
-        breadth, observed participation and liquidity signals
+        - `mentions`, `unique_tweets`, `total_upvotes`: volume and engagement signals
 
         - `trend_history`: independent UTC-day buzz scores, oldest to newest; minimum
-        7 values. For a closed single-day window with an available final Daily score,
-        the final value equals `buzz_score`; live and multi-day values can differ.
-        Missing days are `0.0`'
-      operationId: getPolymarketTrendingStocks
+        7 values; the live final value describes today so far and can differ from
+        the selected-period `buzz_score`; missing days are `0.0`'
+      operationId: getXTrendingStocks
       security:
       - ApiKeyAuth: []
       parameters:
@@ -96,12 +94,12 @@ paths:
         schema:
           type: integer
           minimum: 0
-          description: Number of items to skip
+          description: Number of items to skip for pagination
           examples:
           - 0
           default: 0
           title: Offset
-        description: Number of items to skip
+        description: Number of items to skip for pagination
       - name: type
         in: query
         required: false
@@ -124,29 +122,27 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PolymarketTrendingStock'
-                title: Response Getpolymarkettrendingstocks
+                  $ref: '#/components/schemas/XTrendingStock'
+                title: Response Getxtrendingstocks
               example:
               - ticker: TSLA
                 company_name: Tesla, Inc.
-                buzz_score: 71.4
+                buzz_score: 72.5
                 trend: rising
-                trade_count: 312
-                market_count: 27
-                current_market_count: 12
-                unique_traders: 119
-                sentiment_score: 0.34
-                bullish_pct: 67
-                bearish_pct: 33
-                total_liquidity: 94750.0
+                mentions: 156
+                sentiment_score: 0.35
+                bullish_pct: 45
+                bearish_pct: 12
+                total_upvotes: 2847
+                unique_tweets: 42
                 trend_history:
-                - 48.2
-                - 51.0
-                - 55.3
-                - 61.1
-                - 65.8
-                - 69.2
-                - 71.4
+                - 45.2
+                - 48.1
+                - 52.3
+                - 55.0
+                - 58.2
+                - 61.5
+                - 64.8
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -305,7 +301,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarkettrendingstocks
+                title: Response 422 Getxtrendingstocks
         '503':
           description: Database temporarily unavailable
           content:
@@ -325,44 +321,46 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /trending/sectors:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Trending sectors
-      description: 'Returns the sectors with the strongest aggregated Polymarket prediction-market
-        activity in the selected period, ranked by `buzz_score`.
+      description: 'Returns the sectors with the strongest aggregated X/Twitter stock
+        discussion in the selected period, ranked by `buzz_score`.
 
 
         **Includes:**
 
         - `buzz_score`: normalized 0-100 activity score used for ranking
 
-        - `trend`: flow momentum over the current 3 UTC days vs previous 3 UTC days
-        using trades, volume, market breadth and liquidity; not price movement. For
-        `from`/`to`, anchors at `to` (or now when `to` is today)
+        - `trend`: activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today)
 
-        - `trade_count`, `market_count`, `unique_traders`, `total_liquidity`: activity,
-        breadth, observed participation and liquidity signals
+        - `mentions`, `unique_tickers`, `total_upvotes`: volume and engagement signals
 
-        - `sentiment_score`, `bullish_pct`, `bearish_pct`: outcome-aware market sentiment
-        signals
+        - `sentiment_score`, `bullish_pct`, `bearish_pct`: directional sentiment signals
 
-        - `top_tickers`: up to 5 tickers driving the sector result'
-      operationId: getPolymarketTrendingSectors
+        - `top_tickers`: up to 5 tickers driving the sector result
+
+        - `trend_history`: independent daily sector buzz scores, oldest to newest;
+        length is max(requested days, 7); the live final value describes today so
+        far and can differ from period `buzz_score`'
+      operationId: getXTrendingSectors
       security:
       - ApiKeyAuth: []
       parameters:
@@ -407,24 +405,24 @@ paths:
           type: integer
           maximum: 100
           minimum: 1
-          description: Maximum sectors to return
+          description: Maximum number of results
           examples:
-          - 20
+          - 10
           default: 20
           title: Limit
-        description: Maximum sectors to return
+        description: Maximum number of results
       - name: offset
         in: query
         required: false
         schema:
           type: integer
           minimum: 0
-          description: Number of items to skip
+          description: Number of items to skip for pagination
           examples:
           - 0
           default: 0
           title: Offset
-        description: Number of items to skip
+        description: Number of items to skip for pagination
       responses:
         '200':
           description: Successful Response
@@ -433,34 +431,32 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PolymarketTrendingSector'
-                title: Response Getpolymarkettrendingsectors
+                  $ref: '#/components/schemas/XTrendingSector'
+                title: Response Getxtrendingsectors
               example:
-              - buzz_score: 72.8
+              - buzz_score: 78.4
                 trend: rising
-                trade_count: 312
-                market_count: 147
-                current_market_count: 71
-                unique_tickers: 6
-                unique_traders: 211
-                sentiment_score: 0.22
-                bullish_pct: 61
-                bearish_pct: 39
-                total_liquidity: 325000.0
+                mentions: 4523
+                unique_tickers: 34
+                unique_authors: 156
+                sentiment_score: 0.28
+                bullish_pct: 54
+                bearish_pct: 22
+                total_upvotes: 128450
                 trend_history:
-                - 48.2
-                - 51.0
-                - 55.3
-                - 61.1
-                - 65.8
-                - 69.2
-                - 72.8
+                - 45.2
+                - 48.1
+                - 52.3
+                - 55.0
+                - 58.2
+                - 61.5
+                - 78.4
                 top_tickers:
+                - NVDA
                 - AAPL
                 - MSFT
-                - NVDA
-                - TSLA
                 - AMD
+                - GOOGL
                 sector: Technology
           headers:
             X-Request-ID:
@@ -620,7 +616,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarkettrendingsectors
+                title: Response 422 Getxtrendingsectors
         '503':
           description: Database temporarily unavailable
           content:
@@ -640,44 +636,46 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /trending/countries:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Trending countries
-      description: 'Returns the countries with the strongest aggregated Polymarket
-        prediction-market activity in the selected period, ranked by `buzz_score`.
+      description: 'Returns the countries with the strongest aggregated X/Twitter
+        stock discussion in the selected period, ranked by `buzz_score`.
 
 
         **Includes:**
 
         - `buzz_score`: normalized 0-100 activity score used for ranking
 
-        - `trend`: flow momentum over the current 3 UTC days vs previous 3 UTC days
-        using trades, volume, market breadth and liquidity; not price movement. For
-        `from`/`to`, anchors at `to` (or now when `to` is today)
+        - `trend`: activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today)
 
-        - `trade_count`, `market_count`, `unique_traders`, `total_liquidity`: activity,
-        breadth, observed participation and liquidity signals
+        - `mentions`, `unique_tickers`, `total_upvotes`: volume and engagement signals
 
-        - `sentiment_score`, `bullish_pct`, `bearish_pct`: outcome-aware market sentiment
-        signals
+        - `sentiment_score`, `bullish_pct`, `bearish_pct`: directional sentiment signals
 
-        - `top_tickers`: up to 5 tickers driving the country result'
-      operationId: getPolymarketTrendingCountries
+        - `top_tickers`: up to 5 tickers driving the country result
+
+        - `trend_history`: independent daily country buzz scores, oldest to newest;
+        length is max(requested days, 7); the live final value describes today so
+        far and can differ from period `buzz_score`'
+      operationId: getXTrendingCountries
       security:
       - ApiKeyAuth: []
       parameters:
@@ -722,24 +720,24 @@ paths:
           type: integer
           maximum: 100
           minimum: 1
-          description: Maximum countries to return
+          description: Maximum number of results
           examples:
-          - 20
+          - 10
           default: 20
           title: Limit
-        description: Maximum countries to return
+        description: Maximum number of results
       - name: offset
         in: query
         required: false
         schema:
           type: integer
           minimum: 0
-          description: Number of items to skip
+          description: Number of items to skip for pagination
           examples:
           - 0
           default: 0
           title: Offset
-        description: Number of items to skip
+        description: Number of items to skip for pagination
       responses:
         '200':
           description: Successful Response
@@ -748,20 +746,18 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PolymarketTrendingCountry'
-                title: Response Getpolymarkettrendingcountries
+                  $ref: '#/components/schemas/XTrendingCountry'
+                title: Response Getxtrendingcountries
               example:
-              - buzz_score: 70.1
+              - buzz_score: 82.3
                 trend: stable
-                trade_count: 712
-                market_count: 265
-                current_market_count: 129
-                unique_tickers: 10
-                unique_traders: 402
-                sentiment_score: 0.18
-                bullish_pct: 58
-                bearish_pct: 42
-                total_liquidity: 472000.0
+                mentions: 8934
+                unique_tickers: 156
+                unique_authors: 423
+                sentiment_score: 0.21
+                bullish_pct: 48
+                bearish_pct: 26
+                total_upvotes: 245000
                 trend_history:
                 - 52.1
                 - 54.0
@@ -769,13 +765,13 @@ paths:
                 - 59.2
                 - 61.0
                 - 60.1
-                - 70.1
+                - 82.3
                 top_tickers:
-                - AAPL
-                - TSLA
                 - NVDA
-                - AMZN
-                - GOOGL
+                - TSLA
+                - AAPL
+                - AMD
+                - PLTR
                 country: United States
           headers:
             X-Request-ID:
@@ -935,7 +931,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarkettrendingcountries
+                title: Response 422 Getxtrendingcountries
         '503':
           description: Database temporarily unavailable
           content:
@@ -955,90 +951,50 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /stock/{ticker}:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Stock Sentiment
-      description: 'Returns Polymarket-based sentiment and activity for one stock
-        ticker.
+      description: 'Returns detailed X/Twitter data for a specific ticker.
 
 
-        The response combines:
+        **Includes:**
 
-        - Period metrics for the date window defined by `days` or `from`/`to`.
+        - `buzz_score`: normalized X/Twitter activity score for the selected period
 
-        - Representative market-level evidence in `top_mentions`.
+        - `trend`: activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today)
 
-        - A compact current market read in `pulse`.
+        - `sentiment_score`, `bullish_pct`, `bearish_pct`: directional sentiment signals
 
+        - `mentions`, `unique_tweets`, `total_upvotes`: volume and engagement signals
 
-        **Fields:**
+        - `daily_trend`: daily X/Twitter activity and sentiment values
 
-        - `sentiment_score`, `bullish_pct`, `bearish_pct`: outcome-aware sentiment
-        derived from Polymarket market prices and outcomes
-
-        - `buzz_score`: normalized activity score for the selected period; both bullish
-        and bearish activity can increase buzz
-
-        - `trend`: recent flow momentum, comparing the current 3 UTC days with the
-        previous 3 UTC days using trades, volume, market breadth and liquidity; this
-        is not stock price movement
-
-        - `trade_count`, `market_count`, `unique_traders`, `total_liquidity`: period
-        activity, breadth, observed participation and liquidity
-
-        - `daily_trend`: daily activity and sentiment values for the selected window
-
-        - `top_mentions`: representative Polymarket markets behind the ticker-level
-        signals, including market-level `sentiment_score` and `buzz_score`
-
-        - `pulse`: compact current interpretation from the latest stored open-market
-        snapshots
+        - `top_tweets`: representative high-engagement tweets from the selected period
 
 
-        **Notes:**
+        Returns `200` with `found: false` when the ticker is supported but this service
 
-        - `pulse` is current-state oriented and does not duplicate aggregate response
-        fields.
+        has no qualifying data in the requested window. Returns `404` only when the
 
-        - Use `top_mentions` for concrete market examples; `pulse` intentionally stays
-        compact.
-
-        - `top_mentions` includes only markets observed active/open in the selected
-        period; ranking prioritizes outcome-aware directional evidence, keeps opposing
-        signals visible when present, then uses trade count, market status, volume
-        and liquidity as tie-breakers.
-
-        - Prices, volume and liquidity in `top_mentions` come from the selected in-period
-        snapshot, not necessarily the latest live market state.
-
-        - `active` indicates whether the market is currently open, so older in-period
-        evidence can now be inactive, resolved or expired.
-
-        - `market_status` can be `tradable`, `open`, `resolved`, `expired` or `inactive`.
-
-        - For windows longer than snapshot retention, aggregate metrics can still
-        use `polymarket_daily_stats`; `top_mentions` is limited to retained or stored
-        representative market snapshots.
-
-        - Returns `200` with `found: false` when the ticker is supported but this
-        service has no qualifying data in the requested window. Returns `404` only
-        when the ticker is unsupported.'
-      operationId: getPolymarketStock
+        ticker is unsupported.'
+      operationId: getXStockSentiment
       security:
       - ApiKeyAuth: []
       parameters:
@@ -1050,8 +1006,7 @@ paths:
           pattern: ^\$?(?:[A-Za-z0-9]{1,8}[.-][A-Za-z]|[A-Za-z0-9]{0}[A-Za-z][A-Za-z0-9]{0,9}|[A-Za-z0-9]{1}[A-Za-z][A-Za-z0-9]{0,8}|[A-Za-z0-9]{2}[A-Za-z][A-Za-z0-9]{0,7}|[A-Za-z0-9]{3}[A-Za-z][A-Za-z0-9]{0,6}|[A-Za-z0-9]{4}[A-Za-z][A-Za-z0-9]{0,5}|[A-Za-z0-9]{5}[A-Za-z][A-Za-z0-9]{0,4}|[A-Za-z0-9]{6}[A-Za-z][A-Za-z0-9]{0,3}|[A-Za-z0-9]{7}[A-Za-z][A-Za-z0-9]{0,2}|[A-Za-z0-9]{8}[A-Za-z][A-Za-z0-9]{0,1}|[A-Za-z0-9]{9}[A-Za-z][A-Za-z0-9]{0,0}|[0-9]{3,10})$
           description: Stock ticker symbol (e.g., TSLA, $AAPL, BRK.A)
           examples:
-          - AAPL
-          - BRK.A
+          - TSLA
           title: Ticker
         description: Stock ticker symbol (e.g., TSLA, $AAPL, BRK.A)
       - name: from
@@ -1094,60 +1049,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PolymarketStockDetailResponse'
+                $ref: '#/components/schemas/XStockDetailResponse'
               example:
-                ticker: AAPL
-                company_name: Apple Inc.
+                ticker: TSLA
+                company_name: Tesla, Inc.
                 found: true
-                buzz_score: 68.9
-                trend: stable
+                buzz_score: 72.5
+                mentions: 156
+                sentiment_score: 0.35
+                total_upvotes: 2847
+                unique_tweets: 42
+                trend: rising
+                bullish_pct: 45
+                bearish_pct: 12
                 period_days: 7
-                trade_count: 312
-                market_count: 27
-                current_market_count: 12
-                unique_traders: 119
-                sentiment_score: 0.28
-                bullish_pct: 64
-                bearish_pct: 36
-                total_liquidity: 128000.0
                 daily_trend:
-                - date: '2026-02-13'
-                  trade_count: 5
-                  sentiment_score: 0.25
-                  buzz_score: 64.1
-                  bullish_pct: 64
-                  bearish_pct: 21
-                top_mentions:
-                - condition_id: 0xabc...
-                  question: Will AAPL close above $220 this week?
-                  market_type: close_above
-                  trade_count: 42
-                  sentiment_score: 0.23
-                  buzz_score: 77.2
-                  yes_price: 0.62
-                  no_price: 0.38
-                  liquidity: 7905.52
-                  volume_24h: 2408.43
-                  end_date: '2026-02-28'
-                  active: true
-                  market_status: tradable
-                pulse:
-                  mood: mixed
-                  confidence: 60.0
-                  thin_data: false
-                  why:
-                  - opposing_market_signals
-                  - upside_targets_rejected
-                  - floor_support
-                  warnings:
-                  - high_average_spread
-                  - low_trade_breadth
-                  evidence:
-                    directional_coverage: 1.0
-                    traded_market_pct: 0.231
-                    zero_trade_market_pct: 0.769
-                    avg_spread: 0.099
-                    snapshot_at: '2026-06-24T06:25:53Z'
+                - date: '2025-12-28'
+                  mentions: 42
+                  sentiment_score: 0.15
+                  buzz_score: 52.3
+                  bullish_pct: 60
+                  bearish_pct: 25
+                - date: '2025-12-27'
+                  mentions: 38
+                  sentiment_score: 0.22
+                  buzz_score: 48.1
+                  bullish_pct: 55
+                  bearish_pct: 18
+                top_tweets:
+                - text_snippet: $TSLA breaking out! 🚀
+                  sentiment_score: 0.85
+                  sentiment_label: positive
+                  likes: 1247
+                  retweets: 89
+                  views: 52340
+                  author: stockguru
+                  created_at: '2025-12-28T14:32:00Z'
+                top_authors:
+                - author: stockguru
+                  mentions: 24
+                  sentiment_score: 0.41
+                  buzz_score: 61.8
+                  count: 24
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -1306,7 +1249,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarketstock
+                title: Response 422 Getxstocksentiment
         '503':
           description: Database temporarily unavailable
           content:
@@ -1337,51 +1280,51 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/stock/AAPL?from=2026-05-01&to=2026-05-07\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/stock/TSLA?from=2026-05-01&to=2026-05-07\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/stock/AAPL?from=2026-05-01&to=2026-05-07\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/stock/TSLA?from=2026-05-01&to=2026-05-07\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/stock/AAPL?from=2026-05-01&to=2026-05-07\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/stock/TSLA?from=2026-05-01&to=2026-05-07\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /market-sentiment:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Market Sentiment
-      description: 'Returns the service-level Polymarket market sentiment snapshot
-        across all tracked stocks when you want a single Polymarket-wide market state
-        instead of per-ticker rankings.
+      description: 'Returns the service-level X/Twitter market sentiment snapshot
+        across all tracked stocks when you want a single X-wide market state instead
+        of per-ticker rankings.
 
         It includes service-wide buzz, sentiment split, activity trend, breadth metrics
         and the top drivers by current `buzz_score`.
 
 
-        `buzz_score` here means relative Polymarket market heat, not pure bullishness.
+        `buzz_score` here means relative X/Twitter market heat, not pure bullishness.
 
-        It measures how hot overall Polymarket stock-market activity is versus Polymarket''s
-        own trailing 90-day baseline:
+        It measures how hot overall X stock discussion is versus X''s own trailing
+        90-day baseline:
 
-        - around `50` = normal market activity
+        - around `50` = normal X market activity
 
         - higher = more active than usual
 
         - lower = quieter than usual
 
 
-        `trend` is flow momentum over the current 3 UTC days vs previous 3 UTC days
-        using trades, volume, market breadth and liquidity; not price movement. For
-        `from`/`to`, anchors at `to` (or now when `to` is today).
+        `trend` is activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
 
 
         Use `sentiment_score`, `bullish_pct` and `bearish_pct` for direction.'
-      operationId: getPolymarketMarketSentiment
+      operationId: getXMarketSentiment
       security:
       - ApiKeyAuth: []
       parameters:
@@ -1425,39 +1368,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PolymarketMarketSentimentResponse'
+                $ref: '#/components/schemas/XMarketSentimentResponse'
               example:
-                buzz_score: 58.4
-                trend: stable
-                trade_count: 512
-                market_count: 93
-                current_market_count: 64
-                unique_traders: 281
-                total_liquidity: 245000.0
-                active_tickers: 31
-                sentiment_score: 0.11
-                positive_count: 41
-                negative_count: 29
-                neutral_count: 23
-                bullish_pct: 44
-                bearish_pct: 31
+                buzz_score: 56.2
+                trend: rising
+                mentions: 2847
+                unique_tweets: 913
+                unique_authors: 604
+                total_upvotes: 28471
+                active_tickers: 442
+                sentiment_score: 0.081
+                positive_count: 1198
+                negative_count: 741
+                neutral_count: 908
+                bullish_pct: 42
+                bearish_pct: 26
                 trend_history:
-                - 52.1
-                - 54.0
-                - 56.8
-                - 59.2
-                - 61.0
-                - 60.1
-                - 58.4
+                - 48.9
+                - 50.7
+                - 52.6
+                - 54.4
+                - 57.1
+                - 58.3
+                - 56.2
                 drivers:
-                - ticker: AAPL
-                  trade_count: 52
-                  buzz_score: 68.9
-                  sentiment_score: 0.28
                 - ticker: TSLA
-                  trade_count: 47
-                  buzz_score: 66.3
-                  sentiment_score: 0.19
+                  mentions: 156
+                  buzz_score: 72.5
+                  sentiment_score: 0.35
+                - ticker: NVDA
+                  mentions: 141
+                  buzz_score: 70.8
+                  sentiment_score: 0.27
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -1616,7 +1558,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarketmarketsentiment
+                title: Response 422 Getxmarketsentiment
         '503':
           description: Database temporarily unavailable
           content:
@@ -1636,39 +1578,283 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\"\
+          ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
+          \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+  /stock/{ticker}/explain:
+    get:
+      tags:
+      - X/Twitter Stocks
+      summary: AI explanation
+      description: 'Returns an AI-generated explanation for why a stock is trending
+        on X/Twitter, anchored to tweet evidence with other platforms used only as
+        cross-check context.
+
+
+        **Includes:**
+
+        - `explanation`: 1-2 sentence summary of why the stock is trending
+
+        - `cached`: whether this was served from cache
+
+        - `generated_at`: when the explanation was generated
+
+        - `model`: which LLM model generated the explanation'
+      operationId: getXStockExplanation
+      security:
+      - ApiKeyAuth: []
+      parameters:
+      - name: ticker
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^\$?(?:[A-Za-z0-9]{1,8}[.-][A-Za-z]|[A-Za-z0-9]{0}[A-Za-z][A-Za-z0-9]{0,9}|[A-Za-z0-9]{1}[A-Za-z][A-Za-z0-9]{0,8}|[A-Za-z0-9]{2}[A-Za-z][A-Za-z0-9]{0,7}|[A-Za-z0-9]{3}[A-Za-z][A-Za-z0-9]{0,6}|[A-Za-z0-9]{4}[A-Za-z][A-Za-z0-9]{0,5}|[A-Za-z0-9]{5}[A-Za-z][A-Za-z0-9]{0,4}|[A-Za-z0-9]{6}[A-Za-z][A-Za-z0-9]{0,3}|[A-Za-z0-9]{7}[A-Za-z][A-Za-z0-9]{0,2}|[A-Za-z0-9]{8}[A-Za-z][A-Za-z0-9]{0,1}|[A-Za-z0-9]{9}[A-Za-z][A-Za-z0-9]{0,0}|[0-9]{3,10})$
+          description: Stock ticker symbol (e.g., TSLA, aapl, BRK.A, $GME)
+          title: Ticker
+        description: Stock ticker symbol (e.g., TSLA, aapl, BRK.A, $GME)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockExplanationResponse'
+              example:
+                ticker: GME
+                company_name: Gamestop Corporation - Class A
+                explanation: GME is trending due to viral GameStop social media activity
+                  and large position posts on r/Superstonk.
+                cached: true
+                generated_at: '2026-01-13T14:30:00+00:00'
+                model: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
+          headers:
+            X-Request-ID:
+              description: Request correlation identifier returned by the API and
+                included in structured application logs.
+              schema:
+                type: string
+              example: adnos.req-20260423.abc12345
+            Cache-Control:
+              description: HTTP cache policy returned by the API.
+              schema:
+                type: string
+              example: private, max-age=60
+            Vary:
+              description: Headers that private client caches must include in their
+                cache key.
+              schema:
+                type: string
+              example: X-API-Key, Authorization, Accept-Encoding
+            X-RateLimit-Limit-Monthly:
+              description: Monthly request quota for the authenticated account.
+              schema:
+                type: string
+              example: '250'
+            X-RateLimit-Remaining-Monthly:
+              description: Remaining monthly requests for the authenticated account.
+              schema:
+                type: string
+              example: '247'
+            X-RateLimit-Used-Monthly:
+              description: Requests already consumed in the account's current monthly
+                quota window.
+              schema:
+                type: string
+              example: '3'
+            X-RateLimit-Reset-Monthly:
+              description: ISO 8601 timestamp when the current monthly quota window
+                resets.
+              schema:
+                type: string
+                format: date-time
+              example: '2026-07-29T14:03:00Z'
+            X-RateLimit-Limit-Burst:
+              description: Per-minute burst request quota for the authenticated account.
+              schema:
+                type: string
+              example: '100'
+            X-RateLimit-Remaining-Burst:
+              description: Remaining requests in the current per-minute burst window.
+              schema:
+                type: string
+              example: '99'
+            X-RateLimit-Reset-Burst:
+              description: ISO 8601 timestamp when the current burst rate-limit window
+                resets.
+              schema:
+                type: string
+                format: date-time
+              example: '2026-04-28T14:30:00Z'
+            X-Account-Type:
+              description: Account tier resolved from the API key.
+              schema:
+                type: string
+                enum:
+                - free
+                - hobby
+                - professional
+                - premium
+              example: free
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              examples:
+                missing:
+                  summary: Missing API key
+                  value:
+                    detail: Missing API key. Include 'X-API-Key' header.
+                invalid:
+                  summary: Invalid API key
+                  value:
+                    detail: Invalid API key.
+                revoked:
+                  summary: Revoked API key
+                  value:
+                    detail: API key has been revoked.
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Historical data limit exceeded
+          content:
+            application/json:
+              example:
+                detail:
+                  error: Historical data limit exceeded
+                  message: 'Your free account is limited to 30 days of historical
+                    lookback. Upgrade to Hobby for up to 90 days or Professional for
+                    up to 365 days: https://adanos.org/pricing'
+                  requested_days: 60
+                  enforced_quantity: lookback_days
+                  max_days: 30
+                  account_type: free
+              schema:
+                $ref: '#/components/schemas/HistoricalLimitError'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              examples:
+                burst:
+                  summary: Fleet burst limit exceeded
+                  value:
+                    detail:
+                      error: Burst rate limit exceeded
+                      message: Too many requests. Limit is 100 requests per minute.
+                      limit: 100
+                      used: 100
+                      account_type: free
+                local:
+                  summary: Local backup limiter exceeded
+                  value:
+                    detail:
+                      error: Rate limit exceeded
+                      message: 'Rate limit exceeded: 100 per 1 minute'
+                      limit: 100
+                      account_type: free
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+        '422':
+          description: Invalid period or query parameters
+          content:
+            application/json:
+              examples:
+                platform_availability:
+                  summary: Period starts before platform data availability
+                  value:
+                    detail:
+                      error: Invalid period
+                      message: Requested period starts before this platform's public
+                        data availability.
+                      period_from: '2025-03-17'
+                      available_since: '2026-03-07'
+                      platform: news
+                validation:
+                  summary: Query parameter validation failed
+                  value:
+                    detail:
+                    - type: greater_than_equal
+                      loc:
+                      - query
+                      - days
+                      msg: Input should be greater than or equal to 1
+                      input: '0'
+                      ctx:
+                        ge: 1
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/InvalidPeriodError'
+                - $ref: '#/components/schemas/HTTPValidationError'
+                title: Response 422 Getxstockexplanation
+        '503':
+          description: Explanation or database service unavailable
+          content:
+            application/json:
+              example:
+                detail: Explanation service temporarily unavailable. Try again later.
+        '504':
+          description: Analytics request deadline exceeded
+          content:
+            application/json:
+              example:
+                detail: Request deadline exceeded
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Resource not found or no data available for the requested asset/window
+          content:
+            application/json:
+              example:
+                detail: No mentions found for $XYZ in the last 7 days.
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-codeSamples:
+      - lang: curl
+        label: cURL
+        source: "curl \"https://api.adanos.org/x/stocks/v1/stock/TSLA/explain\" \\\
+          \n  -H \"X-API-Key: sk_live_your_key_here\""
+      - lang: javascript
+        label: JavaScript
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/stock/TSLA/explain\"\
+          , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
+          });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
+          \ data = await response.json();\nconsole.log(data);"
+      - lang: python
+        label: Python
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/stock/TSLA/explain\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /compare:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Compare stocks
-      description: 'Compare up to 10 stock or ETF tickers side by side using Polymarket
-        market activity.
+      description: 'Compare up to 10 stocks side by side using X/Twitter metrics over
+        the same UTC calendar-day period.
 
 
         Use it when you already know the tickers and want a compact ranked table instead
         of full detail reports.
 
         Results are sorted by `buzz_score` descending and include `trend`, `trend_history`,
-        `trade_count`, `market_count`, `current_market_count`, `unique_traders`, `sentiment_score`,
-        `bullish_pct`, `bearish_pct` and `total_liquidity`.
+        `mentions`, `unique_tweets`, `sentiment_score`, `bullish_pct`, `bearish_pct`
+        and `total_upvotes`.
 
-        `trend` is flow momentum over the current 3 UTC days vs previous 3 UTC days
-        using trades, volume, market breadth and liquidity; not price movement. For
-        `from`/`to`, anchors at `to` (or now when `to` is today).'
-      operationId: comparePolymarketStocks
+        `trend` is activity momentum over the current 3 UTC days vs previous 3 UTC
+        days using mentions, likes and author breadth; not price movement or Grok
+        rank movement. For `from`/`to`, anchors at `to` (or now when `to` is today).'
+      operationId: compareXStocks
       security:
       - ApiKeyAuth: []
       parameters:
@@ -1711,41 +1897,39 @@ paths:
         required: true
         schema:
           type: string
-          description: Comma-separated ticker list (max 10)
+          description: Comma-separated list of ticker symbols (e.g., TSLA,NVDA,AMD)
           examples:
           - TSLA,NVDA,AMD
           title: Tickers
-        description: Comma-separated ticker list (max 10)
+        description: Comma-separated list of ticker symbols (e.g., TSLA,NVDA,AMD)
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PolymarketCompareResponse'
+                $ref: '#/components/schemas/XCompareResponse'
               example:
                 period_days: 7
                 stocks:
-                - ticker: AAPL
-                  company_name: Apple Inc.
-                  buzz_score: 68.9
-                  trend: stable
-                  trade_count: 312
-                  market_count: 27
-                  current_market_count: 12
-                  unique_traders: 119
-                  sentiment_score: 0.28
-                  bullish_pct: 64
-                  bearish_pct: 36
-                  total_liquidity: 128000.0
+                - ticker: TSLA
+                  company_name: Tesla, Inc.
+                  buzz_score: 72.5
+                  trend: rising
+                  mentions: 156
+                  unique_tweets: 42
+                  sentiment_score: 0.35
+                  bullish_pct: 45
+                  bearish_pct: 12
+                  total_upvotes: 2847
                   trend_history:
-                  - 48.2
-                  - 51.0
-                  - 55.3
-                  - 61.1
-                  - 65.8
-                  - 69.2
-                  - 68.9
+                  - 45.2
+                  - 48.1
+                  - 52.3
+                  - 55.0
+                  - 58.2
+                  - 61.5
+                  - 72.5
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -1904,7 +2088,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Comparepolymarketstocks
+                title: Response 422 Comparexstocks
         '503':
           description: Database temporarily unavailable
           content:
@@ -1953,29 +2137,29 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /search:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Search stocks
-      description: Search supported stocks and ETFs, then enrich the matches with
-        Polymarket activity. Results prioritize exact ticker matches first, then prefixes,
-        then name/alias matches and include a compact `summary` block for the last
-        7 UTC calendar days.
-      operationId: searchPolymarketStocks
+      description: Search stocks by ticker, company name or alias in the X/Twitter
+        universe. Results prioritize exact ticker matches first, then prefixes, then
+        name/alias matches and include a compact `summary` block for the last 7 UTC
+        calendar days.
+      operationId: searchXStocks
       security:
       - ApiKeyAuth: []
       parameters:
@@ -1985,7 +2169,6 @@ paths:
         schema:
           type: string
           minLength: 2
-          maxLength: 50
           description: Search query (minimum 2 non-$ characters after trimming)
           examples:
           - tesla
@@ -2010,7 +2193,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PolymarketSearchResponse'
+                $ref: '#/components/schemas/XSearchResponse'
               example:
                 query: tesla
                 count: 1
@@ -2026,16 +2209,10 @@ paths:
                   - Tesla
                   - Elon
                   summary:
-                    trade_count: 14
-                    buzz_score: 71.4
+                    mentions: 156
+                    buzz_score: 72.5
                     trend: rising
-                    sentiment_score: 0.34
-                    bearish_pct: 33
-                    bullish_pct: 67
-                    current_market_count: 12
-                    market_count: 27
-                    total_liquidity: 94750.0
-                    unique_traders: 119
+                    sentiment_score: 0.35
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -2198,30 +2375,30 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidSearchParametersError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Searchpolymarketstocks
+                title: Response 422 Searchxstocks
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/search?q=tesla&limit=5\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/search?q=tesla&limit=5\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/search?q=tesla&limit=5\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/search?q=tesla&limit=5\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/search?q=tesla&limit=5\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/search?q=tesla&limit=5\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
   /stock/{ticker}/mentions:
     get:
       tags:
-      - Polymarket Stocks
+      - X/Twitter Stocks
       summary: Raw Mentions
-      description: 'Returns raw Polymarket market snapshot rows for a specific ticker
-        within the live raw-data retention window.
+      description: 'Returns raw tweet rows for a specific ticker within the live raw-data
+        retention window.
 
         **Professional account required.** Free and Hobby accounts cannot use this
         endpoint.
@@ -2229,12 +2406,11 @@ paths:
 
         **Use this endpoint when you need:**
 
-        - original market questions, prices, liquidity, volume, trade counters and
-        timestamps
+        - tweet-level snippets
 
-        - outcome-aware market price sentiment for individual snapshot rows
+        - original timestamps
 
-        - repeated snapshots for the same market over time
+        - engagement counters on the raw rows
 
 
         **Notes:**
@@ -2244,18 +2420,8 @@ paths:
         - Results are ordered newest first and support deterministic `offset` + `limit`
         pagination
 
-        - empty result sets return `200` with `results=[]`
-
-        - The same `condition_id` can appear multiple times across different `fetched_at`
-        snapshots
-
-        - `active` indicates whether the market is currently open, using the latest
-        stored state for that `condition_id`; `market_status` compactly distinguishes
-        `tradable`, `open`, `resolved`, `expired` and `inactive`
-
-        - `buy_trades` and `sell_trades` are activity counters, not bullish/bearish
-        sentiment'
-      operationId: getPolymarketStockRawMentions
+        - empty result sets return `200` with `results=[]`'
+      operationId: getXStockRawMentions
       security:
       - ApiKeyAuth: []
       parameters:
@@ -2296,7 +2462,7 @@ paths:
         required: false
         schema:
           type: integer
-          maximum: 90
+          maximum: 365
           minimum: 1
           description: Deprecated v1 compatibility shorthand. Prefer `from` and `to`
             for reproducible UTC date windows.
@@ -2312,12 +2478,12 @@ paths:
           type: integer
           maximum: 100
           minimum: 1
-          description: Maximum number of raw Polymarket snapshot rows to return
+          description: Maximum number of raw tweet rows to return
           examples:
           - 50
           default: 50
           title: Limit
-        description: Maximum number of raw Polymarket snapshot rows to return
+        description: Maximum number of raw tweet rows to return
       - name: offset
         in: query
         required: false
@@ -2336,34 +2502,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PolymarketRawMentionsResponse'
+                $ref: '#/components/schemas/XRawMentionsResponse'
               example:
                 ticker: NVDA
                 period_days: 7
                 count: 1
                 results:
-                - condition_id: 0xabc...
-                  event_id: '12345'
-                  market_slug: nvda-up-or-down-on-april-20-2026
-                  question: NVDA up or down on April 20?
-                  market_type: up_down
-                  strike_price: 250.0
-                  yes_price: 0.63
-                  no_price: 0.37
-                  reference_price: 247.82
-                  reference_price_timestamp: '2026-04-20T14:30:00Z'
-                  liquidity: 7905.52
-                  volume_24h: 2408.43
-                  trade_count: 42
-                  buy_trades: 23
-                  sell_trades: 19
-                  unique_traders: 31
-                  sentiment_score: 0.26
+                - tweet_id: '1901234567890'
+                  author: marketwatcher
+                  text_snippet: $NVDA still has room after the pullback...
+                  created_utc: '2026-03-20T14:11:02Z'
+                  likes: 942
+                  retweets: 88
+                  views: 52110
+                  is_reply: false
+                  sentiment_score: 0.44
                   sentiment_label: positive
-                  end_date: '2026-04-20T23:59:00Z'
-                  active: true
-                  market_status: tradable
-                  fetched_at: '2026-04-20T15:00:00Z'
           headers:
             X-Request-ID:
               description: Request correlation identifier returned by the API and
@@ -2522,7 +2676,7 @@ paths:
                 anyOf:
                 - $ref: '#/components/schemas/InvalidPeriodError'
                 - $ref: '#/components/schemas/HTTPValidationError'
-                title: Response 422 Getpolymarketstockrawmentions
+                title: Response 422 Getxstockrawmentions
         '503':
           description: Database temporarily unavailable
           content:
@@ -2542,17 +2696,17 @@ paths:
       x-codeSamples:
       - lang: curl
         label: cURL
-        source: "curl \"https://api.adanos.org/polymarket/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "curl \"https://api.adanos.org/x/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
           \ \\\n  -H \"X-API-Key: sk_live_your_key_here\""
       - lang: javascript
         label: JavaScript
-        source: "const response = await fetch(\"https://api.adanos.org/polymarket/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "const response = await fetch(\"https://api.adanos.org/x/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
           , {\n  headers: {\n    \"X-API-Key\": \"sk_live_your_key_here\",\n  },\n\
           });\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst\
           \ data = await response.json();\nconsole.log(data);"
       - lang: python
         label: Python
-        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
+        source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/x/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\"\
           ,\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n  \
           \  },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
 components:
@@ -2807,1870 +2961,6 @@ components:
       - unsupported_parameters
       title: InvalidSearchParametersErrorDetail
       description: Structured error detail for unsupported search query parameters.
-    PolymarketCompareResponse:
-      properties:
-        period_days:
-          type: integer
-          maximum: 365.0
-          minimum: 1.0
-          title: Period Days
-          description: Analysis period in days
-        stocks:
-          items:
-            $ref: '#/components/schemas/PolymarketCompareStockItem'
-          type: array
-          title: Stocks
-          description: Stocks sorted by buzz_score descending
-      type: object
-      required:
-      - period_days
-      - stocks
-      title: PolymarketCompareResponse
-      description: Response for compare endpoint.
-      examples:
-      - period_days: 7
-        stocks:
-        - ticker: AAPL
-          company_name: Apple Inc.
-          buzz_score: 68.9
-          trend: stable
-          trade_count: 312
-          market_count: 27
-          current_market_count: 12
-          unique_traders: 119
-          sentiment_score: 0.28
-          bullish_pct: 64
-          bearish_pct: 36
-          total_liquidity: 128000.0
-          trend_history:
-          - 48.2
-          - 51.0
-          - 55.3
-          - 61.1
-          - 65.8
-          - 69.2
-          - 68.9
-    PolymarketCompareStockItem:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score (0-100)
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today). Null when
-            no qualifying activity exists.
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count in selected period
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Distinct markets that existed for ticker within the selected
-            UTC window, counted by market-catalog lifetime overlap
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Number of currently open markets in the latest UTC-day snapshot
-            for ticker; use this for live-only market breadth
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet
-            hashes for the delivered scope and UTC window; null when retained wallet-level
-            trades do not fully cover the window; not a complete market-wide participant
-            census
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Orderbook-aware implied sentiment; null when no directional
-            sentiment evidence exists in the selected period
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period; not a current snapshot
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Recent buzz history (oldest→newest). Length follows the resolved
-            period, with a minimum of 7 values when data exists. Closed historical
-            windows end at `to`. Empty when no qualifying data exists.
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - trade_count
-      - market_count
-      - current_market_count
-      - total_liquidity
-      title: PolymarketCompareStockItem
-      description: Single stock item for Polymarket compare endpoint.
-    PolymarketDailyTrendItem:
-      properties:
-        date:
-          type: string
-          title: Date
-          description: Date in YYYY-MM-DD format
-          examples:
-          - '2026-02-13'
-        trade_count:
-          type: integer
-          title: Trade Count
-          description: Trade count on this date
-          examples:
-          - 5
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Outcome-aware implied sentiment on this date; can come from
-            orderbook evidence or legacy traded price evidence, null when no sentiment
-            evidence exists
-          examples:
-          - 0.25
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score on this date; null when neither a daily aggregate
-            nor a live fallback could be computed for this date
-          examples:
-          - 64.1
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Outcome-aware bullish market-direction percentage for this
-            date
-          examples:
-          - 64
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Outcome-aware bearish market-direction percentage for this
-            date
-          examples:
-          - 21
-      type: object
-      required:
-      - date
-      - trade_count
-      title: PolymarketDailyTrendItem
-      description: Daily trend item for stock detail endpoint.
-    PolymarketMarketSentimentDriver:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - AAPL
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count for this asset in the selected period
-          examples:
-          - 52
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Asset buzz score in the selected period
-          examples:
-          - 68.9
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Implied sentiment score for this asset in the selected period
-          examples:
-          - 0.28
-      type: object
-      required:
-      - ticker
-      - trade_count
-      - buzz_score
-      title: PolymarketMarketSentimentDriver
-      description: Top asset contributing to the service-level Polymarket market sentiment.
-    PolymarketMarketSentimentResponse:
-      properties:
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Service-wide Polymarket heat score relative to the service's
-            trailing 90-day baseline. Around 50 = normal activity, higher values =
-            hotter-than-usual Polymarket activity.
-          examples:
-          - 58.4
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            Null when the selected window has no measurable Polymarket heat. For `from`/`to`,
-            anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Service-wide trade count in the selected period
-          examples:
-          - 512
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Sum of ticker-level catalog lifetime-overlap market counts
-            in the selected UTC window; not a cross-ticker global condition-id union
-          examples:
-          - 93
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Sum of ticker-level currently open markets in the latest UTC-day
-            snapshot; use this for live-only market breadth
-          examples:
-          - 64
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact service-wide observed participant/proxy-wallet union
-            in the selected period; null when retained wallet-level trades do not
-            fully cover the requested window
-          examples:
-          - 281
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period
-          examples:
-          - 245000.0
-        active_tickers:
-          type: integer
-          minimum: 0.0
-          title: Active Tickers
-          description: Number of tickers with market activity in the selected period
-          examples:
-          - 31
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Service-wide weighted orderbook-aware implied sentiment score
-          examples:
-          - 0.11
-        positive_count:
-          type: integer
-          minimum: 0.0
-          title: Positive Count
-          description: Deprecated. Outcome-aware bullish market count retained for
-            v1 compatibility; prefer bullish_pct with trade_count and market_count
-            for public analysis.
-          deprecated: true
-          examples:
-          - 41
-        negative_count:
-          type: integer
-          minimum: 0.0
-          title: Negative Count
-          description: Deprecated. Outcome-aware bearish market count retained for
-            v1 compatibility; prefer bearish_pct with trade_count and market_count
-            for public analysis.
-          deprecated: true
-          examples:
-          - 29
-        neutral_count:
-          type: integer
-          minimum: 0.0
-          title: Neutral Count
-          description: Deprecated. Outcome-aware neutral/unclassified market count
-            retained for v1 compatibility; prefer bullish_pct, bearish_pct, trade_count
-            and market_count for public analysis.
-          deprecated: true
-          examples:
-          - 23
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-          examples:
-          - 44
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-          examples:
-          - 31
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily service-wide buzz scores (oldest→newest) using the same
-            relative baseline calibration. Length = max(requested_days, 7) for successful
-            requests; windows before platform availability return HTTP 422.
-          examples:
-          - - 52.1
-            - 54.0
-            - 56.8
-            - 59.2
-            - 61.0
-            - 60.1
-            - 58.4
-        drivers:
-          items:
-            $ref: '#/components/schemas/PolymarketMarketSentimentDriver'
-          type: array
-          title: Drivers
-          description: Top assets by current buzz_score driving the service-level
-            reading
-      type: object
-      required:
-      - buzz_score
-      - trade_count
-      - market_count
-      - current_market_count
-      - total_liquidity
-      - active_tickers
-      - positive_count
-      - negative_count
-      - neutral_count
-      - bullish_pct
-      - bearish_pct
-      title: PolymarketMarketSentimentResponse
-      description: Service-level Polymarket market sentiment across all tracked stocks.
-      examples:
-      - buzz_score: 58.4
-        trend: stable
-        trade_count: 512
-        market_count: 93
-        current_market_count: 64
-        unique_traders: 281
-        total_liquidity: 245000.0
-        active_tickers: 31
-        sentiment_score: 0.11
-        positive_count: 41
-        negative_count: 29
-        neutral_count: 23
-        bullish_pct: 44
-        bearish_pct: 31
-        trend_history:
-        - 52.1
-        - 54.0
-        - 56.8
-        - 59.2
-        - 61.0
-        - 60.1
-        - 58.4
-        drivers:
-        - ticker: AAPL
-          trade_count: 52
-          buzz_score: 68.9
-          sentiment_score: 0.28
-        - ticker: TSLA
-          trade_count: 47
-          buzz_score: 66.3
-          sentiment_score: 0.19
-    PolymarketPulseEvidence:
-      properties:
-        directional_coverage:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Directional Coverage
-          description: Share of current open snapshot markets with outcome-aware directional
-            evidence
-        traded_market_pct:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Traded Market Pct
-          description: Share of current open snapshot markets with trades in the latest
-            UTC day
-        zero_trade_market_pct:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Zero Trade Market Pct
-          description: Share of current open snapshot markets without trades in the
-            latest UTC day
-        avg_spread:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Avg Spread
-          description: Average YES-token spread across current open snapshot markets
-            with bid/ask spread evidence
-        snapshot_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Snapshot At
-          description: Latest stored snapshot timestamp used by the pulse read model
-      type: object
-      title: PolymarketPulseEvidence
-      description: Compact data-quality evidence for the ticker-level Polymarket pulse.
-    PolymarketRawMentionItem:
-      properties:
-        condition_id:
-          type: string
-          title: Condition Id
-          description: Polymarket condition ID
-          examples:
-          - 0xabc...
-        event_id:
-          type: string
-          title: Event Id
-          description: Polymarket event ID
-          examples:
-          - '12345'
-        market_slug:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Market Slug
-          description: Polymarket market slug
-          examples:
-          - nvda-up-or-down-on-april-20-2026
-        question:
-          type: string
-          title: Question
-          description: Market question/title
-          examples:
-          - NVDA up or down on April 20?
-        market_type:
-          type: string
-          title: Market Type
-          description: Derived market type (`up_down`, `close_above`, `hit_target`,
-            `earnings` or `other`)
-          examples:
-          - up_down
-        strike_price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Strike Price
-          description: Extracted strike price when available
-          examples:
-          - 250.0
-        yes_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Yes Price
-          description: YES price from this snapshot
-          examples:
-          - 0.63
-        no_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: No Price
-          description: NO price from this snapshot
-          examples:
-          - 0.37
-        reference_price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Reference Price
-          description: Stock reference price attached during scrape when needed for
-            range-ladder classification
-          examples:
-          - 101.68
-        reference_price_timestamp:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reference Price Timestamp
-          description: Timestamp for `reference_price` when available
-          examples:
-          - '2026-04-20T14:30:00Z'
-        liquidity:
-          type: number
-          minimum: 0.0
-          title: Liquidity
-          description: Market liquidity in USD at snapshot time
-          examples:
-          - 7905.52
-        volume_24h:
-          type: number
-          minimum: 0.0
-          title: Volume 24H
-          description: Rolling 24h market volume in USD at snapshot time
-          examples:
-          - 2408.43
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: UTC-day trade count observed for this market snapshot
-          examples:
-          - 42
-        buy_trades:
-          type: integer
-          minimum: 0.0
-          title: Buy Trades
-          description: UTC-day Polymarket BUY trades for this snapshot; activity counter,
-            not bullishness
-          examples:
-          - 23
-        sell_trades:
-          type: integer
-          minimum: 0.0
-          title: Sell Trades
-          description: UTC-day Polymarket SELL trades for this snapshot; activity
-            counter, not bearishness
-          examples:
-          - 19
-        unique_traders:
-          type: integer
-          minimum: 0.0
-          title: Unique Traders
-          description: UTC-day observed participant/proxy-wallet counter for this
-            market snapshot
-          examples:
-          - 31
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Outcome-aware market price sentiment for this snapshot; prefers
-            orderbook midpoint when available, falls back to YES/NO price and is null
-            when direction or evidence is unavailable
-          examples:
-          - 0.26
-        sentiment_label:
-          anyOf:
-          - type: string
-            enum:
-            - positive
-            - negative
-            - neutral
-          - type: 'null'
-          title: Sentiment Label
-          description: 'Classification derived from `sentiment_score`: positive=bullish,
-            negative=bearish, neutral=flat; null when `sentiment_score` is null'
-          examples:
-          - positive
-        end_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: End Date
-          description: Market end timestamp when available. Unlike summary `top_mentions`,
-            raw rows preserve the full timestamp from the stored snapshot.
-          examples:
-          - '2026-04-20T23:59:00Z'
-        active:
-          type: boolean
-          title: Active
-          description: Whether the market is currently open; false for closed or ended
-            markets
-          examples:
-          - true
-        market_status:
-          type: string
-          enum:
-          - tradable
-          - open
-          - resolved
-          - inactive
-          - expired
-          title: Market Status
-          description: Compact current market status derived from active, closed,
-            accepting_orders and end_date
-          examples:
-          - tradable
-        fetched_at:
-          type: string
-          format: date-time
-          title: Fetched At
-          description: Snapshot fetch timestamp
-          examples:
-          - '2026-04-20T15:00:00Z'
-      type: object
-      required:
-      - condition_id
-      - event_id
-      - question
-      - market_type
-      - liquidity
-      - volume_24h
-      - trade_count
-      - buy_trades
-      - sell_trades
-      - unique_traders
-      - active
-      - market_status
-      - fetched_at
-      title: PolymarketRawMentionItem
-      description: Raw Polymarket market snapshot row for one stock ticker.
-    PolymarketRawMentionsResponse:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - NVDA
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Lookback window used for the query
-          examples:
-          - 7
-        count:
-          type: integer
-          minimum: 0.0
-          title: Count
-          description: Total number of matching raw rows before limit and offset are
-            applied; only the requested page is returned
-          examples:
-          - 1
-        results:
-          items:
-            $ref: '#/components/schemas/PolymarketRawMentionItem'
-          type: array
-          title: Results
-          description: Raw market snapshot rows ordered by newest first
-      type: object
-      required:
-      - ticker
-      - period_days
-      - count
-      - results
-      title: PolymarketRawMentionsResponse
-      description: Paginated raw Polymarket snapshot rows for a single stock ticker.
-      examples:
-      - ticker: NVDA
-        period_days: 7
-        count: 1
-        results:
-        - condition_id: 0xabc...
-          event_id: '12345'
-          market_slug: nvda-up-or-down-on-april-20-2026
-          question: NVDA up or down on April 20?
-          market_type: up_down
-          strike_price: 250.0
-          yes_price: 0.63
-          no_price: 0.37
-          reference_price: 247.82
-          reference_price_timestamp: '2026-04-20T14:30:00Z'
-          liquidity: 7905.52
-          volume_24h: 2408.43
-          trade_count: 42
-          buy_trades: 23
-          sell_trades: 19
-          unique_traders: 31
-          sentiment_score: 0.26
-          sentiment_label: positive
-          end_date: '2026-04-20T23:59:00Z'
-          active: true
-          market_status: tradable
-          fetched_at: '2026-04-20T15:00:00Z'
-    PolymarketSearchResponse:
-      properties:
-        query:
-          type: string
-          title: Query
-          description: Original search query
-          examples:
-          - tesla
-        count:
-          type: integer
-          title: Count
-          description: Total number of matching results before the limit is applied
-          examples:
-          - 1
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Fixed lookback window used for each summary block
-          examples:
-          - 7
-        results:
-          items:
-            $ref: '#/components/schemas/PolymarketSearchResultItem'
-          type: array
-          title: Results
-          description: Top matching stocks capped by the requested limit
-      type: object
-      required:
-      - query
-      - count
-      - period_days
-      - results
-      title: PolymarketSearchResponse
-      description: Search results for Polymarket stocks.
-      examples:
-      - query: tesla
-        count: 1
-        period_days: 7
-        results:
-        - ticker: TSLA
-          name: Tesla Inc.
-          type: Stock
-          exchange: NASDAQ
-          sector: Consumer Discretionary
-          country: United States
-          aliases:
-          - Tesla
-          - Elon
-          summary:
-            trade_count: 14
-            buzz_score: 71.4
-            trend: rising
-            sentiment_score: 0.34
-            bearish_pct: 33
-            bullish_pct: 67
-            current_market_count: 12
-            market_count: 27
-            total_liquidity: 94750.0
-            unique_traders: 119
-    PolymarketSearchResultItem:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        name:
-          type: string
-          title: Name
-          description: Company name
-          examples:
-          - Tesla Inc.
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-          description: Asset type (Stock, ETF, etc.)
-          examples:
-          - Stock
-        exchange:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Exchange
-          description: Stock exchange
-          examples:
-          - NASDAQ
-        sector:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sector
-          description: Industry sector
-          examples:
-          - Consumer Discretionary
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-          description: Country of headquarters
-          examples:
-          - United States
-        aliases:
-          items:
-            type: string
-          type: array
-          title: Aliases
-          description: Alternative names/aliases
-          examples:
-          - - Tesla
-            - Elon
-        summary:
-          $ref: '#/components/schemas/PolymarketSearchSummary'
-          description: Last-7-days Polymarket summary for this asset
-      type: object
-      required:
-      - ticker
-      - name
-      - summary
-      title: PolymarketSearchResultItem
-      description: Individual Polymarket search result item.
-    PolymarketSearchSummary:
-      properties:
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count in the last 7 UTC calendar days
-          examples:
-          - 14
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score over the last 7 UTC calendar days
-          examples:
-          - 71.4
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Orderbook-aware implied sentiment over the last 7 UTC calendar
-            days
-          examples:
-          - 0.34
-      type: object
-      required:
-      - trade_count
-      - buzz_score
-      title: PolymarketSearchSummary
-      description: Compact last-7-days summary attached to Polymarket search results.
-    PolymarketStockDetailResponse:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - AAPL
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
-          examples:
-          - Apple Inc.
-        found:
-          type: boolean
-          title: Found
-          description: Legacy v1 data-availability flag. `true` means this service
-            has qualifying data for this asset/window. `false` means the asset is
-            supported, but this service has no qualifying data for the requested window.
-            Planned for removal in v2.
-          deprecated: true
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score (0-100)
-          examples:
-          - 68.9
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - stable
-        period_days:
-          anyOf:
-          - type: integer
-            maximum: 365.0
-            minimum: 1.0
-          - type: 'null'
-          title: Period Days
-          description: Analysis period in days
-          examples:
-          - 7
-        trade_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Trade Count
-          description: Trade count in period
-          examples:
-          - 312
-        market_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Market Count
-          description: Distinct markets that existed for ticker within the selected
-            UTC window, counted by market-catalog lifetime overlap
-          examples:
-          - 27
-        current_market_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Current Market Count
-          description: Number of currently open markets in the latest UTC-day snapshot
-            for ticker; use this for live-only market breadth
-          examples:
-          - 12
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet
-            hashes for the delivered scope and UTC window; null when retained wallet-level
-            trades do not fully cover the window; not a complete market-wide participant
-            census
-          examples:
-          - 119
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Orderbook-aware implied sentiment; null when no directional
-            sentiment evidence exists in the selected period
-          examples:
-          - 0.28
-        positive_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Positive Count
-          description: Deprecated. Outcome-aware bullish market count retained for
-            v1 compatibility; prefer bullish_pct with trade_count and market_count
-            for public analysis.
-          deprecated: true
-          examples:
-          - 9
-        negative_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Negative Count
-          description: Deprecated. Outcome-aware bearish market count retained for
-            v1 compatibility; prefer bearish_pct with trade_count and market_count
-            for public analysis.
-          deprecated: true
-          examples:
-          - 5
-        neutral_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Neutral Count
-          description: Deprecated. Outcome-aware neutral/unclassified market count
-            retained for v1 compatibility; prefer bullish_pct, bearish_pct, trade_count
-            and market_count for public analysis.
-          deprecated: true
-          examples:
-          - 2
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-          examples:
-          - 64
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-          examples:
-          - 36
-        total_liquidity:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period; not a current snapshot
-          examples:
-          - 128000.0
-        daily_trend:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/PolymarketDailyTrendItem'
-            type: array
-          - type: 'null'
-          title: Daily Trend
-          description: Daily activity breakdown for the selected period
-        top_mentions:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/PolymarketTopMention'
-            type: array
-          - type: 'null'
-          title: Top Mentions
-          description: 'Top markets with an active/open snapshot during the retained
-            snapshot portion of the selected UTC-day period for this ticker (including
-            the current UTC day so far), capped at 10 and sorted as representative
-            sentiment evidence: outcome-aware directional markets first, opposing
-            signals kept visible when present, then trade count, with non-open markets
-            de-prioritized and 24h volume and liquidity as tie-breakers. For windows
-            longer than raw snapshot retention, ticker analytics still use `polymarket_daily_stats`,
-            but this representative snapshot list is limited to retained `polymarket_market_snapshots`.
-            Item prices and liquidity come from the selected in-period snapshot, not
-            necessarily the current market state. `active` indicates whether the market
-            is currently open, so historical in-period evidence can now have a non-open
-            current state. `market_status` gives the compact current state.'
-        pulse:
-          anyOf:
-          - $ref: '#/components/schemas/PolymarketTickerPulse'
-          - type: 'null'
-          description: Compact current Polymarket interpretation built from locally
-            stored latest snapshot evidence. Does not duplicate top-level aggregate
-            fields; concrete market evidence remains in `top_mentions`.
-      type: object
-      required:
-      - ticker
-      - found
-      title: PolymarketStockDetailResponse
-      description: Detailed Polymarket data for a single stock.
-      examples:
-      - ticker: AAPL
-        company_name: Apple Inc.
-        found: true
-        buzz_score: 68.9
-        trend: stable
-        period_days: 7
-        trade_count: 312
-        market_count: 27
-        current_market_count: 12
-        unique_traders: 119
-        sentiment_score: 0.28
-        bullish_pct: 64
-        bearish_pct: 36
-        total_liquidity: 128000.0
-        daily_trend:
-        - date: '2026-02-13'
-          trade_count: 5
-          sentiment_score: 0.25
-          buzz_score: 64.1
-          bullish_pct: 64
-          bearish_pct: 21
-        top_mentions:
-        - condition_id: 0xabc...
-          question: Will AAPL close above $220 this week?
-          market_type: close_above
-          trade_count: 42
-          sentiment_score: 0.23
-          buzz_score: 77.2
-          yes_price: 0.62
-          no_price: 0.38
-          liquidity: 7905.52
-          volume_24h: 2408.43
-          end_date: '2026-02-28'
-          active: true
-          market_status: tradable
-        pulse:
-          mood: mixed
-          confidence: 60.0
-          thin_data: false
-          why:
-          - opposing_market_signals
-          - upside_targets_rejected
-          - floor_support
-          warnings:
-          - high_average_spread
-          - low_trade_breadth
-          evidence:
-            directional_coverage: 1.0
-            traded_market_pct: 0.231
-            zero_trade_market_pct: 0.769
-            avg_spread: 0.099
-            snapshot_at: '2026-06-24T06:25:53Z'
-    PolymarketTickerPulse:
-      properties:
-        mood:
-          type: string
-          enum:
-          - bullish
-          - bearish
-          - mixed
-          - event_driven
-          - illiquid
-          - unclear
-          title: Mood
-          description: Current compact Polymarket interpretation for this ticker
-        confidence:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Confidence
-          description: Interpretation confidence capped by coverage, trade breadth,
-            spread, liquidity and recency
-        thin_data:
-          type: boolean
-          title: Thin Data
-          description: True when current evidence is insufficient for a strong directional
-            interpretation
-        why:
-          items:
-            type: string
-          type: array
-          maxItems: 4
-          minItems: 1
-          title: Why
-          description: Stable machine-readable reason codes explaining the pulse interpretation
-        warnings:
-          items:
-            type: string
-          type: array
-          title: Warnings
-          description: Stable machine-readable data quality, freshness and tradability
-            warnings
-        evidence:
-          $ref: '#/components/schemas/PolymarketPulseEvidence'
-          description: Compact non-duplicative quality summary for the pulse inputs
-      type: object
-      required:
-      - mood
-      - confidence
-      - thin_data
-      - why
-      - evidence
-      title: PolymarketTickerPulse
-      description: Compact interpretation layer for current ticker-level Polymarket
-        data.
-    PolymarketTopMention:
-      properties:
-        condition_id:
-          type: string
-          title: Condition Id
-          description: Polymarket condition ID
-          examples:
-          - 0xabc...
-        question:
-          type: string
-          title: Question
-          description: Market question/title
-        market_type:
-          type: string
-          title: Market Type
-          description: Derived market type
-          examples:
-          - close_above
-        trade_count:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Trade Count
-          description: UTC-day trade count from the selected in-period snapshot
-          examples:
-          - 42
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Outcome-aware market price sentiment for the selected in-period
-            snapshot; prefers orderbook midpoint when available, falls back to YES/NO
-            price and returns neutral 0.0 when direction is unclassified
-          examples:
-          - 0.23
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Market-level activity buzz score for this selected in-period
-            snapshot
-          examples:
-          - 77.2
-        yes_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Yes Price
-          description: YES price from the selected in-period snapshot; not necessarily
-            live
-        no_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: No Price
-          description: NO price from the selected in-period snapshot; not necessarily
-            live
-        liquidity:
-          type: number
-          minimum: 0.0
-          title: Liquidity
-          description: Selected in-period snapshot liquidity in USD; not necessarily
-            live
-          examples:
-          - 7905.52
-        volume_24h:
-          type: number
-          minimum: 0.0
-          title: Volume 24H
-          description: Selected in-period snapshot rolling 24h volume in USD; not
-            necessarily live
-          examples:
-          - 2408.43
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: End Date
-          description: Market end date (ISO)
-          examples:
-          - '2026-02-28'
-        active:
-          type: boolean
-          title: Active
-          description: Whether the representative market state is open; snapshot-backed
-            rows use current state, historical daily examples use stored representative
-            state
-        market_status:
-          type: string
-          enum:
-          - tradable
-          - open
-          - resolved
-          - inactive
-          - expired
-          title: Market Status
-          description: Compact market status for this representative item; snapshot-backed
-            rows use current state, historical daily examples use stored representative
-            state
-          examples:
-          - tradable
-      type: object
-      required:
-      - condition_id
-      - question
-      - market_type
-      - sentiment_score
-      - liquidity
-      - volume_24h
-      - active
-      - market_status
-      title: PolymarketTopMention
-      description: Top Polymarket market for a ticker with current open/closed state.
-    PolymarketTrendingCountry:
-      properties:
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Aggregated activity/flow buzz score using trades, volume, breadth,
-            liquidity and participation
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today).
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Total trade count in period
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Sum of ticker-level catalog lifetime-overlap market counts
-            in the selected UTC window for this dimension; not a cross-ticker condition-id
-            union
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Sum of ticker-level currently open markets in the latest UTC-day
-            snapshot; use this for live-only market breadth
-        unique_tickers:
-          type: integer
-          minimum: 0.0
-          title: Unique Tickers
-          description: Unique tickers in dimension
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet
-            hashes for the dimension and UTC window; null when retained wallet-level
-            trades do not fully cover the window
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Weighted implied sentiment; null when no underlying trades
-            exist in the selected period
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period; not a current snapshot
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows
-            the resolved period, with a minimum of 7 values. Every slot describes
-            only its UTC calendar day. The live final value describes today so far
-            and can differ from period buzz_score. Closed historical windows end at
-            `to`.
-          examples:
-          - - 48.2
-            - 51.0
-            - 55.3
-            - 61.1
-            - 65.8
-            - 69.2
-            - 72.8
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by trade_count
-        country:
-          type: string
-          title: Country
-          description: Country name
-          examples:
-          - United States
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - trade_count
-      - market_count
-      - current_market_count
-      - unique_tickers
-      - bullish_pct
-      - bearish_pct
-      - total_liquidity
-      - trend_history
-      - top_tickers
-      - country
-      title: PolymarketTrendingCountry
-      description: Trending country on Polymarket.
-      examples:
-      - buzz_score: 70.1
-        trend: stable
-        trade_count: 712
-        market_count: 265
-        current_market_count: 129
-        unique_tickers: 10
-        unique_traders: 402
-        sentiment_score: 0.18
-        bullish_pct: 58
-        bearish_pct: 42
-        total_liquidity: 472000.0
-        trend_history:
-        - 52.1
-        - 54.0
-        - 56.8
-        - 59.2
-        - 61.0
-        - 60.1
-        - 70.1
-        top_tickers:
-        - AAPL
-        - TSLA
-        - NVDA
-        - AMZN
-        - GOOGL
-        country: United States
-    PolymarketTrendingSector:
-      properties:
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Aggregated activity/flow buzz score using trades, volume, breadth,
-            liquidity and participation
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today).
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Total trade count in period
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Sum of ticker-level catalog lifetime-overlap market counts
-            in the selected UTC window for this dimension; not a cross-ticker condition-id
-            union
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Sum of ticker-level currently open markets in the latest UTC-day
-            snapshot; use this for live-only market breadth
-        unique_tickers:
-          type: integer
-          minimum: 0.0
-          title: Unique Tickers
-          description: Unique tickers in dimension
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet
-            hashes for the dimension and UTC window; null when retained wallet-level
-            trades do not fully cover the window
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Weighted implied sentiment; null when no underlying trades
-            exist in the selected period
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period; not a current snapshot
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows
-            the resolved period, with a minimum of 7 values. Every slot describes
-            only its UTC calendar day. The live final value describes today so far
-            and can differ from period buzz_score. Closed historical windows end at
-            `to`.
-          examples:
-          - - 48.2
-            - 51.0
-            - 55.3
-            - 61.1
-            - 65.8
-            - 69.2
-            - 72.8
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by trade_count
-        sector:
-          type: string
-          title: Sector
-          description: Sector name
-          examples:
-          - Technology
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - trade_count
-      - market_count
-      - current_market_count
-      - unique_tickers
-      - bullish_pct
-      - bearish_pct
-      - total_liquidity
-      - trend_history
-      - top_tickers
-      - sector
-      title: PolymarketTrendingSector
-      description: Trending sector on Polymarket.
-      examples:
-      - buzz_score: 72.8
-        trend: rising
-        trade_count: 312
-        market_count: 147
-        current_market_count: 71
-        unique_tickers: 6
-        unique_traders: 211
-        sentiment_score: 0.22
-        bullish_pct: 61
-        bearish_pct: 39
-        total_liquidity: 325000.0
-        trend_history:
-        - 48.2
-        - 51.0
-        - 55.3
-        - 61.1
-        - 65.8
-        - 69.2
-        - 72.8
-        top_tickers:
-        - AAPL
-        - MSFT
-        - NVDA
-        - TSLA
-        - AMD
-        sector: Technology
-    PolymarketTrendingStock:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
-          examples:
-          - Tesla, Inc.
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Polymarket activity/flow discovery score (0-100); not directional
-            sentiment
-          examples:
-          - 71.4
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC
-            days using trades, volume, market breadth and liquidity; not price movement.
-            For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count in selected period
-          examples:
-          - 312
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Distinct markets that existed for ticker within the selected
-            UTC window, counted by market-catalog lifetime overlap
-          examples:
-          - 27
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Number of currently open markets in the latest UTC-day snapshot
-            for ticker; use this for live-only market breadth
-          examples:
-          - 12
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet
-            hashes for the delivered scope and UTC window; null when retained wallet-level
-            trades do not fully cover the window; not a complete market-wide participant
-            census
-          examples:
-          - 119
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Orderbook-aware implied sentiment (-1 to +1); null when no
-            directional sentiment evidence exists in the selected period
-          examples:
-          - 0.34
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-          examples:
-          - 67
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-          examples:
-          - 33
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected
-            period; not a current snapshot
-          examples:
-          - 94750.0
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Recent buzz history (oldest→newest). Length follows the resolved
-            period, with a minimum of 7 values. Closed historical windows end at `to`.
-          examples:
-          - - 48.2
-            - 51.0
-            - 55.3
-            - 61.1
-            - 65.8
-            - 69.2
-            - 71.4
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - trend
-      - trade_count
-      - market_count
-      - current_market_count
-      - bullish_pct
-      - bearish_pct
-      - total_liquidity
-      title: PolymarketTrendingStock
-      description: Trending stock from Polymarket in Reddit/X-compatible shape.
-      examples:
-      - ticker: TSLA
-        company_name: Tesla, Inc.
-        buzz_score: 71.4
-        trend: rising
-        trade_count: 312
-        market_count: 27
-        current_market_count: 12
-        unique_traders: 119
-        sentiment_score: 0.34
-        bullish_pct: 67
-        bearish_pct: 33
-        total_liquidity: 94750.0
-        trend_history:
-        - 48.2
-        - 51.0
-        - 55.3
-        - 61.1
-        - 65.8
-        - 69.2
-        - 71.4
     RateLimitError:
       properties:
         detail:
@@ -4733,6 +3023,65 @@ components:
       - account_type
       title: RateLimitErrorDetail
       description: Structured rate-limit error detail.
+    StockExplanationResponse:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - GME
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Gamestop Corporation - Class A
+        explanation:
+          type: string
+          title: Explanation
+          description: AI-generated explanation of why this stock is trending
+          examples:
+          - GME is trending due to viral GameStop social media activity and large
+            position posts on r/Superstonk.
+        cached:
+          type: boolean
+          title: Cached
+          description: Whether the explanation was served from cache
+          examples:
+          - true
+        generated_at:
+          type: string
+          title: Generated At
+          description: Timezone-aware UTC ISO timestamp when explanation was generated
+          examples:
+          - '2026-01-13T14:30:00+00:00'
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+          description: LLM model used for generation
+          examples:
+          - meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
+      type: object
+      required:
+      - ticker
+      - explanation
+      - cached
+      - generated_at
+      title: StockExplanationResponse
+      description: AI-generated trend explanation for a stock.
+      examples:
+      - ticker: GME
+        company_name: Gamestop Corporation - Class A
+        explanation: GME is trending due to viral GameStop social media activity and
+          large position posts on r/Superstonk.
+        cached: true
+        generated_at: '2026-01-13T14:30:00+00:00'
+        model: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
     UnsupportedAssetError:
       properties:
         detail:
@@ -4792,6 +3141,1570 @@ components:
         - days
         msg: Input should be greater than or equal to 1
         type: greater_than_equal
+    XCompareResponse:
+      properties:
+        period_days:
+          type: integer
+          title: Period Days
+          description: Analysis period in days
+          examples:
+          - 7
+        stocks:
+          items:
+            $ref: '#/components/schemas/XCompareStockItem'
+          type: array
+          title: Stocks
+          description: Stocks sorted by buzz_score descending
+      type: object
+      required:
+      - period_days
+      - stocks
+      title: XCompareResponse
+      description: Comparison response for multiple X/Twitter stocks.
+      examples:
+      - period_days: 7
+        stocks:
+        - ticker: TSLA
+          company_name: Tesla, Inc.
+          buzz_score: 72.5
+          trend: rising
+          mentions: 156
+          unique_tweets: 42
+          sentiment_score: 0.35
+          bullish_pct: 45
+          bearish_pct: 12
+          total_upvotes: 2847
+          trend_history:
+          - 45.2
+          - 48.1
+          - 52.3
+          - 55.0
+          - 58.2
+          - 61.5
+          - 72.5
+    XCompareStockItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100) from X mentions
+          examples:
+          - 72.5
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days, not price movement or Grok rank movement. Null when no qualifying
+            X data exists.
+          examples:
+          - rising
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Total tweet mentions
+          examples:
+          - 156
+        unique_tweets:
+          type: integer
+          minimum: 0.0
+          title: Unique Tweets
+          description: Number of unique tweets mentioning this ticker (distinct tweet_id)
+          examples:
+          - 42
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score from tweet analysis (-1 to +1)
+          examples:
+          - 0.35
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish tweet mentions
+          examples:
+          - 45
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish tweet mentions
+          examples:
+          - 12
+        total_upvotes:
+          type: integer
+          minimum: 0.0
+          title: Total Upvotes
+          description: Total likes across all tweet mentions
+          examples:
+          - 2847
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz history (oldest to newest). Length follows the resolved
+            period, with a minimum of 7 values when data exists. Closed historical
+            windows end at `to`. Empty when no qualifying data exists.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 72.5
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - mentions
+      - unique_tweets
+      - total_upvotes
+      title: XCompareStockItem
+      description: Individual stock in X/Twitter comparison.
+    XDailyTrendItem:
+      properties:
+        date:
+          type: string
+          title: Date
+          description: Date in YYYY-MM-DD format
+          examples:
+          - '2025-12-28'
+        mentions:
+          type: integer
+          title: Mentions
+          description: Number of tweet mentions on this date
+          examples:
+          - 42
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score for the day
+          examples:
+          - 0.15
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz score for this date (0-100)
+          examples:
+          - 52.3
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Bullish tweet percentage for this date, calculated from positive
+            sentiment-classified tweets
+          examples:
+          - 60
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Bearish tweet percentage for this date, calculated from negative
+            sentiment-classified tweets
+          examples:
+          - 25
+      type: object
+      required:
+      - date
+      - mentions
+      title: XDailyTrendItem
+      description: Daily trend data point for X/Twitter.
+    XMarketSentimentDriver:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Tweet mentions in the selected period
+          examples:
+          - 156
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Asset buzz score in the selected period
+          examples:
+          - 72.5
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average tweet sentiment score for this asset
+          examples:
+          - 0.35
+      type: object
+      required:
+      - ticker
+      - mentions
+      - buzz_score
+      title: XMarketSentimentDriver
+      description: Top asset contributing to the service-level X market sentiment.
+    XMarketSentimentResponse:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Service-wide X/Twitter heat score relative to the service's
+            trailing 90-day baseline. Around 50 = normal activity, higher values =
+            hotter-than-usual X activity.
+          examples:
+          - 56.2
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days using mentions, likes and author breadth; not price movement
+            or Grok rank movement. For `from`/`to`, anchors at `to` (or now when `to`
+            is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Tweet mentions across the selected period
+          examples:
+          - 2847
+        unique_tweets:
+          type: integer
+          minimum: 0.0
+          title: Unique Tweets
+          description: Exact distinct tweet count across the selected UTC period
+          examples:
+          - 913
+        unique_authors:
+          type: integer
+          minimum: 0.0
+          title: Unique Authors
+          description: Exact distinct author breadth across the selected UTC period
+          examples:
+          - 604
+        total_upvotes:
+          type: integer
+          minimum: 0.0
+          title: Total Upvotes
+          description: Total likes across the selected period
+          examples:
+          - 28471
+        active_tickers:
+          type: integer
+          minimum: 0.0
+          title: Active Tickers
+          description: Number of tickers with X activity in the selected period
+          examples:
+          - 442
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Service-wide average tweet sentiment score
+          examples:
+          - 0.081
+        positive_count:
+          type: integer
+          minimum: 0.0
+          title: Positive Count
+          description: Deprecated. Prefer bullish_pct with mentions for public analysis;
+            retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 1198
+        negative_count:
+          type: integer
+          minimum: 0.0
+          title: Negative Count
+          description: Deprecated. Prefer bearish_pct with mentions for public analysis;
+            retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 741
+        neutral_count:
+          type: integer
+          minimum: 0.0
+          title: Neutral Count
+          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for
+            public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 908
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Bullish tweet percentage
+          examples:
+          - 42
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Bearish tweet percentage
+          examples:
+          - 26
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily service-wide buzz scores (oldest→newest) using the same
+            relative baseline calibration. Length = max(requested_days, 7) for successful
+            requests; windows before platform availability return HTTP 422.
+          examples:
+          - - 48.9
+            - 50.7
+            - 52.6
+            - 54.4
+            - 57.1
+            - 58.3
+            - 56.2
+        drivers:
+          items:
+            $ref: '#/components/schemas/XMarketSentimentDriver'
+          type: array
+          title: Drivers
+          description: Top assets by current buzz_score driving the service-level
+            reading
+      type: object
+      required:
+      - buzz_score
+      - mentions
+      - unique_tweets
+      - unique_authors
+      - total_upvotes
+      - active_tickers
+      - positive_count
+      - negative_count
+      - neutral_count
+      - bullish_pct
+      - bearish_pct
+      title: XMarketSentimentResponse
+      description: Service-level X/Twitter market sentiment across all tracked stocks.
+      examples:
+      - buzz_score: 56.2
+        trend: rising
+        mentions: 2847
+        unique_tweets: 913
+        unique_authors: 604
+        total_upvotes: 28471
+        active_tickers: 442
+        sentiment_score: 0.081
+        positive_count: 1198
+        negative_count: 741
+        neutral_count: 908
+        bullish_pct: 42
+        bearish_pct: 26
+        trend_history:
+        - 48.9
+        - 50.7
+        - 52.6
+        - 54.4
+        - 57.1
+        - 58.3
+        - 56.2
+        drivers:
+        - ticker: TSLA
+          mentions: 156
+          buzz_score: 72.5
+          sentiment_score: 0.35
+        - ticker: NVDA
+          mentions: 141
+          buzz_score: 70.8
+          sentiment_score: 0.27
+    XRawMentionItem:
+      properties:
+        tweet_id:
+          type: string
+          title: Tweet Id
+          description: Tweet identifier
+          examples:
+          - '1901234567890'
+        author:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Author
+          description: Public X/Twitter username, if scraped
+          examples:
+          - marketwatcher
+        text_snippet:
+          type: string
+          maxLength: 280
+          title: Text Snippet
+          description: Tweet text snippet
+          examples:
+          - $NVDA still has room after the pullback...
+        created_utc:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created Utc
+          description: Tweet creation time (ISO 8601) when available
+          examples:
+          - '2026-03-20T14:11:02Z'
+        likes:
+          type: integer
+          minimum: 0.0
+          title: Likes
+          description: Number of likes
+          examples:
+          - 942
+        retweets:
+          type: integer
+          minimum: 0.0
+          title: Retweets
+          description: Number of retweets
+          examples:
+          - 88
+        views:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Views
+          description: Number of views
+          examples:
+          - 52110
+        is_reply:
+          type: boolean
+          title: Is Reply
+          description: Whether this row comes from a reply tweet
+          examples:
+          - false
+        parent_tweet_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Tweet Id
+          description: Parent tweet identifier for replies
+          examples:
+          - '1900000000000'
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Sentiment score (-1 to +1)
+          examples:
+          - 0.44
+        sentiment_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Label
+          description: Sentiment label (positive/negative/neutral)
+          examples:
+          - positive
+      type: object
+      required:
+      - tweet_id
+      - text_snippet
+      - likes
+      - retweets
+      - is_reply
+      title: XRawMentionItem
+      description: Raw tweet mention row for one stock ticker.
+    XRawMentionsResponse:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - NVDA
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Lookback window used for the query
+          examples:
+          - 7
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+          description: Total number of matching raw rows before limit and offset are
+            applied; only the requested page is returned
+          examples:
+          - 1
+        results:
+          items:
+            $ref: '#/components/schemas/XRawMentionItem'
+          type: array
+          title: Results
+          description: Raw tweet rows ordered by newest first
+      type: object
+      required:
+      - ticker
+      - period_days
+      - count
+      - results
+      title: XRawMentionsResponse
+      description: Paginated raw tweet mentions for a single stock ticker.
+      examples:
+      - ticker: NVDA
+        period_days: 7
+        count: 1
+        results:
+        - tweet_id: '1901234567890'
+          author: marketwatcher
+          text_snippet: $NVDA still has room after the pullback...
+          created_utc: '2026-03-20T14:11:02Z'
+          likes: 942
+          retweets: 88
+          views: 52110
+          is_reply: false
+          sentiment_score: 0.44
+          sentiment_label: positive
+    XSearchResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Original search query
+          examples:
+          - tesla
+        count:
+          type: integer
+          title: Count
+          description: Total number of matching results before the limit is applied
+          examples:
+          - 1
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Fixed lookback window used for each summary block
+          examples:
+          - 7
+        results:
+          items:
+            $ref: '#/components/schemas/XSearchResultItem'
+          type: array
+          title: Results
+          description: Top matching stocks capped by the requested limit
+      type: object
+      required:
+      - query
+      - count
+      - period_days
+      - results
+      title: XSearchResponse
+      description: Search response for X/Twitter stocks.
+      examples:
+      - query: tesla
+        count: 1
+        period_days: 7
+        results:
+        - ticker: TSLA
+          name: Tesla Inc.
+          type: Stock
+          exchange: NASDAQ
+          sector: Consumer Discretionary
+          country: United States
+          aliases:
+          - Tesla
+          - Elon
+          summary:
+            mentions: 156
+            buzz_score: 72.5
+            trend: rising
+            sentiment_score: 0.35
+    XSearchResultItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        name:
+          type: string
+          title: Name
+          description: Company name
+          examples:
+          - Tesla Inc.
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+          description: Asset type (Stock, ETF, etc.)
+          examples:
+          - Stock
+        exchange:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Exchange
+          description: Stock exchange
+          examples:
+          - NASDAQ
+        sector:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sector
+          description: Industry sector
+          examples:
+          - Consumer Discretionary
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country of headquarters
+          examples:
+          - United States
+        aliases:
+          items:
+            type: string
+          type: array
+          title: Aliases
+          description: Alternative names/aliases
+          examples:
+          - - Tesla
+            - Elon
+        summary:
+          $ref: '#/components/schemas/XSearchSummary'
+          description: Last-7-days X summary for this asset
+      type: object
+      required:
+      - ticker
+      - name
+      - summary
+      title: XSearchResultItem
+      description: Individual X/Twitter search result item.
+    XSearchSummary:
+      properties:
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Tweet mentions in the last 7 UTC calendar days
+          examples:
+          - 156
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz score over the last 7 UTC calendar days
+          examples:
+          - 72.5
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days using mentions, likes and author breadth; not price movement
+            or Grok rank movement. For `from`/`to`, anchors at `to` (or now when `to`
+            is today).
+          examples:
+          - rising
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score over the last 7 UTC calendar days
+          examples:
+          - 0.35
+      type: object
+      required:
+      - mentions
+      - buzz_score
+      title: XSearchSummary
+      description: Compact last-7-days summary attached to X search results.
+    XStockDetailResponse:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+        found:
+          type: boolean
+          title: Found
+          description: Legacy v1 data-availability flag. `true` means this service
+            has qualifying data for this asset/window. `false` means the asset is
+            supported, but this service has no qualifying data for the requested window.
+            Planned for removal in v2.
+          default: true
+          deprecated: true
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: V5.5 buzz score from real tweet data using HHI-based author
+            diversity when author_distribution is available, else scaled unique_authors
+            (null if not found)
+        mentions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Mentions
+          description: Total tweet mentions within the selected period
+          examples:
+          - 156
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score from tweet analysis (-1 to +1)
+        positive_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Positive Count
+          description: Deprecated. Prefer bullish_pct with mentions for public analysis;
+            retained for v1 compatibility.
+          deprecated: true
+        negative_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Negative Count
+          description: Deprecated. Prefer bearish_pct with mentions for public analysis;
+            retained for v1 compatibility.
+          deprecated: true
+        neutral_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Neutral Count
+          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for
+            public analysis; retained for v1 compatibility.
+          deprecated: true
+        total_upvotes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Upvotes
+          description: Total likes across all tweet mentions
+        unique_tweets:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unique Tweets
+          description: Number of unique tweets (distinct tweet_id)
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days using mentions, likes and author breadth; not price movement
+            or Grok rank movement. For `from`/`to`, anchors at `to` (or now when `to`
+            is today).
+          examples:
+          - rising
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish tweet mentions
+          examples:
+          - 45
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish tweet mentions
+          examples:
+          - 12
+        period_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Period Days
+          description: Analysis period in days
+        daily_trend:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/XDailyTrendItem'
+            type: array
+          - type: 'null'
+          title: Daily Trend
+          description: Daily mention breakdown for the selected period
+        top_tweets:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/XTopTweet'
+            type: array
+            maxItems: 10
+          - type: 'null'
+          title: Top Tweets
+          description: Top tweets from the selected period, ranked by engagement (likes
+            + retweets)
+        top_authors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/XTopAuthor'
+            type: array
+            maxItems: 5
+          - type: 'null'
+          title: Top Authors
+          description: Top X authors in the selected period with mentions, sentiment_score,
+            buzz_score and deprecated count alias
+      type: object
+      required:
+      - ticker
+      title: XStockDetailResponse
+      description: 'Detailed X/Twitter data for a single stock - unified format matching
+        Reddit API.
+
+
+        V5.5: Uses real tweet data from x_mentions table with HHI-based effective
+
+        author diversity when author_distribution is available.'
+      examples:
+      - ticker: TSLA
+        company_name: Tesla, Inc.
+        found: true
+        buzz_score: 72.5
+        mentions: 156
+        sentiment_score: 0.35
+        total_upvotes: 2847
+        unique_tweets: 42
+        trend: rising
+        bullish_pct: 45
+        bearish_pct: 12
+        period_days: 7
+        daily_trend:
+        - date: '2025-12-28'
+          mentions: 42
+          sentiment_score: 0.15
+          buzz_score: 52.3
+          bullish_pct: 60
+          bearish_pct: 25
+        - date: '2025-12-27'
+          mentions: 38
+          sentiment_score: 0.22
+          buzz_score: 48.1
+          bullish_pct: 55
+          bearish_pct: 18
+        top_tweets:
+        - text_snippet: $TSLA breaking out! 🚀
+          sentiment_score: 0.85
+          sentiment_label: positive
+          likes: 1247
+          retweets: 89
+          views: 52340
+          author: stockguru
+          created_at: '2025-12-28T14:32:00Z'
+        top_authors:
+        - author: stockguru
+          mentions: 24
+          sentiment_score: 0.41
+          buzz_score: 61.8
+          count: 24
+    XTopAuthor:
+      properties:
+        author:
+          type: string
+          title: Author
+          description: Public X/Twitter username
+          examples:
+          - marketwatcher
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Tweet mentions by this author in the selected period
+          examples:
+          - 72
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score for this author's mentions in the selected
+            period
+          examples:
+          - 0.18
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Contributor-level buzz score for this author in the selected
+            period
+          examples:
+          - 67.3
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+          description: Deprecated alias for mentions. Use mentions instead.
+          deprecated: true
+          examples:
+          - 72
+      type: object
+      required:
+      - author
+      - mentions
+      - count
+      title: XTopAuthor
+      description: X author contributor metrics for a stock detail response.
+    XTopTweet:
+      properties:
+        text_snippet:
+          type: string
+          maxLength: 280
+          title: Text Snippet
+          description: Clean tweet paragraph around the detected ticker mention (truncated
+            to 280 chars for this view)
+          examples:
+          - $TSLA breaking out! This is the move we've been waiting for 🚀
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Sentiment score (-1 to +1)
+          examples:
+          - 0.85
+        sentiment_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Label
+          description: Sentiment label (positive/negative/neutral)
+          examples:
+          - positive
+        likes:
+          type: integer
+          minimum: 0.0
+          title: Likes
+          description: Number of likes
+          examples:
+          - 1247
+        retweets:
+          type: integer
+          minimum: 0.0
+          title: Retweets
+          description: Number of retweets
+          examples:
+          - 89
+        views:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Views
+          description: Number of views
+          examples:
+          - 52340
+        author:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Author
+          description: Author username
+          examples:
+          - elonmusk
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: Tweet creation time (ISO 8601)
+          examples:
+          - '2025-12-28T14:32:00Z'
+      type: object
+      required:
+      - text_snippet
+      - likes
+      - retweets
+      title: XTopTweet
+      description: Top tweet mention for a stock - highest engagement tweets.
+      examples:
+      - text_snippet: $TSLA breaking out! This is the move we've been waiting for
+          🚀
+        sentiment_score: 0.85
+        sentiment_label: positive
+        likes: 1247
+        retweets: 89
+        views: 52340
+        author: elonmusk
+        created_at: '2025-12-28T14:32:00Z'
+    XTrendingCountry:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100) from X mentions
+          examples:
+          - 78.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days using mentions, likes and author breadth; not price movement
+            or Grok rank movement. For `from`/`to`, anchors at `to` (or now when `to`
+            is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total tweet mentions
+          examples:
+          - 4523
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers mentioned
+          examples:
+          - 34
+        unique_authors:
+          type: integer
+          title: Unique Authors
+          description: Exact distinct author breadth across the selected UTC period
+          examples:
+          - 156
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Weighted average sentiment (-1 bearish to +1 bullish)
+          examples:
+          - 0.28
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 54
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 22
+        total_upvotes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Upvotes
+          description: Total likes across all mentions
+          examples:
+          - 128450
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily dimension buzz scores (oldest to newest). Length follows
+            the resolved period, with a minimum of 7 values. Every slot describes
+            only its UTC calendar day. The live final value describes today so far
+            and can differ from period buzz_score. Closed historical windows end at
+            `to`. Historical author breadth is rebuilt from daily author_distribution
+            where available and may conservatively approximate exact cross-ticker
+            author de-duplication.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 78.4
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by mention count in this dimension
+          examples:
+          - - NVDA
+            - AAPL
+            - MSFT
+            - AMD
+            - GOOGL
+        country:
+          type: string
+          title: Country
+          description: Country name
+          examples:
+          - United States
+      type: object
+      required:
+      - buzz_score
+      - trend
+      - mentions
+      - unique_tickers
+      - unique_authors
+      - trend_history
+      - top_tickers
+      - country
+      title: XTrendingCountry
+      description: Trending country with aggregated buzz metrics from X/Twitter.
+      examples:
+      - buzz_score: 82.3
+        trend: stable
+        mentions: 8934
+        unique_tickers: 156
+        unique_authors: 423
+        sentiment_score: 0.21
+        bullish_pct: 48
+        bearish_pct: 26
+        total_upvotes: 245000
+        trend_history:
+        - 52.1
+        - 54.0
+        - 56.8
+        - 59.2
+        - 61.0
+        - 60.1
+        - 82.3
+        top_tickers:
+        - NVDA
+        - TSLA
+        - AAPL
+        - AMD
+        - PLTR
+        country: United States
+    XTrendingSector:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100) from X mentions
+          examples:
+          - 78.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days using mentions, likes and author breadth; not price movement
+            or Grok rank movement. For `from`/`to`, anchors at `to` (or now when `to`
+            is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total tweet mentions
+          examples:
+          - 4523
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers mentioned
+          examples:
+          - 34
+        unique_authors:
+          type: integer
+          title: Unique Authors
+          description: Exact distinct author breadth across the selected UTC period
+          examples:
+          - 156
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Weighted average sentiment (-1 bearish to +1 bullish)
+          examples:
+          - 0.28
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 54
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 22
+        total_upvotes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Upvotes
+          description: Total likes across all mentions
+          examples:
+          - 128450
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily dimension buzz scores (oldest to newest). Length follows
+            the resolved period, with a minimum of 7 values. Every slot describes
+            only its UTC calendar day. The live final value describes today so far
+            and can differ from period buzz_score. Closed historical windows end at
+            `to`. Historical author breadth is rebuilt from daily author_distribution
+            where available and may conservatively approximate exact cross-ticker
+            author de-duplication.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 78.4
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by mention count in this dimension
+          examples:
+          - - NVDA
+            - AAPL
+            - MSFT
+            - AMD
+            - GOOGL
+        sector:
+          type: string
+          title: Sector
+          description: Industry sector name
+          examples:
+          - Technology
+      type: object
+      required:
+      - buzz_score
+      - trend
+      - mentions
+      - unique_tickers
+      - unique_authors
+      - trend_history
+      - top_tickers
+      - sector
+      title: XTrendingSector
+      description: Trending sector with aggregated buzz metrics from X/Twitter.
+      examples:
+      - buzz_score: 78.4
+        trend: rising
+        mentions: 4523
+        unique_tickers: 34
+        unique_authors: 156
+        sentiment_score: 0.28
+        bullish_pct: 54
+        bearish_pct: 22
+        total_upvotes: 128450
+        trend_history:
+        - 45.2
+        - 48.1
+        - 52.3
+        - 55.0
+        - 58.2
+        - 61.5
+        - 78.4
+        top_tickers:
+        - NVDA
+        - AAPL
+        - MSFT
+        - AMD
+        - GOOGL
+        sector: Technology
+    XTrendingStock:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: 'V5.5 buzz score from real tweet data. Components: mentions
+            (20), sentiment (20), quality (10), author diversity (14, HHI-based when
+            author_distribution is available, else scaled unique_authors), trend (-10
+            to +20). Asymptotic scaling caps at 100.'
+          examples:
+          - 72.5
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3
+            UTC days, not price movement or Grok rank movement.
+          examples:
+          - rising
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Number of tweet mentions from x_mentions table
+          examples:
+          - 156
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score from tweet analysis (-1 to +1)
+          examples:
+          - 0.35
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish tweet mentions
+          examples:
+          - 45
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish tweet mentions
+          examples:
+          - 12
+        total_upvotes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Upvotes
+          description: Total likes across all tweet mentions
+          examples:
+          - 2847
+        unique_tweets:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Unique Tweets
+          description: Number of unique tweets mentioning this ticker (distinct tweet_id)
+          examples:
+          - 42
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz scores (oldest→newest). Length follows the resolved
+            period, with a minimum of 7 values. For live windows, the final value
+            is the current live buzz_score; closed historical windows end at `to`.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 64.8
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - trend
+      - mentions
+      title: XTrendingStock
+      description: 'Trending stock on X/Twitter - unified format matching Reddit API
+        structure.
+
+
+        V5.5: Uses real tweet data from x_mentions (collected via twscrape).
+
+        Author diversity now prefers HHI-based effective authors from
+
+        author_distribution and falls back to scaled unique_authors only when the
+
+        full distribution is unavailable.'
+      examples:
+      - ticker: TSLA
+        company_name: Tesla, Inc.
+        buzz_score: 72.5
+        trend: rising
+        mentions: 156
+        sentiment_score: 0.35
+        bullish_pct: 45
+        bearish_pct: 12
+        total_upvotes: 2847
+        unique_tweets: 42
+        trend_history:
+        - 45.2
+        - 48.1
+        - 52.3
+        - 55.0
+        - 58.2
+        - 61.5
+        - 64.8
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -4805,7 +4718,6 @@ components:
       in: header
       name: X-API-Key
 tags:
-- name: Polymarket Stocks
-  description: Prediction-market based stock sentiment and attention from Polymarket
-    prices, trades, liquidity and orderbook signals. Metrics are market-centric rather
-    than mention-based.
+- name: X/Twitter Stocks
+  description: Fast-moving stock attention from X/Twitter cashtags and tweet engagement,
+    useful for momentum discovery and validation.
