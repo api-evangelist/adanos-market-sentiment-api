@@ -433,6 +433,50 @@ paths:
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/health\",\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
 components:
   schemas:
+    CryptoSchedulerStatus:
+      properties:
+        running:
+          type: boolean
+          title: Running
+          description: Whether worker heartbeat is fresh
+        last_scrape:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Scrape
+          description: Last scrape timestamp
+        scrape_count:
+          type: integer
+          title: Scrape Count
+          description: Total scrapes
+          default: 0
+        error_count:
+          type: integer
+          title: Error Count
+          description: Total failed scrapes
+          default: 0
+        success_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Success Rate
+          description: Success ratio
+        timed_out_scrape_threads:
+          type: integer
+          title: Timed Out Scrape Threads
+          description: Timed-out Tor scrape attempts observed since the last successful reset.
+          default: 0
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+          description: Additional status information
+      type: object
+      required:
+      - running
+      title: CryptoSchedulerStatus
+      description: Crypto worker heartbeat status.
     XSchedulerStatus:
       properties:
         running:
@@ -481,6 +525,70 @@ components:
         scrape_count: 42
         error_count: 2
         success_rate: 0.95
+    XHealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: Current health status (healthy/unhealthy)
+          examples:
+          - healthy
+        service:
+          type: string
+          title: Service
+          description: Service identifier
+          examples:
+          - x-stocks
+        version:
+          type: string
+          title: Version
+          description: Current API version
+          examples:
+          - 1.50.0
+        total_mentions:
+          type: integer
+          title: Total Mentions
+          description: Mentions observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
+          examples:
+          - 15420
+        tickers_tracked:
+          type: integer
+          title: Tickers Tracked
+          description: Distinct tickers observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
+          examples:
+          - 247
+        scheduler:
+          anyOf:
+          - $ref: '#/components/schemas/XSchedulerStatus'
+          - type: 'null'
+          description: X Worker status (from worker_heartbeat table)
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if unhealthy
+      type: object
+      required:
+      - status
+      - service
+      - version
+      - total_mentions
+      - tickers_tracked
+      title: XHealthResponse
+      description: X/Twitter service health status - aligned with Reddit health response.
+      examples:
+      - status: healthy
+        service: x-stocks
+        version: 1.50.0
+        total_mentions: 15420
+        tickers_tracked: 247
+        scheduler:
+          running: true
+          last_scrape: '2025-12-31T06:00:00Z'
+          scrape_count: 42
+          error_count: 2
+          success_rate: 0.95
     PolymarketSchedulerStatus:
       properties:
         running:
@@ -525,6 +633,51 @@ components:
         scrape_count: 58
         error_count: 1
         success_rate: 0.983
+    SchedulerStatus:
+      properties:
+        running:
+          type: boolean
+          title: Running
+          description: Whether worker is alive (based on heartbeat freshness)
+        last_scrape:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Scrape
+          description: ISO timestamp of last scrape (null if never run)
+        scrape_count:
+          type: integer
+          title: Scrape Count
+          description: Total number of scrapes performed
+          default: 0
+        error_count:
+          type: integer
+          title: Error Count
+          description: Total number of scrape errors/failures
+          default: 0
+        success_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Success Rate
+          description: Scrape success rate (0.0-1.0)
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+          description: Additional info (e.g., worker heartbeat status)
+      type: object
+      required:
+      - running
+      title: SchedulerStatus
+      description: Scheduler status information.
+      examples:
+      - running: true
+        last_scrape: '2026-01-09T10:30:00Z'
+        scrape_count: 142
+        error_count: 3
+        success_rate: 0.979
     HealthResponse:
       properties:
         status:
@@ -591,176 +744,76 @@ components:
           scrape_count: 142
           error_count: 3
           success_rate: 0.979
-    CryptoSchedulerStatus:
-      properties:
-        running:
-          type: boolean
-          title: Running
-          description: Whether worker heartbeat is fresh
-        last_scrape:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Scrape
-          description: Last scrape timestamp
-        scrape_count:
-          type: integer
-          title: Scrape Count
-          description: Total scrapes
-          default: 0
-        error_count:
-          type: integer
-          title: Error Count
-          description: Total failed scrapes
-          default: 0
-        success_rate:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Success Rate
-          description: Success ratio
-        timed_out_scrape_threads:
-          type: integer
-          title: Timed Out Scrape Threads
-          description: Timed-out Tor scrape attempts observed since the last successful reset.
-          default: 0
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Note
-          description: Additional status information
-      type: object
-      required:
-      - running
-      title: CryptoSchedulerStatus
-      description: Crypto worker heartbeat status.
-    PolymarketHealthResponse:
+    RootHealthResponse:
       properties:
         status:
           type: string
+          enum:
+          - healthy
+          - unhealthy
           title: Status
-          description: Current health status
+          description: Aggregated root health status
           examples:
           - healthy
         service:
           type: string
           title: Service
-          description: Service identifier
-          examples:
-          - polymarket-stocks
+          description: Root service identifier
+          default: adanos-api
         version:
           type: string
           title: Version
-          description: API version
+          description: Service version
           examples:
           - 1.50.0
-        total_mentions:
-          type: integer
-          minimum: 0.0
-          title: Total Mentions
-          description: Mentions observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
-        tickers_tracked:
-          type: integer
-          minimum: 0.0
-          title: Tickers Tracked
-          description: Distinct tickers observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
-        scheduler:
-          anyOf:
-          - $ref: '#/components/schemas/PolymarketSchedulerStatus'
-          - type: 'null'
-          description: Polymarket worker status
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message when unhealthy
+        summary:
+          $ref: '#/components/schemas/RootHealthSummary'
+          description: Aggregated health counts
+        services:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          type: object
+          title: Services
+          description: Per-platform health payloads keyed by service identifier
       type: object
       required:
       - status
-      - service
       - version
-      - total_mentions
-      - tickers_tracked
-      title: PolymarketHealthResponse
-      description: Polymarket health response.
+      - summary
+      - services
+      title: RootHealthResponse
+      description: Root API health status aggregated across platforms.
       examples:
       - status: healthy
-        service: polymarket-stocks
+        service: adanos-api
         version: 1.50.0
-        total_mentions: 8421
-        tickers_tracked: 119
-        scheduler:
-          running: true
-          last_scrape: '2026-02-18T10:00:00Z'
-          scrape_count: 58
-          error_count: 1
-          success_rate: 0.983
-    XHealthResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-          description: Current health status (healthy/unhealthy)
-          examples:
-          - healthy
-        service:
-          type: string
-          title: Service
-          description: Service identifier
-          examples:
-          - x-stocks
-        version:
-          type: string
-          title: Version
-          description: Current API version
-          examples:
-          - 1.50.0
-        total_mentions:
-          type: integer
-          title: Total Mentions
-          description: Mentions observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
-          examples:
-          - 15420
-        tickers_tracked:
-          type: integer
-          title: Tickers Tracked
-          description: Distinct tickers observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
-          examples:
-          - 247
-        scheduler:
-          anyOf:
-          - $ref: '#/components/schemas/XSchedulerStatus'
-          - type: 'null'
-          description: X Worker status (from worker_heartbeat table)
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if unhealthy
-      type: object
-      required:
-      - status
-      - service
-      - version
-      - total_mentions
-      - tickers_tracked
-      title: XHealthResponse
-      description: X/Twitter service health status - aligned with Reddit health response.
-      examples:
-      - status: healthy
-        service: x-stocks
-        version: 1.50.0
-        total_mentions: 15420
-        tickers_tracked: 247
-        scheduler:
-          running: true
-          last_scrape: '2025-12-31T06:00:00Z'
-          scrape_count: 42
-          error_count: 2
-          success_rate: 0.95
+        summary:
+          total: 5
+          healthy: 5
+          unhealthy: 0
+          unhealthy_services: []
+        services:
+          news-stocks:
+            service: news-stocks
+            status: healthy
+            version: 1.50.0
+          polymarket-stocks:
+            service: polymarket-stocks
+            status: healthy
+            version: 1.50.0
+          reddit-crypto:
+            service: reddit-crypto
+            status: healthy
+            version: 1.50.0
+          reddit-stocks:
+            service: reddit-stocks
+            status: healthy
+            version: 1.50.0
+          x-stocks:
+            service: x-stocks
+            status: healthy
+            version: 1.50.0
     RootHealthSummary:
       properties:
         total:
@@ -847,121 +900,68 @@ components:
           error_count: 3
           success_rate: 0.988
           timed_out_scrape_threads: 0
-    SchedulerStatus:
-      properties:
-        running:
-          type: boolean
-          title: Running
-          description: Whether worker is alive (based on heartbeat freshness)
-        last_scrape:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Scrape
-          description: ISO timestamp of last scrape (null if never run)
-        scrape_count:
-          type: integer
-          title: Scrape Count
-          description: Total number of scrapes performed
-          default: 0
-        error_count:
-          type: integer
-          title: Error Count
-          description: Total number of scrape errors/failures
-          default: 0
-        success_rate:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Success Rate
-          description: Scrape success rate (0.0-1.0)
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Note
-          description: Additional info (e.g., worker heartbeat status)
-      type: object
-      required:
-      - running
-      title: SchedulerStatus
-      description: Scheduler status information.
-      examples:
-      - running: true
-        last_scrape: '2026-01-09T10:30:00Z'
-        scrape_count: 142
-        error_count: 3
-        success_rate: 0.979
-    RootHealthResponse:
+    PolymarketHealthResponse:
       properties:
         status:
           type: string
-          enum:
-          - healthy
-          - unhealthy
           title: Status
-          description: Aggregated root health status
+          description: Current health status
           examples:
           - healthy
         service:
           type: string
           title: Service
-          description: Root service identifier
-          default: adanos-api
+          description: Service identifier
+          examples:
+          - polymarket-stocks
         version:
           type: string
           title: Version
-          description: Service version
+          description: API version
           examples:
           - 1.50.0
-        summary:
-          $ref: '#/components/schemas/RootHealthSummary'
-          description: Aggregated health counts
-        services:
-          additionalProperties:
-            additionalProperties: true
-            type: object
-          type: object
-          title: Services
-          description: Per-platform health payloads keyed by service identifier
+        total_mentions:
+          type: integer
+          minimum: 0.0
+          title: Total Mentions
+          description: Mentions observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
+        tickers_tracked:
+          type: integer
+          minimum: 0.0
+          title: Tickers Tracked
+          description: Distinct tickers observed in the most recent scrape cycle; returns 0 when scrape telemetry is unavailable.
+        scheduler:
+          anyOf:
+          - $ref: '#/components/schemas/PolymarketSchedulerStatus'
+          - type: 'null'
+          description: Polymarket worker status
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message when unhealthy
       type: object
       required:
       - status
+      - service
       - version
-      - summary
-      - services
-      title: RootHealthResponse
-      description: Root API health status aggregated across platforms.
+      - total_mentions
+      - tickers_tracked
+      title: PolymarketHealthResponse
+      description: Polymarket health response.
       examples:
       - status: healthy
-        service: adanos-api
+        service: polymarket-stocks
         version: 1.50.0
-        summary:
-          total: 5
-          healthy: 5
-          unhealthy: 0
-          unhealthy_services: []
-        services:
-          news-stocks:
-            service: news-stocks
-            status: healthy
-            version: 1.50.0
-          polymarket-stocks:
-            service: polymarket-stocks
-            status: healthy
-            version: 1.50.0
-          reddit-crypto:
-            service: reddit-crypto
-            status: healthy
-            version: 1.50.0
-          reddit-stocks:
-            service: reddit-stocks
-            status: healthy
-            version: 1.50.0
-          x-stocks:
-            service: x-stocks
-            status: healthy
-            version: 1.50.0
+        total_mentions: 8421
+        tickers_tracked: 119
+        scheduler:
+          running: true
+          last_scrape: '2026-02-18T10:00:00Z'
+          scrape_count: 58
+          error_count: 1
+          success_rate: 0.983
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

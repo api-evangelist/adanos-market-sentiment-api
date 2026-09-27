@@ -2590,7 +2590,7 @@ paths:
 
 
         Use `source` only when you want the ranking filtered to one publisher or source family.'
-      operationId: getNewsTrendingStocks
+      operationId: getNewsStocksV1Trending
       security:
       - ApiKeyAuth: []
       parameters:
@@ -2884,6 +2884,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/trending?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsTrendingStocks
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -2909,7 +2911,7 @@ paths:
 
 
         Use `source` only when you want the ranking filtered to one publisher or source family.'
-      operationId: getNewsTrendingSectors
+      operationId: getNewsStocksV1TrendingSectors
       security:
       - ApiKeyAuth: []
       parameters:
@@ -3195,6 +3197,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/trending/sectors?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsTrendingSectors
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -3220,7 +3224,7 @@ paths:
 
 
         Use `source` only when you want the ranking filtered to one publisher or source family.'
-      operationId: getNewsTrendingCountries
+      operationId: getNewsStocksV1TrendingCountries
       security:
       - ApiKeyAuth: []
       parameters:
@@ -3506,6 +3510,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/trending/countries?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsTrendingCountries
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -3539,7 +3545,7 @@ paths:
         has no qualifying data in the requested window. Returns `404` only when the
 
         ticker is unsupported.'
-      operationId: getNewsStockSentiment
+      operationId: getNewsStocksV1StockByTicker
       security:
       - ApiKeyAuth: []
       parameters:
@@ -3818,6 +3824,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/stock/TSLA?from=2026-05-01&to=2026-05-07\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsStockSentiment
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -3846,7 +3854,7 @@ paths:
 
 
         Use `sentiment_score`, `bullish_pct` and `bearish_pct` for direction.'
-      operationId: getNewsMarketSentiment
+      operationId: getNewsStocksV1MarketSentiment
       security:
       - ApiKeyAuth: []
       parameters:
@@ -4098,6 +4106,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/market-sentiment?from=2026-05-01&to=2026-05-07\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsMarketSentiment
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -4118,7 +4128,7 @@ paths:
         - `generated_at`: when the explanation was generated
 
         - `model`: which LLM model generated the explanation'
-      operationId: getNewsStockExplanation
+      operationId: getNewsStocksV1StockByTickerExplain
       security:
       - ApiKeyAuth: []
       parameters:
@@ -4328,6 +4338,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/stock/TSLA/explain\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsStockExplanation
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -4344,7 +4356,7 @@ paths:
         Results are sorted by `buzz_score` descending and include `trend`, `trend_history`, `source_count`, `sentiment_score`, `bullish_pct` and `bearish_pct`.
 
         `trend` is activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).'
-      operationId: compareNewsStocks
+      operationId: getNewsStocksV1Compare
       security:
       - ApiKeyAuth: []
       parameters:
@@ -4641,6 +4653,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/compare?from=2026-05-01&to=2026-05-07&tickers=TSLA,AAPL,NVDA\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: compareNewsStocks
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -4650,7 +4664,7 @@ paths:
       - News Stocks
       summary: Search stocks
       description: Search stocks by ticker, company name or alias in the News universe. Results prioritize exact ticker matches first, then prefixes, then name/alias matches and include a compact `summary` block for the last 7 UTC calendar days.
-      operationId: searchNewsStocks
+      operationId: getNewsStocksV1Search
       security:
       - ApiKeyAuth: []
       parameters:
@@ -4882,6 +4896,8 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/search?q=tesla&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: searchNewsStocks
     servers:
     - url: https://api.adanos.org
       description: Production
@@ -5093,7 +5109,7 @@ paths:
         - Results are ordered newest first and support deterministic `offset` + `limit` pagination
 
         - empty result sets return `200` with `results=[]`'
-      operationId: getNewsStockMentions
+      operationId: getNewsStocksV1StockByTickerMentions
       security:
       - ApiKeyAuth: []
       parameters:
@@ -5360,20 +5376,344 @@ paths:
       - lang: python
         label: Python
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/news/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
+      x-operation-id-source: normalized
+      x-operation-id-original: getNewsStockMentions
     servers:
     - url: https://api.adanos.org
       description: Production
 components:
   schemas:
-    NewsSearchSummary:
+    NewsTopMention:
       properties:
+        text_snippet:
+          type: string
+          title: Text Snippet
+          description: Excerpt from the mention
+          examples:
+          - NVIDIA earnings beat expectations...
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Sentiment score (-1 to +1)
+          examples:
+          - 0.73
+        sentiment_label:
+          type: string
+          title: Sentiment Label
+          description: Sentiment label (positive/negative/neutral)
+          examples:
+          - positive
+        source:
+          type: string
+          title: Source
+          description: Source publication identifier
+          examples:
+          - reuters
+        created_utc:
+          type: string
+          title: Created Utc
+          description: ISO timestamp of creation
+          examples:
+          - '2026-03-05T12:30:00+00:00'
+      type: object
+      required:
+      - text_snippet
+      - sentiment_score
+      - sentiment_label
+      - source
+      - created_utc
+      title: NewsTopMention
+      description: Top mention item from news.
+    NewsCompareResponse:
+      properties:
+        period_days:
+          type: integer
+          title: Period Days
+          description: Analysis period in days
+          examples:
+          - 7
+        stocks:
+          items:
+            $ref: '#/components/schemas/NewsCompareStockItem'
+          type: array
+          title: Stocks
+          description: Stocks sorted by buzz_score descending
+      type: object
+      required:
+      - period_days
+      - stocks
+      title: NewsCompareResponse
+      description: Comparison of multiple stocks in news.
+      examples:
+      - period_days: 7
+        stocks:
+        - ticker: TSLA
+          company_name: Tesla, Inc.
+          buzz_score: 87.5
+          trend: rising
+          mentions: 342
+          source_count: 8
+          sentiment_score: 0.23
+          bullish_pct: 45
+          bearish_pct: 18
+          trend_history:
+          - 45.2
+          - 52.1
+          - 48.7
+          - 67.3
+          - 72.1
+          - 78.4
+          - 87.5
+        - ticker: NVDA
+          company_name: NVIDIA Corporation
+          buzz_score: 72.3
+          trend: stable
+          mentions: 189
+          source_count: 6
+          sentiment_score: 0.45
+          bullish_pct: 51
+          bearish_pct: 16
+          trend_history:
+          - 36.5
+          - 41.2
+          - 46.8
+          - 53.4
+          - 60.3
+          - 66.1
+          - 72.3
+    HistoricalLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
+          description: Structured error details
+      type: object
+      required:
+      - detail
+      title: HistoricalLimitError
+      description: Error response for historical data limit exceeded (HTTP 403).
+    InvalidPeriodErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        field:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field
+          description: Invalid query parameter name
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: Invalid query parameter value
+        today:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Today
+          description: Current UTC date used for validation
+        period_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period From
+          description: Resolved inclusive UTC start date
+        period_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period To
+          description: Resolved inclusive UTC end date
+        available_since:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Available Since
+          description: Earliest public data date for the platform
+        retention_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Retention From
+          description: Earliest date retained for the endpoint
+        requested_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Requested Days
+          description: Number of days requested
+        max_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Days
+          description: Maximum days accepted by the endpoint
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+          description: Platform identifier
+      type: object
+      required:
+      - error
+      - message
+      title: InvalidPeriodErrorDetail
+      description: Structured error detail for invalid period windows.
+    NewsTrendingStock:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference (null if not found)
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Buzz Score
+          description: Buzz Score (0-100). Asymptotic scaling above 50.
+          examples:
+          - 87.5
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total number of mentions
+          examples:
+          - 342
+        source_count:
+          type: integer
+          title: Source Count
+          description: Number of distinct news sources with mentions
+          examples:
+          - 8
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Average sentiment score (-1 bearish to +1 bullish)
+          examples:
+          - 0.23
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 45
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 18
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Values 0-100.
+          examples:
+          - - 12.3
+            - 15.2
+            - 18.7
+            - 22.1
+            - 28.5
+            - 35.2
+            - 42.8
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - trend
+      - mentions
+      - source_count
+      - sentiment_score
+      - bullish_pct
+      - bearish_pct
+      title: NewsTrendingStock
+      description: Trending stock with buzz metrics from news sources.
+      examples:
+      - ticker: TSLA
+        company_name: Tesla, Inc.
+        buzz_score: 87.5
+        trend: rising
+        mentions: 342
+        source_count: 8
+        sentiment_score: 0.23
+        bullish_pct: 45
+        bearish_pct: 18
+        trend_history:
+        - 45.2
+        - 52.1
+        - 48.7
+        - 67.3
+        - 72.1
+        - 78.4
+        - 87.5
+    NewsSourceCount:
+      properties:
+        source:
+          type: string
+          title: Source
+          description: News source identifier
+          examples:
+          - reuters
         mentions:
           type: integer
           minimum: 0.0
           title: Mentions
-          description: News mentions in the last 7 UTC calendar days
+          description: Mentions from this source
           examples:
-          - 342
+          - 89
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score for this source in the selected period
+          examples:
+          - 0.21
         buzz_score:
           anyOf:
           - type: number
@@ -5381,9 +5721,130 @@ components:
             minimum: 0.0
           - type: 'null'
           title: Buzz Score
-          description: Buzz score over the last 7 UTC calendar days
+          description: Contributor-level buzz score for this source in the selected period
           examples:
-          - 87.5
+          - 58.4
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+          description: Deprecated alias for mentions. Use mentions instead.
+          deprecated: true
+          examples:
+          - 89
+      type: object
+      required:
+      - source
+      - mentions
+      - count
+      title: NewsSourceCount
+      description: News source contributor metrics for a stock detail response.
+    UnsupportedAssetError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
+          description: Structured unsupported asset details
+      type: object
+      required:
+      - detail
+      title: UnsupportedAssetError
+      description: Error response for unsupported v1 stock/crypto asset requests.
+    DailyTrendItem:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+          description: Date in YYYY-MM-DD format
+          examples:
+          - '2025-12-28'
+        mentions:
+          type: integer
+          title: Mentions
+          description: Attributed mention count for this date, including inherited thread-context mentions
+          examples:
+          - 52
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score for this date
+          examples:
+          - 0.31
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz score for this date (0-100)
+          examples:
+          - 42.8
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Bullish mention percentage for this date, calculated from positive sentiment-classified mentions
+          examples:
+          - 62
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Bearish mention percentage for this date, calculated from negative sentiment-classified mentions
+          examples:
+          - 18
+      type: object
+      required:
+      - date
+      - mentions
+      title: DailyTrendItem
+      description: Daily trend data point.
+    InvalidSearchParametersErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        unsupported_parameters:
+          items:
+            type: string
+          type: array
+          title: Unsupported Parameters
+          description: Search query parameters that are not supported
+      type: object
+      required:
+      - error
+      - message
+      - unsupported_parameters
+      title: InvalidSearchParametersErrorDetail
+      description: Structured error detail for unsupported search query parameters.
+    NewsMarketSentimentResponse:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Service-wide News heat score relative to the service's trailing 90-day baseline. Around 50 = normal coverage heat, higher values = hotter-than-usual coverage.
+          examples:
+          - 53.8
         trend:
           anyOf:
           - type: string
@@ -5395,7 +5856,35 @@ components:
           title: Trend
           description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
           examples:
-          - rising
+          - stable
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: News mentions across the selected period
+          examples:
+          - 1298
+        unique_articles:
+          type: integer
+          minimum: 0.0
+          title: Unique Articles
+          description: Exact distinct article count across the selected UTC period
+          examples:
+          - 911
+        source_count:
+          type: integer
+          minimum: 0.0
+          title: Source Count
+          description: Exact distinct news-source breadth across the selected UTC period
+          examples:
+          - 44
+        active_tickers:
+          type: integer
+          minimum: 0.0
+          title: Active Tickers
+          description: Number of tickers with news activity in the selected period
+          examples:
+          - 233
         sentiment_score:
           anyOf:
           - type: number
@@ -5403,15 +5892,417 @@ components:
             minimum: -1.0
           - type: 'null'
           title: Sentiment Score
-          description: Average sentiment score over the last 7 UTC calendar days
+          description: Service-wide average news sentiment score
           examples:
-          - 0.23
+          - 0.064
+        positive_count:
+          type: integer
+          minimum: 0.0
+          title: Positive Count
+          description: Deprecated. Prefer bullish_pct with mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 512
+        negative_count:
+          type: integer
+          minimum: 0.0
+          title: Negative Count
+          description: Deprecated. Prefer bearish_pct with mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 308
+        neutral_count:
+          type: integer
+          minimum: 0.0
+          title: Neutral Count
+          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 478
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Bullish news mention percentage
+          examples:
+          - 39
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Bearish news mention percentage
+          examples:
+          - 24
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily service-wide buzz scores (oldest→newest) using the same relative baseline calibration. Length = max(requested_days, 7) for successful requests; windows before platform availability return HTTP 422.
+          examples:
+          - - 49.1
+            - 50.4
+            - 48.7
+            - 52.2
+            - 55.1
+            - 54.3
+            - 53.8
+        drivers:
+          items:
+            $ref: '#/components/schemas/NewsMarketSentimentDriver'
+          type: array
+          title: Drivers
+          description: Top assets by current buzz_score driving the service-level reading
       type: object
       required:
-      - mentions
       - buzz_score
-      title: NewsSearchSummary
-      description: Compact last-7-days summary attached to news search results.
+      - mentions
+      - unique_articles
+      - source_count
+      - active_tickers
+      - positive_count
+      - negative_count
+      - neutral_count
+      - bullish_pct
+      - bearish_pct
+      title: NewsMarketSentimentResponse
+      description: Service-level News market sentiment across all tracked stocks.
+      examples:
+      - buzz_score: 53.8
+        trend: stable
+        mentions: 1298
+        unique_articles: 911
+        source_count: 44
+        active_tickers: 233
+        sentiment_score: 0.064
+        positive_count: 512
+        negative_count: 308
+        neutral_count: 478
+        bullish_pct: 39
+        bearish_pct: 24
+        trend_history:
+        - 49.1
+        - 50.4
+        - 48.7
+        - 52.2
+        - 55.1
+        - 54.3
+        - 53.8
+        drivers:
+        - ticker: AAPL
+          mentions: 87
+          buzz_score: 69.7
+          sentiment_score: 0.22
+        - ticker: NVDA
+          mentions: 76
+          buzz_score: 67.3
+          sentiment_score: 0.31
+    HistoricalLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        requested_days:
+          type: integer
+          title: Requested Days
+          description: Number of days requested
+        enforced_quantity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enforced Quantity
+          description: Quantity checked against the account tier limit
+        max_days:
+          type: integer
+          title: Max Days
+          description: Maximum days allowed for account tier
+        account_type:
+          type: string
+          title: Account Type
+          description: User's account type (free, hobby, professional, premium)
+      type: object
+      required:
+      - error
+      - message
+      - requested_days
+      - max_days
+      - account_type
+      title: HistoricalLimitErrorDetail
+      description: Structured error detail for historical data limit exceeded.
+    NewsSearchResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Original search query
+          examples:
+          - tesla
+        count:
+          type: integer
+          title: Count
+          description: Total number of matching results before the limit is applied
+          examples:
+          - 1
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Fixed lookback window used for each summary block
+          examples:
+          - 7
+        results:
+          items:
+            $ref: '#/components/schemas/NewsSearchResultItem'
+          type: array
+          title: Results
+          description: Top matching stocks capped by the requested limit
+      type: object
+      required:
+      - query
+      - count
+      - period_days
+      - results
+      title: NewsSearchResponse
+      description: Search response for news assets.
+      examples:
+      - query: tesla
+        count: 1
+        period_days: 7
+        results:
+        - ticker: TSLA
+          name: Tesla Inc.
+          type: Stock
+          exchange: NASDAQ
+          sector: Consumer Discretionary
+          country: United States
+          aliases:
+          - Tesla
+          - Elon
+          summary:
+            mentions: 342
+            buzz_score: 87.5
+            trend: rising
+            sentiment_score: 0.23
+            bearish_pct: 18
+            bullish_pct: 45
+            source_count: 8
+    CompareLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Machine-readable error code
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        max_items:
+          type: integer
+          title: Max Items
+          description: Maximum accepted compare items
+        item_name:
+          type: string
+          title: Item Name
+          description: Compared item type, such as ticker or symbol
+      type: object
+      required:
+      - error
+      - message
+      - max_items
+      - item_name
+      title: CompareLimitErrorDetail
+      description: Structured error detail for compare item-count violations.
+    CompareLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/CompareLimitErrorDetail'
+          description: Structured error details
+      type: object
+      required:
+      - detail
+      title: CompareLimitError
+      description: Error response for compare item-count violations (HTTP 400).
+    NewsCompareStockItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz Score (0-100). Asymptotic scaling above 50.
+          examples:
+          - 87.5
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying news data exists.
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total mentions in period
+          examples:
+          - 342
+        source_count:
+          type: integer
+          title: Source Count
+          description: Number of distinct news sources with mentions in period
+          examples:
+          - 8
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment (-1 to +1, null if no mentions)
+          examples:
+          - 0.23
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 45
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 18
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Empty when no qualifying data exists.
+          examples:
+          - - 45.2
+            - 52.1
+            - 48.7
+            - 67.3
+            - 72.1
+            - 78.4
+            - 87.5
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - mentions
+      - source_count
+      title: NewsCompareStockItem
+      description: Individual stock in news comparison.
+    HTTPValidationError:
+      properties:
+        detail:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ValidationError'
+            type: array
+          - type: 'null'
+          title: Detail
+          description: Validation error details
+      type: object
+      title: HTTPValidationError
+      description: FastAPI/Pydantic validation error response.
+      examples:
+      - detail:
+        - loc:
+          - query
+          - days
+          msg: Input should be greater than or equal to 1
+          type: greater_than_equal
+    RateLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        limit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+          description: Applied request limit for the window
+        used:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Used
+          description: Requests used in the current window
+        remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Remaining
+          description: Requests remaining in the current window
+        account_type:
+          type: string
+          title: Account Type
+          description: Resolved account type or fallback tier
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+          description: ISO 8601 timestamp when the current window resets
+        contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact
+          description: Plan or support URL for resolving the limit
+      type: object
+      required:
+      - error
+      - message
+      - account_type
+      title: RateLimitErrorDetail
+      description: Structured rate-limit error detail.
     StockExplanationResponse:
       properties:
         ticker:
@@ -5469,43 +6360,16 @@ components:
         cached: true
         generated_at: '2026-01-13T14:30:00+00:00'
         model: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
-    HistoricalLimitErrorDetail:
+    RateLimitError:
       properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        requested_days:
-          type: integer
-          title: Requested Days
-          description: Number of days requested
-        enforced_quantity:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Enforced Quantity
-          description: Quantity checked against the account tier limit
-        max_days:
-          type: integer
-          title: Max Days
-          description: Maximum days allowed for account tier
-        account_type:
-          type: string
-          title: Account Type
-          description: User's account type (free, hobby, professional, premium)
+        detail:
+          $ref: '#/components/schemas/RateLimitErrorDetail'
+          description: Structured rate-limit details
       type: object
       required:
-      - error
-      - message
-      - requested_days
-      - max_days
-      - account_type
-      title: HistoricalLimitErrorDetail
-      description: Structured error detail for historical data limit exceeded.
+      - detail
+      title: RateLimitError
+      description: Error response for rate-limit exceeded responses.
     InvalidPeriodError:
       properties:
         detail:
@@ -5516,6 +6380,195 @@ components:
       - detail
       title: InvalidPeriodError
       description: Error response for invalid period requests (HTTP 422).
+    NewsTrendingSector:
+      properties:
+        buzz_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100)
+          examples:
+          - 78.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total mentions
+          examples:
+          - 4523
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers mentioned
+          examples:
+          - 34
+        source_count:
+          type: integer
+          title: Source Count
+          description: Number of distinct news sources with mentions
+          examples:
+          - 15
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Weighted average sentiment (-1 bearish to +1 bullish)
+          examples:
+          - 0.28
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 54
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 22
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 78.4
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by mentions
+          examples:
+          - - NVDA
+            - AAPL
+            - MSFT
+            - AMD
+            - GOOGL
+        sector:
+          type: string
+          title: Sector
+          description: Industry sector name
+          examples:
+          - Technology
+      type: object
+      required:
+      - buzz_score
+      - trend
+      - mentions
+      - unique_tickers
+      - source_count
+      - sentiment_score
+      - bullish_pct
+      - bearish_pct
+      - trend_history
+      - top_tickers
+      - sector
+      title: NewsTrendingSector
+      description: Trending sector with aggregated buzz metrics from news.
+      examples:
+      - buzz_score: 78.4
+        trend: rising
+        mentions: 4523
+        unique_tickers: 34
+        source_count: 15
+        sentiment_score: 0.28
+        bullish_pct: 54
+        bearish_pct: 22
+        trend_history:
+        - 45.2
+        - 48.1
+        - 52.3
+        - 55.0
+        - 58.2
+        - 61.5
+        - 78.4
+        top_tickers:
+        - NVDA
+        - AAPL
+        - MSFT
+        - AMD
+        - GOOGL
+        sector: Technology
+    NewsMarketSentimentDriver:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - AAPL
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: News mentions in the selected period
+          examples:
+          - 87
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Asset buzz score in the selected period
+          examples:
+          - 69.7
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average news sentiment score for this asset
+          examples:
+          - 0.22
+      type: object
+      required:
+      - ticker
+      - mentions
+      - buzz_score
+      title: NewsMarketSentimentDriver
+      description: Top asset contributing to the service-level News market sentiment.
+    InvalidSearchParametersError:
+      properties:
+        detail:
+          anyOf:
+          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
+          - type: string
+          title: Detail
+          description: Structured search-parameter error or normalized-query validation message
+      type: object
+      required:
+      - detail
+      title: InvalidSearchParametersError
+      description: Error response for invalid search query parameters.
     NewsStockSentiment:
       properties:
         ticker:
@@ -5708,242 +6761,15 @@ components:
           sentiment_label: positive
           source: reuters
           created_utc: '2026-03-05T10:30:00+00:00'
-    HistoricalLimitError:
+    NewsSearchSummary:
       properties:
-        detail:
-          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
-          description: Structured error details
-      type: object
-      required:
-      - detail
-      title: HistoricalLimitError
-      description: Error response for historical data limit exceeded (HTTP 403).
-    InvalidSearchParametersErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        unsupported_parameters:
-          items:
-            type: string
-          type: array
-          title: Unsupported Parameters
-          description: Search query parameters that are not supported
-      type: object
-      required:
-      - error
-      - message
-      - unsupported_parameters
-      title: InvalidSearchParametersErrorDetail
-      description: Structured error detail for unsupported search query parameters.
-    NewsTrendingSector:
-      properties:
-        buzz_score:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Buzz Score
-          description: Aggregated Buzz Score (0-100)
-          examples:
-          - 78.4
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
         mentions:
           type: integer
+          minimum: 0.0
           title: Mentions
-          description: Total mentions
+          description: News mentions in the last 7 UTC calendar days
           examples:
-          - 4523
-        unique_tickers:
-          type: integer
-          title: Unique Tickers
-          description: Number of unique tickers mentioned
-          examples:
-          - 34
-        source_count:
-          type: integer
-          title: Source Count
-          description: Number of distinct news sources with mentions
-          examples:
-          - 15
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Weighted average sentiment (-1 bearish to +1 bullish)
-          examples:
-          - 0.28
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Percentage of bullish mentions
-          examples:
-          - 54
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Percentage of bearish mentions
-          examples:
-          - 22
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
-          examples:
-          - - 45.2
-            - 48.1
-            - 52.3
-            - 55.0
-            - 58.2
-            - 61.5
-            - 78.4
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by mentions
-          examples:
-          - - NVDA
-            - AAPL
-            - MSFT
-            - AMD
-            - GOOGL
-        sector:
-          type: string
-          title: Sector
-          description: Industry sector name
-          examples:
-          - Technology
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - mentions
-      - unique_tickers
-      - source_count
-      - sentiment_score
-      - bullish_pct
-      - bearish_pct
-      - trend_history
-      - top_tickers
-      - sector
-      title: NewsTrendingSector
-      description: Trending sector with aggregated buzz metrics from news.
-      examples:
-      - buzz_score: 78.4
-        trend: rising
-        mentions: 4523
-        unique_tickers: 34
-        source_count: 15
-        sentiment_score: 0.28
-        bullish_pct: 54
-        bearish_pct: 22
-        trend_history:
-        - 45.2
-        - 48.1
-        - 52.3
-        - 55.0
-        - 58.2
-        - 61.5
-        - 78.4
-        top_tickers:
-        - NVDA
-        - AAPL
-        - MSFT
-        - AMD
-        - GOOGL
-        sector: Technology
-    NewsCompareResponse:
-      properties:
-        period_days:
-          type: integer
-          title: Period Days
-          description: Analysis period in days
-          examples:
-          - 7
-        stocks:
-          items:
-            $ref: '#/components/schemas/NewsCompareStockItem'
-          type: array
-          title: Stocks
-          description: Stocks sorted by buzz_score descending
-      type: object
-      required:
-      - period_days
-      - stocks
-      title: NewsCompareResponse
-      description: Comparison of multiple stocks in news.
-      examples:
-      - period_days: 7
-        stocks:
-        - ticker: TSLA
-          company_name: Tesla, Inc.
-          buzz_score: 87.5
-          trend: rising
-          mentions: 342
-          source_count: 8
-          sentiment_score: 0.23
-          bullish_pct: 45
-          bearish_pct: 18
-          trend_history:
-          - 45.2
-          - 52.1
-          - 48.7
-          - 67.3
-          - 72.1
-          - 78.4
-          - 87.5
-        - ticker: NVDA
-          company_name: NVIDIA Corporation
-          buzz_score: 72.3
-          trend: stable
-          mentions: 189
-          source_count: 6
-          sentiment_score: 0.45
-          bullish_pct: 51
-          bearish_pct: 16
-          trend_history:
-          - 36.5
-          - 41.2
-          - 46.8
-          - 53.4
-          - 60.3
-          - 66.1
-          - 72.3
-    RateLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/RateLimitErrorDetail'
-          description: Structured rate-limit details
-      type: object
-      required:
-      - detail
-      title: RateLimitError
-      description: Error response for rate-limit exceeded responses.
-    NewsMarketSentimentResponse:
-      properties:
+          - 342
         buzz_score:
           anyOf:
           - type: number
@@ -5951,9 +6777,9 @@ components:
             minimum: 0.0
           - type: 'null'
           title: Buzz Score
-          description: Service-wide News heat score relative to the service's trailing 90-day baseline. Around 50 = normal coverage heat, higher values = hotter-than-usual coverage.
+          description: Buzz score over the last 7 UTC calendar days
           examples:
-          - 53.8
+          - 87.5
         trend:
           anyOf:
           - type: string
@@ -5965,35 +6791,7 @@ components:
           title: Trend
           description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
           examples:
-          - stable
-        mentions:
-          type: integer
-          minimum: 0.0
-          title: Mentions
-          description: News mentions across the selected period
-          examples:
-          - 1298
-        unique_articles:
-          type: integer
-          minimum: 0.0
-          title: Unique Articles
-          description: Exact distinct article count across the selected UTC period
-          examples:
-          - 911
-        source_count:
-          type: integer
-          minimum: 0.0
-          title: Source Count
-          description: Exact distinct news-source breadth across the selected UTC period
-          examples:
-          - 44
-        active_tickers:
-          type: integer
-          minimum: 0.0
-          title: Active Tickers
-          description: Number of tickers with news activity in the selected period
-          examples:
-          - 233
+          - rising
         sentiment_score:
           anyOf:
           - type: number
@@ -6001,123 +6799,33 @@ components:
             minimum: -1.0
           - type: 'null'
           title: Sentiment Score
-          description: Service-wide average news sentiment score
+          description: Average sentiment score over the last 7 UTC calendar days
           examples:
-          - 0.064
-        positive_count:
-          type: integer
-          minimum: 0.0
-          title: Positive Count
-          description: Deprecated. Prefer bullish_pct with mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 512
-        negative_count:
-          type: integer
-          minimum: 0.0
-          title: Negative Count
-          description: Deprecated. Prefer bearish_pct with mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 308
-        neutral_count:
-          type: integer
-          minimum: 0.0
-          title: Neutral Count
-          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 478
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Bullish news mention percentage
-          examples:
-          - 39
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Bearish news mention percentage
-          examples:
-          - 24
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily service-wide buzz scores (oldest→newest) using the same relative baseline calibration. Length = max(requested_days, 7) for successful requests; windows before platform availability return HTTP 422.
-          examples:
-          - - 49.1
-            - 50.4
-            - 48.7
-            - 52.2
-            - 55.1
-            - 54.3
-            - 53.8
-        drivers:
-          items:
-            $ref: '#/components/schemas/NewsMarketSentimentDriver'
-          type: array
-          title: Drivers
-          description: Top assets by current buzz_score driving the service-level reading
+          - 0.23
       type: object
       required:
-      - buzz_score
       - mentions
-      - unique_articles
-      - source_count
-      - active_tickers
-      - positive_count
-      - negative_count
-      - neutral_count
-      - bullish_pct
-      - bearish_pct
-      title: NewsMarketSentimentResponse
-      description: Service-level News market sentiment across all tracked stocks.
-      examples:
-      - buzz_score: 53.8
-        trend: stable
-        mentions: 1298
-        unique_articles: 911
-        source_count: 44
-        active_tickers: 233
-        sentiment_score: 0.064
-        positive_count: 512
-        negative_count: 308
-        neutral_count: 478
-        bullish_pct: 39
-        bearish_pct: 24
-        trend_history:
-        - 49.1
-        - 50.4
-        - 48.7
-        - 52.2
-        - 55.1
-        - 54.3
-        - 53.8
-        drivers:
-        - ticker: AAPL
-          mentions: 87
-          buzz_score: 69.7
-          sentiment_score: 0.22
-        - ticker: NVDA
-          mentions: 76
-          buzz_score: 67.3
-          sentiment_score: 0.31
-    UnsupportedAssetError:
+      - buzz_score
+      title: NewsSearchSummary
+      description: Compact last-7-days summary attached to news search results.
+    UnsupportedAssetErrorDetail:
       properties:
-        detail:
-          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
-          description: Structured unsupported asset details
+        error_code:
+          type: string
+          title: Error Code
+          description: Machine-readable unsupported asset error code
+          examples:
+          - unsupported_ticker
+        message:
+          type: string
+          title: Message
+          description: Human-readable unsupported asset message
       type: object
       required:
-      - detail
-      title: UnsupportedAssetError
-      description: Error response for unsupported v1 stock/crypto asset requests.
+      - error_code
+      - message
+      title: UnsupportedAssetErrorDetail
+      description: Structured detail for unsupported v1 stock/crypto asset requests.
     NewsTrendingCountry:
       properties:
         buzz_score:
@@ -6252,181 +6960,6 @@ components:
         - AMD
         - PLTR
         country: United States
-    CompareLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/CompareLimitErrorDetail'
-          description: Structured error details
-      type: object
-      required:
-      - detail
-      title: CompareLimitError
-      description: Error response for compare item-count violations (HTTP 400).
-    NewsTrendingStock:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference (null if not found)
-          examples:
-          - Tesla, Inc.
-        buzz_score:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Buzz Score
-          description: Buzz Score (0-100). Asymptotic scaling above 50.
-          examples:
-          - 87.5
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        mentions:
-          type: integer
-          title: Mentions
-          description: Total number of mentions
-          examples:
-          - 342
-        source_count:
-          type: integer
-          title: Source Count
-          description: Number of distinct news sources with mentions
-          examples:
-          - 8
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Average sentiment score (-1 bearish to +1 bullish)
-          examples:
-          - 0.23
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Percentage of bullish mentions
-          examples:
-          - 45
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Percentage of bearish mentions
-          examples:
-          - 18
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Values 0-100.
-          examples:
-          - - 12.3
-            - 15.2
-            - 18.7
-            - 22.1
-            - 28.5
-            - 35.2
-            - 42.8
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - trend
-      - mentions
-      - source_count
-      - sentiment_score
-      - bullish_pct
-      - bearish_pct
-      title: NewsTrendingStock
-      description: Trending stock with buzz metrics from news sources.
-      examples:
-      - ticker: TSLA
-        company_name: Tesla, Inc.
-        buzz_score: 87.5
-        trend: rising
-        mentions: 342
-        source_count: 8
-        sentiment_score: 0.23
-        bullish_pct: 45
-        bearish_pct: 18
-        trend_history:
-        - 45.2
-        - 52.1
-        - 48.7
-        - 67.3
-        - 72.1
-        - 78.4
-        - 87.5
-    NewsRawMentionsResponse:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - AAPL
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Lookback window used for the query
-          examples:
-          - 7
-        count:
-          type: integer
-          minimum: 0.0
-          title: Count
-          description: Total number of matching raw rows before limit and offset are applied; only the requested page is returned
-          examples:
-          - 1
-        results:
-          items:
-            $ref: '#/components/schemas/NewsRawMentionItem'
-          type: array
-          title: Results
-          description: Raw news mention rows ordered by newest first
-      type: object
-      required:
-      - ticker
-      - period_days
-      - count
-      - results
-      title: NewsRawMentionsResponse
-      description: Paginated raw news mentions for a single stock ticker.
-      examples:
-      - ticker: AAPL
-        period_days: 7
-        count: 1
-        results:
-        - article_id: news-123
-          source: reuters
-          url: https://example.com/article
-          title: Apple supplier outlook lifts sentiment
-          summary: Suppliers signaled stronger-than-expected demand...
-          text_snippet: Suppliers signaled stronger-than-expected demand...
-          author: Jane Doe
-          created_utc: '2026-03-20T09:03:00Z'
-          sentiment_score: 0.21
-          sentiment_label: positive
     NewsSearchResultItem:
       properties:
         ticker:
@@ -6492,181 +7025,6 @@ components:
       - summary
       title: NewsSearchResultItem
       description: Individual news search result item.
-    InvalidSearchParametersError:
-      properties:
-        detail:
-          anyOf:
-          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
-          - type: string
-          title: Detail
-          description: Structured search-parameter error or normalized-query validation message
-      type: object
-      required:
-      - detail
-      title: InvalidSearchParametersError
-      description: Error response for invalid search query parameters.
-    DailyTrendItem:
-      properties:
-        date:
-          type: string
-          format: date
-          title: Date
-          description: Date in YYYY-MM-DD format
-          examples:
-          - '2025-12-28'
-        mentions:
-          type: integer
-          title: Mentions
-          description: Attributed mention count for this date, including inherited thread-context mentions
-          examples:
-          - 52
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average sentiment score for this date
-          examples:
-          - 0.31
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score for this date (0-100)
-          examples:
-          - 42.8
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Bullish mention percentage for this date, calculated from positive sentiment-classified mentions
-          examples:
-          - 62
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Bearish mention percentage for this date, calculated from negative sentiment-classified mentions
-          examples:
-          - 18
-      type: object
-      required:
-      - date
-      - mentions
-      title: DailyTrendItem
-      description: Daily trend data point.
-    NewsSearchResponse:
-      properties:
-        query:
-          type: string
-          title: Query
-          description: Original search query
-          examples:
-          - tesla
-        count:
-          type: integer
-          title: Count
-          description: Total number of matching results before the limit is applied
-          examples:
-          - 1
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Fixed lookback window used for each summary block
-          examples:
-          - 7
-        results:
-          items:
-            $ref: '#/components/schemas/NewsSearchResultItem'
-          type: array
-          title: Results
-          description: Top matching stocks capped by the requested limit
-      type: object
-      required:
-      - query
-      - count
-      - period_days
-      - results
-      title: NewsSearchResponse
-      description: Search response for news assets.
-      examples:
-      - query: tesla
-        count: 1
-        period_days: 7
-        results:
-        - ticker: TSLA
-          name: Tesla Inc.
-          type: Stock
-          exchange: NASDAQ
-          sector: Consumer Discretionary
-          country: United States
-          aliases:
-          - Tesla
-          - Elon
-          summary:
-            mentions: 342
-            buzz_score: 87.5
-            trend: rising
-            sentiment_score: 0.23
-            bearish_pct: 18
-            bullish_pct: 45
-            source_count: 8
-    CompareLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Machine-readable error code
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        max_items:
-          type: integer
-          title: Max Items
-          description: Maximum accepted compare items
-        item_name:
-          type: string
-          title: Item Name
-          description: Compared item type, such as ticker or symbol
-      type: object
-      required:
-      - error
-      - message
-      - max_items
-      - item_name
-      title: CompareLimitErrorDetail
-      description: Structured error detail for compare item-count violations.
-    ErrorResponse:
-      properties:
-        detail:
-          type: string
-          title: Detail
-          description: Human-readable error message
-          examples:
-          - Invalid API key.
-      type: object
-      required:
-      - detail
-      title: ErrorResponse
-      description: Standard error response.
-      examples:
-      - detail: Missing API key. Include 'X-API-Key' header.
-      - detail: Invalid API key.
-      - detail: API key has been revoked.
-      - detail: 'Rate limit exceeded: 100 per 1 minute'
     NewsRawMentionItem:
       properties:
         article_id:
@@ -6754,219 +7112,75 @@ components:
       - text_snippet
       title: NewsRawMentionItem
       description: Raw news mention row for one stock ticker.
-    NewsSourceCount:
+    ErrorResponse:
       properties:
-        source:
+        detail:
           type: string
-          title: Source
-          description: News source identifier
+          title: Detail
+          description: Human-readable error message
           examples:
-          - reuters
-        mentions:
+          - Invalid API key.
+      type: object
+      required:
+      - detail
+      title: ErrorResponse
+      description: Standard error response.
+      examples:
+      - detail: Missing API key. Include 'X-API-Key' header.
+      - detail: Invalid API key.
+      - detail: API key has been revoked.
+      - detail: 'Rate limit exceeded: 100 per 1 minute'
+    NewsRawMentionsResponse:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - AAPL
+        period_days:
           type: integer
-          minimum: 0.0
-          title: Mentions
-          description: Mentions from this source
+          minimum: 1.0
+          title: Period Days
+          description: Lookback window used for the query
           examples:
-          - 89
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average sentiment score for this source in the selected period
-          examples:
-          - 0.21
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Contributor-level buzz score for this source in the selected period
-          examples:
-          - 58.4
+          - 7
         count:
           type: integer
           minimum: 0.0
           title: Count
-          description: Deprecated alias for mentions. Use mentions instead.
-          deprecated: true
+          description: Total number of matching raw rows before limit and offset are applied; only the requested page is returned
           examples:
-          - 89
+          - 1
+        results:
+          items:
+            $ref: '#/components/schemas/NewsRawMentionItem'
+          type: array
+          title: Results
+          description: Raw news mention rows ordered by newest first
       type: object
       required:
-      - source
-      - mentions
+      - ticker
+      - period_days
       - count
-      title: NewsSourceCount
-      description: News source contributor metrics for a stock detail response.
-    InvalidPeriodErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        field:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Field
-          description: Invalid query parameter name
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: 'null'
-          title: Value
-          description: Invalid query parameter value
-        today:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Today
-          description: Current UTC date used for validation
-        period_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period From
-          description: Resolved inclusive UTC start date
-        period_to:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period To
-          description: Resolved inclusive UTC end date
-        available_since:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Available Since
-          description: Earliest public data date for the platform
-        retention_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Retention From
-          description: Earliest date retained for the endpoint
-        requested_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Requested Days
-          description: Number of days requested
-        max_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Days
-          description: Maximum days accepted by the endpoint
-        platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Platform
-          description: Platform identifier
-      type: object
-      required:
-      - error
-      - message
-      title: InvalidPeriodErrorDetail
-      description: Structured error detail for invalid period windows.
-    NewsTopMention:
-      properties:
-        text_snippet:
-          type: string
-          title: Text Snippet
-          description: Excerpt from the mention
-          examples:
-          - NVIDIA earnings beat expectations...
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Sentiment score (-1 to +1)
-          examples:
-          - 0.73
-        sentiment_label:
-          type: string
-          title: Sentiment Label
-          description: Sentiment label (positive/negative/neutral)
-          examples:
-          - positive
-        source:
-          type: string
-          title: Source
-          description: Source publication identifier
-          examples:
-          - reuters
-        created_utc:
-          type: string
-          title: Created Utc
-          description: ISO timestamp of creation
-          examples:
-          - '2026-03-05T12:30:00+00:00'
-      type: object
-      required:
-      - text_snippet
-      - sentiment_score
-      - sentiment_label
-      - source
-      - created_utc
-      title: NewsTopMention
-      description: Top mention item from news.
-    UnsupportedAssetErrorDetail:
-      properties:
-        error_code:
-          type: string
-          title: Error Code
-          description: Machine-readable unsupported asset error code
-          examples:
-          - unsupported_ticker
-        message:
-          type: string
-          title: Message
-          description: Human-readable unsupported asset message
-      type: object
-      required:
-      - error_code
-      - message
-      title: UnsupportedAssetErrorDetail
-      description: Structured detail for unsupported v1 stock/crypto asset requests.
-    HTTPValidationError:
-      properties:
-        detail:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ValidationError'
-            type: array
-          - type: 'null'
-          title: Detail
-          description: Validation error details
-      type: object
-      title: HTTPValidationError
-      description: FastAPI/Pydantic validation error response.
+      - results
+      title: NewsRawMentionsResponse
+      description: Paginated raw news mentions for a single stock ticker.
       examples:
-      - detail:
-        - loc:
-          - query
-          - days
-          msg: Input should be greater than or equal to 1
-          type: greater_than_equal
+      - ticker: AAPL
+        period_days: 7
+        count: 1
+        results:
+        - article_id: news-123
+          source: reuters
+          url: https://example.com/article
+          title: Apple supplier outlook lifts sentiment
+          summary: Suppliers signaled stronger-than-expected demand...
+          text_snippet: Suppliers signaled stronger-than-expected demand...
+          author: Jane Doe
+          created_utc: '2026-03-20T09:03:00Z'
+          sentiment_score: 0.21
+          sentiment_label: positive
     ValidationError:
       properties:
         loc:
@@ -6998,202 +7212,6 @@ components:
         - days
         msg: Input should be greater than or equal to 1
         type: greater_than_equal
-    NewsCompareStockItem:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
-          examples:
-          - Tesla, Inc.
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz Score (0-100). Asymptotic scaling above 50.
-          examples:
-          - 87.5
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions/articles and source breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying news data exists.
-          examples:
-          - rising
-        mentions:
-          type: integer
-          title: Mentions
-          description: Total mentions in period
-          examples:
-          - 342
-        source_count:
-          type: integer
-          title: Source Count
-          description: Number of distinct news sources with mentions in period
-          examples:
-          - 8
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average sentiment (-1 to +1, null if no mentions)
-          examples:
-          - 0.23
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Percentage of bullish mentions
-          examples:
-          - 45
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Percentage of bearish mentions
-          examples:
-          - 18
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Empty when no qualifying data exists.
-          examples:
-          - - 45.2
-            - 52.1
-            - 48.7
-            - 67.3
-            - 72.1
-            - 78.4
-            - 87.5
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - mentions
-      - source_count
-      title: NewsCompareStockItem
-      description: Individual stock in news comparison.
-    NewsMarketSentimentDriver:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - AAPL
-        mentions:
-          type: integer
-          minimum: 0.0
-          title: Mentions
-          description: News mentions in the selected period
-          examples:
-          - 87
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Asset buzz score in the selected period
-          examples:
-          - 69.7
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average news sentiment score for this asset
-          examples:
-          - 0.22
-      type: object
-      required:
-      - ticker
-      - mentions
-      - buzz_score
-      title: NewsMarketSentimentDriver
-      description: Top asset contributing to the service-level News market sentiment.
-    RateLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Limit
-          description: Applied request limit for the window
-        used:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Used
-          description: Requests used in the current window
-        remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Remaining
-          description: Requests remaining in the current window
-        account_type:
-          type: string
-          title: Account Type
-          description: Resolved account type or fallback tier
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-          description: ISO 8601 timestamp when the current window resets
-        contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact
-          description: Plan or support URL for resolving the limit
-      type: object
-      required:
-      - error
-      - message
-      - account_type
-      title: RateLimitErrorDetail
-      description: Structured rate-limit error detail.
     NewsStatsResponse:
       properties:
         total_mentions:

@@ -2566,56 +2566,17 @@ paths:
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/polymarket/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
 components:
   schemas:
-    PolymarketTickerPulse:
+    HistoricalLimitError:
       properties:
-        mood:
-          type: string
-          enum:
-          - bullish
-          - bearish
-          - mixed
-          - event_driven
-          - illiquid
-          - unclear
-          title: Mood
-          description: Current compact Polymarket interpretation for this ticker
-        confidence:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Confidence
-          description: Interpretation confidence capped by coverage, trade breadth, spread, liquidity and recency
-        thin_data:
-          type: boolean
-          title: Thin Data
-          description: True when current evidence is insufficient for a strong directional interpretation
-        why:
-          items:
-            type: string
-          type: array
-          maxItems: 4
-          minItems: 1
-          title: Why
-          description: Stable machine-readable reason codes explaining the pulse interpretation
-        warnings:
-          items:
-            type: string
-          type: array
-          title: Warnings
-          description: Stable machine-readable data quality, freshness and tradability warnings
-        evidence:
-          $ref: '#/components/schemas/PolymarketPulseEvidence'
-          description: Compact non-duplicative quality summary for the pulse inputs
+        detail:
+          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
+          description: Structured error details
       type: object
       required:
-      - mood
-      - confidence
-      - thin_data
-      - why
-      - evidence
-      title: PolymarketTickerPulse
-      description: Compact interpretation layer for current ticker-level Polymarket data.
-    HistoricalLimitErrorDetail:
+      - detail
+      title: HistoricalLimitError
+      description: Error response for historical data limit exceeded (HTTP 403).
+    InvalidPeriodErrorDetail:
       properties:
         error:
           type: string
@@ -2625,45 +2586,87 @@ components:
           type: string
           title: Message
           description: Human-readable error message
-        requested_days:
-          type: integer
-          title: Requested Days
-          description: Number of days requested
-        enforced_quantity:
+        field:
           anyOf:
           - type: string
           - type: 'null'
-          title: Enforced Quantity
-          description: Quantity checked against the account tier limit
+          title: Field
+          description: Invalid query parameter name
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: Invalid query parameter value
+        today:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Today
+          description: Current UTC date used for validation
+        period_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period From
+          description: Resolved inclusive UTC start date
+        period_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period To
+          description: Resolved inclusive UTC end date
+        available_since:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Available Since
+          description: Earliest public data date for the platform
+        retention_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Retention From
+          description: Earliest date retained for the endpoint
+        requested_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Requested Days
+          description: Number of days requested
         max_days:
-          type: integer
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Max Days
-          description: Maximum days allowed for account tier
-        account_type:
-          type: string
-          title: Account Type
-          description: User's account type (free, hobby, professional, premium)
+          description: Maximum days accepted by the endpoint
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+          description: Platform identifier
       type: object
       required:
       - error
       - message
-      - requested_days
-      - max_days
-      - account_type
-      title: HistoricalLimitErrorDetail
-      description: Structured error detail for historical data limit exceeded.
-    PolymarketCompareStockItem:
+      title: InvalidPeriodErrorDetail
+      description: Structured error detail for invalid period windows.
+    PolymarketSearchSummary:
       properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
+        trade_count:
+          type: integer
+          minimum: 0.0
+          title: Trade Count
+          description: Trade count in the last 7 UTC calendar days
+          examples:
+          - 14
         buzz_score:
           anyOf:
           - type: number
@@ -2671,7 +2674,9 @@ components:
             minimum: 0.0
           - type: 'null'
           title: Buzz Score
-          description: Buzz score (0-100)
+          description: Buzz score over the last 7 UTC calendar days
+          examples:
+          - 71.4
         trend:
           anyOf:
           - type: string
@@ -2681,29 +2686,9 @@ components:
             - stable
           - type: 'null'
           title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying activity exists.
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count in selected period
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Distinct markets that existed for ticker within the selected UTC window, counted by market-catalog lifetime overlap
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Number of currently open markets in the latest UTC-day snapshot for ticker; use this for live-only market breadth
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet hashes for the delivered scope and UTC window; null when retained wallet-level trades do not fully cover the window; not a complete market-wide participant census
+          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
         sentiment_score:
           anyOf:
           - type: number
@@ -2711,21 +2696,235 @@ components:
             minimum: -1.0
           - type: 'null'
           title: Sentiment Score
-          description: Orderbook-aware implied sentiment; null when no directional sentiment evidence exists in the selected period
-        bullish_pct:
+          description: Orderbook-aware implied sentiment over the last 7 UTC calendar days
+          examples:
+          - 0.34
+      type: object
+      required:
+      - trade_count
+      - buzz_score
+      title: PolymarketSearchSummary
+      description: Compact last-7-days summary attached to Polymarket search results.
+    PolymarketTrendingStock:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
           anyOf:
-          - type: integer
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          anyOf:
+          - type: number
             maximum: 100.0
             minimum: 0.0
           - type: 'null'
+          title: Buzz Score
+          description: Polymarket activity/flow discovery score (0-100); not directional sentiment
+          examples:
+          - 71.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        trade_count:
+          type: integer
+          minimum: 0.0
+          title: Trade Count
+          description: Trade count in selected period
+          examples:
+          - 312
+        market_count:
+          type: integer
+          minimum: 0.0
+          title: Market Count
+          description: Distinct markets that existed for ticker within the selected UTC window, counted by market-catalog lifetime overlap
+          examples:
+          - 27
+        current_market_count:
+          type: integer
+          minimum: 0.0
+          title: Current Market Count
+          description: Number of currently open markets in the latest UTC-day snapshot for ticker; use this for live-only market breadth
+          examples:
+          - 12
+        unique_traders:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Unique Traders
+          description: Exact distinct union of observed proxy and explicit maker wallet hashes for the delivered scope and UTC window; null when retained wallet-level trades do not fully cover the window; not a complete market-wide participant census
+          examples:
+          - 119
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Orderbook-aware implied sentiment (-1 to +1); null when no directional sentiment evidence exists in the selected period
+          examples:
+          - 0.34
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Outcome-aware bullish market percentage
+          examples:
+          - 67
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Outcome-aware bearish market percentage
+          examples:
+          - 33
+        total_liquidity:
+          type: number
+          minimum: 0.0
+          title: Total Liquidity
+          description: Windowed aggregated liquidity signal in USD over the selected period; not a current snapshot
+          examples:
+          - 94750.0
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Recent buzz history (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Closed historical windows end at `to`.
+          examples:
+          - - 48.2
+            - 51.0
+            - 55.3
+            - 61.1
+            - 65.8
+            - 69.2
+            - 71.4
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - trend
+      - trade_count
+      - market_count
+      - current_market_count
+      - bullish_pct
+      - bearish_pct
+      - total_liquidity
+      title: PolymarketTrendingStock
+      description: Trending stock from Polymarket in Reddit/X-compatible shape.
+      examples:
+      - ticker: TSLA
+        company_name: Tesla, Inc.
+        buzz_score: 71.4
+        trend: rising
+        trade_count: 312
+        market_count: 27
+        current_market_count: 12
+        unique_traders: 119
+        sentiment_score: 0.34
+        bullish_pct: 67
+        bearish_pct: 33
+        total_liquidity: 94750.0
+        trend_history:
+        - 48.2
+        - 51.0
+        - 55.3
+        - 61.1
+        - 65.8
+        - 69.2
+        - 71.4
+    UnsupportedAssetError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
+          description: Structured unsupported asset details
+      type: object
+      required:
+      - detail
+      title: UnsupportedAssetError
+      description: Error response for unsupported v1 stock/crypto asset requests.
+    PolymarketTrendingCountry:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Aggregated activity/flow buzz score using trades, volume, breadth, liquidity and participation
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+        trade_count:
+          type: integer
+          minimum: 0.0
+          title: Trade Count
+          description: Total trade count in period
+        market_count:
+          type: integer
+          minimum: 0.0
+          title: Market Count
+          description: Sum of ticker-level catalog lifetime-overlap market counts in the selected UTC window for this dimension; not a cross-ticker condition-id union
+        current_market_count:
+          type: integer
+          minimum: 0.0
+          title: Current Market Count
+          description: Sum of ticker-level currently open markets in the latest UTC-day snapshot; use this for live-only market breadth
+        unique_tickers:
+          type: integer
+          minimum: 0.0
+          title: Unique Tickers
+          description: Unique tickers in dimension
+        unique_traders:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Unique Traders
+          description: Exact distinct union of observed proxy and explicit maker wallet hashes for the dimension and UTC window; null when retained wallet-level trades do not fully cover the window
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Weighted implied sentiment; null when no underlying trades exist in the selected period
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
           title: Bullish Pct
           description: Outcome-aware bullish market percentage
         bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
           title: Bearish Pct
           description: Outcome-aware bearish market percentage
         total_liquidity:
@@ -2738,160 +2937,265 @@ components:
             type: number
           type: array
           title: Trend History
-          description: Recent buzz history (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Closed historical windows end at `to`. Empty when no qualifying data exists.
+          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
+          examples:
+          - - 48.2
+            - 51.0
+            - 55.3
+            - 61.1
+            - 65.8
+            - 69.2
+            - 72.8
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by trade_count
+        country:
+          type: string
+          title: Country
+          description: Country name
+          examples:
+          - United States
       type: object
       required:
-      - ticker
       - buzz_score
+      - trend
       - trade_count
       - market_count
       - current_market_count
-      - total_liquidity
-      title: PolymarketCompareStockItem
-      description: Single stock item for Polymarket compare endpoint.
-    InvalidPeriodError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/InvalidPeriodErrorDetail'
-          description: Structured error details
-      type: object
-      required:
-      - detail
-      title: InvalidPeriodError
-      description: Error response for invalid period requests (HTTP 422).
-    PolymarketStatsResponse:
-      properties:
-        total_trades:
-          type: integer
-          minimum: 0.0
-          title: Total Trades
-          description: Total Polymarket trade activity from daily aggregates
-        total_markets:
-          type: integer
-          minimum: 0.0
-          title: Total Markets
-          description: Distinct Polymarket condition_id count
-        unique_tickers:
-          type: integer
-          minimum: 0.0
-          title: Unique Tickers
-          description: Distinct tickers with Polymarket market rows in the database
-        open_markets_current:
-          type: integer
-          minimum: 0.0
-          title: Open Markets Current
-          description: Currently open Polymarket markets where active=true, closed=false and end_date has not passed
-          default: 0
-        open_tickers_current:
-          type: integer
-          minimum: 0.0
-          title: Open Tickers Current
-          description: Distinct tickers with at least one currently open Polymarket market
-          default: 0
-        traded_markets_today:
-          type: integer
-          minimum: 0.0
-          title: Traded Markets Today
-          description: Distinct Polymarket condition_id values with UTC-day trade activity
-          default: 0
-        traded_tickers_today:
-          type: integer
-          minimum: 0.0
-          title: Traded Tickers Today
-          description: Distinct tickers with UTC-day Polymarket trade activity
-          default: 0
-        trades_today:
-          type: integer
-          minimum: 0.0
-          title: Trades Today
-          description: Polymarket trade activity during today's UTC date
-          default: 0
-        supported_tickers:
-          type: integer
-          minimum: 0.0
-          title: Supported Tickers
-          description: Ticker count in ticker_reference
-      type: object
-      required:
-      - total_trades
-      - total_markets
       - unique_tickers
-      - supported_tickers
-      title: PolymarketStatsResponse
-      description: Polymarket service statistics.
+      - bullish_pct
+      - bearish_pct
+      - total_liquidity
+      - trend_history
+      - top_tickers
+      - country
+      title: PolymarketTrendingCountry
+      description: Trending country on Polymarket.
       examples:
-      - total_trades: 15420
-        total_markets: 713
-        unique_tickers: 119
-        open_markets_current: 284
-        open_tickers_current: 71
-        traded_markets_today: 39
-        traded_tickers_today: 17
-        trades_today: 84
-        supported_tickers: 35000
-    PolymarketRawMentionsResponse:
+      - buzz_score: 70.1
+        trend: stable
+        trade_count: 712
+        market_count: 265
+        current_market_count: 129
+        unique_tickers: 10
+        unique_traders: 402
+        sentiment_score: 0.18
+        bullish_pct: 58
+        bearish_pct: 42
+        total_liquidity: 472000.0
+        trend_history:
+        - 52.1
+        - 54.0
+        - 56.8
+        - 59.2
+        - 61.0
+        - 60.1
+        - 70.1
+        top_tickers:
+        - AAPL
+        - TSLA
+        - NVDA
+        - AMZN
+        - GOOGL
+        country: United States
+    PolymarketRawMentionItem:
       properties:
-        ticker:
+        condition_id:
           type: string
-          title: Ticker
-          description: Stock ticker symbol
+          title: Condition Id
+          description: Polymarket condition ID
           examples:
-          - NVDA
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Lookback window used for the query
+          - 0xabc...
+        event_id:
+          type: string
+          title: Event Id
+          description: Polymarket event ID
           examples:
-          - 7
-        count:
+          - '12345'
+        market_slug:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Market Slug
+          description: Polymarket market slug
+          examples:
+          - nvda-up-or-down-on-april-20-2026
+        question:
+          type: string
+          title: Question
+          description: Market question/title
+          examples:
+          - NVDA up or down on April 20?
+        market_type:
+          type: string
+          title: Market Type
+          description: Derived market type (`up_down`, `close_above`, `hit_target`, `earnings` or `other`)
+          examples:
+          - up_down
+        strike_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Strike Price
+          description: Extracted strike price when available
+          examples:
+          - 250.0
+        yes_price:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Yes Price
+          description: YES price from this snapshot
+          examples:
+          - 0.63
+        no_price:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: No Price
+          description: NO price from this snapshot
+          examples:
+          - 0.37
+        reference_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Reference Price
+          description: Stock reference price attached during scrape when needed for range-ladder classification
+          examples:
+          - 101.68
+        reference_price_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reference Price Timestamp
+          description: Timestamp for `reference_price` when available
+          examples:
+          - '2026-04-20T14:30:00Z'
+        liquidity:
+          type: number
+          minimum: 0.0
+          title: Liquidity
+          description: Market liquidity in USD at snapshot time
+          examples:
+          - 7905.52
+        volume_24h:
+          type: number
+          minimum: 0.0
+          title: Volume 24H
+          description: Rolling 24h market volume in USD at snapshot time
+          examples:
+          - 2408.43
+        trade_count:
           type: integer
           minimum: 0.0
-          title: Count
-          description: Total number of matching raw rows before limit and offset are applied; only the requested page is returned
+          title: Trade Count
+          description: UTC-day trade count observed for this market snapshot
           examples:
-          - 1
-        results:
-          items:
-            $ref: '#/components/schemas/PolymarketRawMentionItem'
-          type: array
-          title: Results
-          description: Raw market snapshot rows ordered by newest first
+          - 42
+        buy_trades:
+          type: integer
+          minimum: 0.0
+          title: Buy Trades
+          description: UTC-day Polymarket BUY trades for this snapshot; activity counter, not bullishness
+          examples:
+          - 23
+        sell_trades:
+          type: integer
+          minimum: 0.0
+          title: Sell Trades
+          description: UTC-day Polymarket SELL trades for this snapshot; activity counter, not bearishness
+          examples:
+          - 19
+        unique_traders:
+          type: integer
+          minimum: 0.0
+          title: Unique Traders
+          description: UTC-day observed participant/proxy-wallet counter for this market snapshot
+          examples:
+          - 31
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Outcome-aware market price sentiment for this snapshot; prefers orderbook midpoint when available, falls back to YES/NO price and is null when direction or evidence is unavailable
+          examples:
+          - 0.26
+        sentiment_label:
+          anyOf:
+          - type: string
+            enum:
+            - positive
+            - negative
+            - neutral
+          - type: 'null'
+          title: Sentiment Label
+          description: 'Classification derived from `sentiment_score`: positive=bullish, negative=bearish, neutral=flat; null when `sentiment_score` is null'
+          examples:
+          - positive
+        end_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: End Date
+          description: Market end timestamp when available. Unlike summary `top_mentions`, raw rows preserve the full timestamp from the stored snapshot.
+          examples:
+          - '2026-04-20T23:59:00Z'
+        active:
+          type: boolean
+          title: Active
+          description: Whether the market is currently open; false for closed or ended markets
+          examples:
+          - true
+        market_status:
+          type: string
+          enum:
+          - tradable
+          - open
+          - resolved
+          - inactive
+          - expired
+          title: Market Status
+          description: Compact current market status derived from active, closed, accepting_orders and end_date
+          examples:
+          - tradable
+        fetched_at:
+          type: string
+          format: date-time
+          title: Fetched At
+          description: Snapshot fetch timestamp
+          examples:
+          - '2026-04-20T15:00:00Z'
       type: object
       required:
-      - ticker
-      - period_days
-      - count
-      - results
-      title: PolymarketRawMentionsResponse
-      description: Paginated raw Polymarket snapshot rows for a single stock ticker.
-      examples:
-      - ticker: NVDA
-        period_days: 7
-        count: 1
-        results:
-        - condition_id: 0xabc...
-          event_id: '12345'
-          market_slug: nvda-up-or-down-on-april-20-2026
-          question: NVDA up or down on April 20?
-          market_type: up_down
-          strike_price: 250.0
-          yes_price: 0.63
-          no_price: 0.37
-          reference_price: 247.82
-          reference_price_timestamp: '2026-04-20T14:30:00Z'
-          liquidity: 7905.52
-          volume_24h: 2408.43
-          trade_count: 42
-          buy_trades: 23
-          sell_trades: 19
-          unique_traders: 31
-          sentiment_score: 0.26
-          sentiment_label: positive
-          end_date: '2026-04-20T23:59:00Z'
-          active: true
-          market_status: tradable
-          fetched_at: '2026-04-20T15:00:00Z'
+      - condition_id
+      - event_id
+      - question
+      - market_type
+      - liquidity
+      - volume_24h
+      - trade_count
+      - buy_trades
+      - sell_trades
+      - unique_traders
+      - active
+      - market_status
+      - fetched_at
+      title: PolymarketRawMentionItem
+      description: Raw Polymarket market snapshot row for one stock ticker.
     PolymarketTopMention:
       properties:
         condition_id:
@@ -3241,166 +3545,6 @@ components:
             zero_trade_market_pct: 0.769
             avg_spread: 0.099
             snapshot_at: '2026-06-24T06:25:53Z'
-    PolymarketSearchResponse:
-      properties:
-        query:
-          type: string
-          title: Query
-          description: Original search query
-          examples:
-          - tesla
-        count:
-          type: integer
-          title: Count
-          description: Total number of matching results before the limit is applied
-          examples:
-          - 1
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Fixed lookback window used for each summary block
-          examples:
-          - 7
-        results:
-          items:
-            $ref: '#/components/schemas/PolymarketSearchResultItem'
-          type: array
-          title: Results
-          description: Top matching stocks capped by the requested limit
-      type: object
-      required:
-      - query
-      - count
-      - period_days
-      - results
-      title: PolymarketSearchResponse
-      description: Search results for Polymarket stocks.
-      examples:
-      - query: tesla
-        count: 1
-        period_days: 7
-        results:
-        - ticker: TSLA
-          name: Tesla Inc.
-          type: Stock
-          exchange: NASDAQ
-          sector: Consumer Discretionary
-          country: United States
-          aliases:
-          - Tesla
-          - Elon
-          summary:
-            trade_count: 14
-            buzz_score: 71.4
-            trend: rising
-            sentiment_score: 0.34
-            bearish_pct: 33
-            bullish_pct: 67
-            current_market_count: 12
-            market_count: 27
-            total_liquidity: 94750.0
-            unique_traders: 119
-    HistoricalLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
-          description: Structured error details
-      type: object
-      required:
-      - detail
-      title: HistoricalLimitError
-      description: Error response for historical data limit exceeded (HTTP 403).
-    InvalidSearchParametersErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        unsupported_parameters:
-          items:
-            type: string
-          type: array
-          title: Unsupported Parameters
-          description: Search query parameters that are not supported
-      type: object
-      required:
-      - error
-      - message
-      - unsupported_parameters
-      title: InvalidSearchParametersErrorDetail
-      description: Structured error detail for unsupported search query parameters.
-    PolymarketSearchSummary:
-      properties:
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count in the last 7 UTC calendar days
-          examples:
-          - 14
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score over the last 7 UTC calendar days
-          examples:
-          - 71.4
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Orderbook-aware implied sentiment over the last 7 UTC calendar days
-          examples:
-          - 0.34
-      type: object
-      required:
-      - trade_count
-      - buzz_score
-      title: PolymarketSearchSummary
-      description: Compact last-7-days summary attached to Polymarket search results.
-    RateLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/RateLimitErrorDetail'
-          description: Structured rate-limit details
-      type: object
-      required:
-      - detail
-      title: RateLimitError
-      description: Error response for rate-limit exceeded responses.
-    UnsupportedAssetError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
-          description: Structured unsupported asset details
-      type: object
-      required:
-      - detail
-      title: UnsupportedAssetError
-      description: Error response for unsupported v1 stock/crypto asset requests.
     PolymarketTrendingSector:
       properties:
         buzz_score:
@@ -3541,6 +3685,201 @@ components:
         - TSLA
         - AMD
         sector: Technology
+    InvalidSearchParametersErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        unsupported_parameters:
+          items:
+            type: string
+          type: array
+          title: Unsupported Parameters
+          description: Search query parameters that are not supported
+      type: object
+      required:
+      - error
+      - message
+      - unsupported_parameters
+      title: InvalidSearchParametersErrorDetail
+      description: Structured error detail for unsupported search query parameters.
+    HistoricalLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        requested_days:
+          type: integer
+          title: Requested Days
+          description: Number of days requested
+        enforced_quantity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enforced Quantity
+          description: Quantity checked against the account tier limit
+        max_days:
+          type: integer
+          title: Max Days
+          description: Maximum days allowed for account tier
+        account_type:
+          type: string
+          title: Account Type
+          description: User's account type (free, hobby, professional, premium)
+      type: object
+      required:
+      - error
+      - message
+      - requested_days
+      - max_days
+      - account_type
+      title: HistoricalLimitErrorDetail
+      description: Structured error detail for historical data limit exceeded.
+    PolymarketTickerPulse:
+      properties:
+        mood:
+          type: string
+          enum:
+          - bullish
+          - bearish
+          - mixed
+          - event_driven
+          - illiquid
+          - unclear
+          title: Mood
+          description: Current compact Polymarket interpretation for this ticker
+        confidence:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Confidence
+          description: Interpretation confidence capped by coverage, trade breadth, spread, liquidity and recency
+        thin_data:
+          type: boolean
+          title: Thin Data
+          description: True when current evidence is insufficient for a strong directional interpretation
+        why:
+          items:
+            type: string
+          type: array
+          maxItems: 4
+          minItems: 1
+          title: Why
+          description: Stable machine-readable reason codes explaining the pulse interpretation
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+          description: Stable machine-readable data quality, freshness and tradability warnings
+        evidence:
+          $ref: '#/components/schemas/PolymarketPulseEvidence'
+          description: Compact non-duplicative quality summary for the pulse inputs
+      type: object
+      required:
+      - mood
+      - confidence
+      - thin_data
+      - why
+      - evidence
+      title: PolymarketTickerPulse
+      description: Compact interpretation layer for current ticker-level Polymarket data.
+    CompareLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Machine-readable error code
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        max_items:
+          type: integer
+          title: Max Items
+          description: Maximum accepted compare items
+        item_name:
+          type: string
+          title: Item Name
+          description: Compared item type, such as ticker or symbol
+      type: object
+      required:
+      - error
+      - message
+      - max_items
+      - item_name
+      title: CompareLimitErrorDetail
+      description: Structured error detail for compare item-count violations.
+    PolymarketSearchResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Original search query
+          examples:
+          - tesla
+        count:
+          type: integer
+          title: Count
+          description: Total number of matching results before the limit is applied
+          examples:
+          - 1
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Fixed lookback window used for each summary block
+          examples:
+          - 7
+        results:
+          items:
+            $ref: '#/components/schemas/PolymarketSearchResultItem'
+          type: array
+          title: Results
+          description: Top matching stocks capped by the requested limit
+      type: object
+      required:
+      - query
+      - count
+      - period_days
+      - results
+      title: PolymarketSearchResponse
+      description: Search results for Polymarket stocks.
+      examples:
+      - query: tesla
+        count: 1
+        period_days: 7
+        results:
+        - ticker: TSLA
+          name: Tesla Inc.
+          type: Stock
+          exchange: NASDAQ
+          sector: Consumer Discretionary
+          country: United States
+          aliases:
+          - Tesla
+          - Elon
+          summary:
+            trade_count: 14
+            buzz_score: 71.4
+            trend: rising
+            sentiment_score: 0.34
+            bearish_pct: 33
+            bullish_pct: 67
+            current_market_count: 12
+            market_count: 27
+            total_liquidity: 94750.0
+            unique_traders: 119
     CompareLimitError:
       properties:
         detail:
@@ -3551,22 +3890,145 @@ components:
       - detail
       title: CompareLimitError
       description: Error response for compare item-count violations (HTTP 400).
-    PolymarketTrendingStock:
+    PolymarketPulseEvidence:
       properties:
-        ticker:
+        directional_coverage:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Directional Coverage
+          description: Share of current open snapshot markets with outcome-aware directional evidence
+        traded_market_pct:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Traded Market Pct
+          description: Share of current open snapshot markets with trades in the latest UTC day
+        zero_trade_market_pct:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Zero Trade Market Pct
+          description: Share of current open snapshot markets without trades in the latest UTC day
+        avg_spread:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: 'null'
+          title: Avg Spread
+          description: Average YES-token spread across current open snapshot markets with bid/ask spread evidence
+        snapshot_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Snapshot At
+          description: Latest stored snapshot timestamp used by the pulse read model
+      type: object
+      title: PolymarketPulseEvidence
+      description: Compact data-quality evidence for the ticker-level Polymarket pulse.
+    HTTPValidationError:
+      properties:
+        detail:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ValidationError'
+            type: array
+          - type: 'null'
+          title: Detail
+          description: Validation error details
+      type: object
+      title: HTTPValidationError
+      description: FastAPI/Pydantic validation error response.
+      examples:
+      - detail:
+        - loc:
+          - query
+          - days
+          msg: Input should be greater than or equal to 1
+          type: greater_than_equal
+    RateLimitErrorDetail:
+      properties:
+        error:
           type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        limit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+          description: Applied request limit for the window
+        used:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Used
+          description: Requests used in the current window
+        remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Remaining
+          description: Requests remaining in the current window
+        account_type:
+          type: string
+          title: Account Type
+          description: Resolved account type or fallback tier
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+          description: ISO 8601 timestamp when the current window resets
+        contact:
           anyOf:
           - type: string
           - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
+          title: Contact
+          description: Plan or support URL for resolving the limit
+      type: object
+      required:
+      - error
+      - message
+      - account_type
+      title: RateLimitErrorDetail
+      description: Structured rate-limit error detail.
+    PolymarketDailyTrendItem:
+      properties:
+        date:
+          type: string
+          title: Date
+          description: Date in YYYY-MM-DD format
           examples:
-          - Tesla, Inc.
+          - '2026-02-13'
+        trade_count:
+          type: integer
+          title: Trade Count
+          description: Trade count on this date
+          examples:
+          - 5
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Outcome-aware implied sentiment on this date; can come from orderbook evidence or legacy traded price evidence, null when no sentiment evidence exists
+          examples:
+          - 0.25
         buzz_score:
           anyOf:
           - type: number
@@ -3574,40 +4036,142 @@ components:
             minimum: 0.0
           - type: 'null'
           title: Buzz Score
-          description: Polymarket activity/flow discovery score (0-100); not directional sentiment
+          description: Buzz score on this date; null when neither a daily aggregate nor a live fallback could be computed for this date
           examples:
-          - 71.4
-        trend:
+          - 64.1
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Outcome-aware bullish market-direction percentage for this date
+          examples:
+          - 64
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Outcome-aware bearish market-direction percentage for this date
+          examples:
+          - 21
+      type: object
+      required:
+      - date
+      - trade_count
+      title: PolymarketDailyTrendItem
+      description: Daily trend item for stock detail endpoint.
+    RateLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/RateLimitErrorDetail'
+          description: Structured rate-limit details
+      type: object
+      required:
+      - detail
+      title: RateLimitError
+      description: Error response for rate-limit exceeded responses.
+    InvalidPeriodError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/InvalidPeriodErrorDetail'
+          description: Structured error details
+      type: object
+      required:
+      - detail
+      title: InvalidPeriodError
+      description: Error response for invalid period requests (HTTP 422).
+    PolymarketMarketSentimentDriver:
+      properties:
+        ticker:
           type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          title: Ticker
+          description: Stock ticker symbol
           examples:
-          - rising
+          - AAPL
+        trade_count:
+          type: integer
+          minimum: 0.0
+          title: Trade Count
+          description: Trade count for this asset in the selected period
+          examples:
+          - 52
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Asset buzz score in the selected period
+          examples:
+          - 68.9
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Implied sentiment score for this asset in the selected period
+          examples:
+          - 0.28
+      type: object
+      required:
+      - ticker
+      - trade_count
+      - buzz_score
+      title: PolymarketMarketSentimentDriver
+      description: Top asset contributing to the service-level Polymarket market sentiment.
+    PolymarketCompareStockItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz score (0-100)
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying activity exists.
         trade_count:
           type: integer
           minimum: 0.0
           title: Trade Count
           description: Trade count in selected period
-          examples:
-          - 312
         market_count:
           type: integer
           minimum: 0.0
           title: Market Count
           description: Distinct markets that existed for ticker within the selected UTC window, counted by market-catalog lifetime overlap
-          examples:
-          - 27
         current_market_count:
           type: integer
           minimum: 0.0
           title: Current Market Count
           description: Number of currently open markets in the latest UTC-day snapshot for ticker; use this for live-only market breadth
-          examples:
-          - 12
         unique_traders:
           anyOf:
           - type: integer
@@ -3615,8 +4179,6 @@ components:
           - type: 'null'
           title: Unique Traders
           description: Exact distinct union of observed proxy and explicit maker wallet hashes for the delivered scope and UTC window; null when retained wallet-level trades do not fully cover the window; not a complete market-wide participant census
-          examples:
-          - 119
         sentiment_score:
           anyOf:
           - type: number
@@ -3624,339 +4186,120 @@ components:
             minimum: -1.0
           - type: 'null'
           title: Sentiment Score
-          description: Orderbook-aware implied sentiment (-1 to +1); null when no directional sentiment evidence exists in the selected period
-          examples:
-          - 0.34
+          description: Orderbook-aware implied sentiment; null when no directional sentiment evidence exists in the selected period
         bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
           title: Bullish Pct
           description: Outcome-aware bullish market percentage
-          examples:
-          - 67
         bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
           title: Bearish Pct
           description: Outcome-aware bearish market percentage
-          examples:
-          - 33
         total_liquidity:
           type: number
           minimum: 0.0
           title: Total Liquidity
           description: Windowed aggregated liquidity signal in USD over the selected period; not a current snapshot
-          examples:
-          - 94750.0
         trend_history:
           items:
             type: number
           type: array
           title: Trend History
-          description: Recent buzz history (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Closed historical windows end at `to`.
-          examples:
-          - - 48.2
-            - 51.0
-            - 55.3
-            - 61.1
-            - 65.8
-            - 69.2
-            - 71.4
+          description: Recent buzz history (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Closed historical windows end at `to`. Empty when no qualifying data exists.
       type: object
       required:
       - ticker
       - buzz_score
-      - trend
       - trade_count
       - market_count
       - current_market_count
-      - bullish_pct
-      - bearish_pct
       - total_liquidity
-      title: PolymarketTrendingStock
-      description: Trending stock from Polymarket in Reddit/X-compatible shape.
-      examples:
-      - ticker: TSLA
-        company_name: Tesla, Inc.
-        buzz_score: 71.4
-        trend: rising
-        trade_count: 312
-        market_count: 27
-        current_market_count: 12
-        unique_traders: 119
-        sentiment_score: 0.34
-        bullish_pct: 67
-        bearish_pct: 33
-        total_liquidity: 94750.0
-        trend_history:
-        - 48.2
-        - 51.0
-        - 55.3
-        - 61.1
-        - 65.8
-        - 69.2
-        - 71.4
-    PolymarketSearchResultItem:
+      title: PolymarketCompareStockItem
+      description: Single stock item for Polymarket compare endpoint.
+    PolymarketRawMentionsResponse:
       properties:
         ticker:
           type: string
           title: Ticker
           description: Stock ticker symbol
           examples:
-          - TSLA
-        name:
-          type: string
-          title: Name
-          description: Company name
+          - NVDA
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Lookback window used for the query
           examples:
-          - Tesla Inc.
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-          description: Asset type (Stock, ETF, etc.)
+          - 7
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+          description: Total number of matching raw rows before limit and offset are applied; only the requested page is returned
           examples:
-          - Stock
-        exchange:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Exchange
-          description: Stock exchange
-          examples:
-          - NASDAQ
-        sector:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sector
-          description: Industry sector
-          examples:
-          - Consumer Discretionary
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-          description: Country of headquarters
-          examples:
-          - United States
-        aliases:
+          - 1
+        results:
           items:
-            type: string
+            $ref: '#/components/schemas/PolymarketRawMentionItem'
           type: array
-          title: Aliases
-          description: Alternative names/aliases
-          examples:
-          - - Tesla
-            - Elon
-        summary:
-          $ref: '#/components/schemas/PolymarketSearchSummary'
-          description: Last-7-days Polymarket summary for this asset
+          title: Results
+          description: Raw market snapshot rows ordered by newest first
       type: object
       required:
       - ticker
-      - name
-      - summary
-      title: PolymarketSearchResultItem
-      description: Individual Polymarket search result item.
-    PolymarketRawMentionItem:
+      - period_days
+      - count
+      - results
+      title: PolymarketRawMentionsResponse
+      description: Paginated raw Polymarket snapshot rows for a single stock ticker.
+      examples:
+      - ticker: NVDA
+        period_days: 7
+        count: 1
+        results:
+        - condition_id: 0xabc...
+          event_id: '12345'
+          market_slug: nvda-up-or-down-on-april-20-2026
+          question: NVDA up or down on April 20?
+          market_type: up_down
+          strike_price: 250.0
+          yes_price: 0.63
+          no_price: 0.37
+          reference_price: 247.82
+          reference_price_timestamp: '2026-04-20T14:30:00Z'
+          liquidity: 7905.52
+          volume_24h: 2408.43
+          trade_count: 42
+          buy_trades: 23
+          sell_trades: 19
+          unique_traders: 31
+          sentiment_score: 0.26
+          sentiment_label: positive
+          end_date: '2026-04-20T23:59:00Z'
+          active: true
+          market_status: tradable
+          fetched_at: '2026-04-20T15:00:00Z'
+    InvalidSearchParametersError:
       properties:
-        condition_id:
-          type: string
-          title: Condition Id
-          description: Polymarket condition ID
-          examples:
-          - 0xabc...
-        event_id:
-          type: string
-          title: Event Id
-          description: Polymarket event ID
-          examples:
-          - '12345'
-        market_slug:
+        detail:
           anyOf:
+          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
           - type: string
-          - type: 'null'
-          title: Market Slug
-          description: Polymarket market slug
-          examples:
-          - nvda-up-or-down-on-april-20-2026
-        question:
-          type: string
-          title: Question
-          description: Market question/title
-          examples:
-          - NVDA up or down on April 20?
-        market_type:
-          type: string
-          title: Market Type
-          description: Derived market type (`up_down`, `close_above`, `hit_target`, `earnings` or `other`)
-          examples:
-          - up_down
-        strike_price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Strike Price
-          description: Extracted strike price when available
-          examples:
-          - 250.0
-        yes_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Yes Price
-          description: YES price from this snapshot
-          examples:
-          - 0.63
-        no_price:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: No Price
-          description: NO price from this snapshot
-          examples:
-          - 0.37
-        reference_price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Reference Price
-          description: Stock reference price attached during scrape when needed for range-ladder classification
-          examples:
-          - 101.68
-        reference_price_timestamp:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reference Price Timestamp
-          description: Timestamp for `reference_price` when available
-          examples:
-          - '2026-04-20T14:30:00Z'
-        liquidity:
-          type: number
-          minimum: 0.0
-          title: Liquidity
-          description: Market liquidity in USD at snapshot time
-          examples:
-          - 7905.52
-        volume_24h:
-          type: number
-          minimum: 0.0
-          title: Volume 24H
-          description: Rolling 24h market volume in USD at snapshot time
-          examples:
-          - 2408.43
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: UTC-day trade count observed for this market snapshot
-          examples:
-          - 42
-        buy_trades:
-          type: integer
-          minimum: 0.0
-          title: Buy Trades
-          description: UTC-day Polymarket BUY trades for this snapshot; activity counter, not bullishness
-          examples:
-          - 23
-        sell_trades:
-          type: integer
-          minimum: 0.0
-          title: Sell Trades
-          description: UTC-day Polymarket SELL trades for this snapshot; activity counter, not bearishness
-          examples:
-          - 19
-        unique_traders:
-          type: integer
-          minimum: 0.0
-          title: Unique Traders
-          description: UTC-day observed participant/proxy-wallet counter for this market snapshot
-          examples:
-          - 31
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Outcome-aware market price sentiment for this snapshot; prefers orderbook midpoint when available, falls back to YES/NO price and is null when direction or evidence is unavailable
-          examples:
-          - 0.26
-        sentiment_label:
-          anyOf:
-          - type: string
-            enum:
-            - positive
-            - negative
-            - neutral
-          - type: 'null'
-          title: Sentiment Label
-          description: 'Classification derived from `sentiment_score`: positive=bullish, negative=bearish, neutral=flat; null when `sentiment_score` is null'
-          examples:
-          - positive
-        end_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: End Date
-          description: Market end timestamp when available. Unlike summary `top_mentions`, raw rows preserve the full timestamp from the stored snapshot.
-          examples:
-          - '2026-04-20T23:59:00Z'
-        active:
-          type: boolean
-          title: Active
-          description: Whether the market is currently open; false for closed or ended markets
-          examples:
-          - true
-        market_status:
-          type: string
-          enum:
-          - tradable
-          - open
-          - resolved
-          - inactive
-          - expired
-          title: Market Status
-          description: Compact current market status derived from active, closed, accepting_orders and end_date
-          examples:
-          - tradable
-        fetched_at:
-          type: string
-          format: date-time
-          title: Fetched At
-          description: Snapshot fetch timestamp
-          examples:
-          - '2026-04-20T15:00:00Z'
+          title: Detail
+          description: Structured search-parameter error or normalized-query validation message
       type: object
       required:
-      - condition_id
-      - event_id
-      - question
-      - market_type
-      - liquidity
-      - volume_24h
-      - trade_count
-      - buy_trades
-      - sell_trades
-      - unique_traders
-      - active
-      - market_status
-      - fetched_at
-      title: PolymarketRawMentionItem
-      description: Raw Polymarket market snapshot row for one stock ticker.
+      - detail
+      title: InvalidSearchParametersError
+      description: Error response for invalid search query parameters.
     PolymarketMarketSentimentResponse:
       properties:
         buzz_score:
@@ -4142,105 +4485,159 @@ components:
           trade_count: 47
           buzz_score: 66.3
           sentiment_score: 0.19
-    InvalidSearchParametersError:
+    UnsupportedAssetErrorDetail:
       properties:
-        detail:
-          anyOf:
-          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
-          - type: string
-          title: Detail
-          description: Structured search-parameter error or normalized-query validation message
-      type: object
-      required:
-      - detail
-      title: InvalidSearchParametersError
-      description: Error response for invalid search query parameters.
-    PolymarketDailyTrendItem:
-      properties:
-        date:
+        error_code:
           type: string
-          title: Date
-          description: Date in YYYY-MM-DD format
+          title: Error Code
+          description: Machine-readable unsupported asset error code
           examples:
-          - '2026-02-13'
-        trade_count:
-          type: integer
-          title: Trade Count
-          description: Trade count on this date
-          examples:
-          - 5
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Outcome-aware implied sentiment on this date; can come from orderbook evidence or legacy traded price evidence, null when no sentiment evidence exists
-          examples:
-          - 0.25
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score on this date; null when neither a daily aggregate nor a live fallback could be computed for this date
-          examples:
-          - 64.1
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Outcome-aware bullish market-direction percentage for this date
-          examples:
-          - 64
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Outcome-aware bearish market-direction percentage for this date
-          examples:
-          - 21
-      type: object
-      required:
-      - date
-      - trade_count
-      title: PolymarketDailyTrendItem
-      description: Daily trend item for stock detail endpoint.
-    CompareLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Machine-readable error code
+          - unsupported_ticker
         message:
           type: string
           title: Message
-          description: Human-readable error message
-        max_items:
-          type: integer
-          title: Max Items
-          description: Maximum accepted compare items
-        item_name:
-          type: string
-          title: Item Name
-          description: Compared item type, such as ticker or symbol
+          description: Human-readable unsupported asset message
       type: object
       required:
-      - error
+      - error_code
       - message
-      - max_items
-      - item_name
-      title: CompareLimitErrorDetail
-      description: Structured error detail for compare item-count violations.
+      title: UnsupportedAssetErrorDetail
+      description: Structured detail for unsupported v1 stock/crypto asset requests.
+    PolymarketSearchResultItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        name:
+          type: string
+          title: Name
+          description: Company name
+          examples:
+          - Tesla Inc.
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+          description: Asset type (Stock, ETF, etc.)
+          examples:
+          - Stock
+        exchange:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Exchange
+          description: Stock exchange
+          examples:
+          - NASDAQ
+        sector:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sector
+          description: Industry sector
+          examples:
+          - Consumer Discretionary
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country of headquarters
+          examples:
+          - United States
+        aliases:
+          items:
+            type: string
+          type: array
+          title: Aliases
+          description: Alternative names/aliases
+          examples:
+          - - Tesla
+            - Elon
+        summary:
+          $ref: '#/components/schemas/PolymarketSearchSummary'
+          description: Last-7-days Polymarket summary for this asset
+      type: object
+      required:
+      - ticker
+      - name
+      - summary
+      title: PolymarketSearchResultItem
+      description: Individual Polymarket search result item.
+    PolymarketStatsResponse:
+      properties:
+        total_trades:
+          type: integer
+          minimum: 0.0
+          title: Total Trades
+          description: Total Polymarket trade activity from daily aggregates
+        total_markets:
+          type: integer
+          minimum: 0.0
+          title: Total Markets
+          description: Distinct Polymarket condition_id count
+        unique_tickers:
+          type: integer
+          minimum: 0.0
+          title: Unique Tickers
+          description: Distinct tickers with Polymarket market rows in the database
+        open_markets_current:
+          type: integer
+          minimum: 0.0
+          title: Open Markets Current
+          description: Currently open Polymarket markets where active=true, closed=false and end_date has not passed
+          default: 0
+        open_tickers_current:
+          type: integer
+          minimum: 0.0
+          title: Open Tickers Current
+          description: Distinct tickers with at least one currently open Polymarket market
+          default: 0
+        traded_markets_today:
+          type: integer
+          minimum: 0.0
+          title: Traded Markets Today
+          description: Distinct Polymarket condition_id values with UTC-day trade activity
+          default: 0
+        traded_tickers_today:
+          type: integer
+          minimum: 0.0
+          title: Traded Tickers Today
+          description: Distinct tickers with UTC-day Polymarket trade activity
+          default: 0
+        trades_today:
+          type: integer
+          minimum: 0.0
+          title: Trades Today
+          description: Polymarket trade activity during today's UTC date
+          default: 0
+        supported_tickers:
+          type: integer
+          minimum: 0.0
+          title: Supported Tickers
+          description: Ticker count in ticker_reference
+      type: object
+      required:
+      - total_trades
+      - total_markets
+      - unique_tickers
+      - supported_tickers
+      title: PolymarketStatsResponse
+      description: Polymarket service statistics.
+      examples:
+      - total_trades: 15420
+        total_markets: 713
+        unique_tickers: 119
+        open_markets_current: 284
+        open_tickers_current: 71
+        traded_markets_today: 39
+        traded_tickers_today: 17
+        trades_today: 84
+        supported_tickers: 35000
     ErrorResponse:
       properties:
         detail:
@@ -4259,48 +4656,6 @@ components:
       - detail: Invalid API key.
       - detail: API key has been revoked.
       - detail: 'Rate limit exceeded: 100 per 1 minute'
-    PolymarketMarketSentimentDriver:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - AAPL
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Trade count for this asset in the selected period
-          examples:
-          - 52
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Asset buzz score in the selected period
-          examples:
-          - 68.9
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Implied sentiment score for this asset in the selected period
-          examples:
-          - 0.28
-      type: object
-      required:
-      - ticker
-      - trade_count
-      - buzz_score
-      title: PolymarketMarketSentimentDriver
-      description: Top asset contributing to the service-level Polymarket market sentiment.
     PolymarketCompareResponse:
       properties:
         period_days:
@@ -4344,266 +4699,6 @@ components:
           - 65.8
           - 69.2
           - 68.9
-    InvalidPeriodErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        field:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Field
-          description: Invalid query parameter name
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: 'null'
-          title: Value
-          description: Invalid query parameter value
-        today:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Today
-          description: Current UTC date used for validation
-        period_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period From
-          description: Resolved inclusive UTC start date
-        period_to:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period To
-          description: Resolved inclusive UTC end date
-        available_since:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Available Since
-          description: Earliest public data date for the platform
-        retention_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Retention From
-          description: Earliest date retained for the endpoint
-        requested_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Requested Days
-          description: Number of days requested
-        max_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Days
-          description: Maximum days accepted by the endpoint
-        platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Platform
-          description: Platform identifier
-      type: object
-      required:
-      - error
-      - message
-      title: InvalidPeriodErrorDetail
-      description: Structured error detail for invalid period windows.
-    PolymarketTrendingCountry:
-      properties:
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Aggregated activity/flow buzz score using trades, volume, breadth, liquidity and participation
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Flow momentum over the current 3 UTC days vs previous 3 UTC days using trades, volume, market breadth and liquidity; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-        trade_count:
-          type: integer
-          minimum: 0.0
-          title: Trade Count
-          description: Total trade count in period
-        market_count:
-          type: integer
-          minimum: 0.0
-          title: Market Count
-          description: Sum of ticker-level catalog lifetime-overlap market counts in the selected UTC window for this dimension; not a cross-ticker condition-id union
-        current_market_count:
-          type: integer
-          minimum: 0.0
-          title: Current Market Count
-          description: Sum of ticker-level currently open markets in the latest UTC-day snapshot; use this for live-only market breadth
-        unique_tickers:
-          type: integer
-          minimum: 0.0
-          title: Unique Tickers
-          description: Unique tickers in dimension
-        unique_traders:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Unique Traders
-          description: Exact distinct union of observed proxy and explicit maker wallet hashes for the dimension and UTC window; null when retained wallet-level trades do not fully cover the window
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Weighted implied sentiment; null when no underlying trades exist in the selected period
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Outcome-aware bullish market percentage
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Outcome-aware bearish market percentage
-        total_liquidity:
-          type: number
-          minimum: 0.0
-          title: Total Liquidity
-          description: Windowed aggregated liquidity signal in USD over the selected period; not a current snapshot
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
-          examples:
-          - - 48.2
-            - 51.0
-            - 55.3
-            - 61.1
-            - 65.8
-            - 69.2
-            - 72.8
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by trade_count
-        country:
-          type: string
-          title: Country
-          description: Country name
-          examples:
-          - United States
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - trade_count
-      - market_count
-      - current_market_count
-      - unique_tickers
-      - bullish_pct
-      - bearish_pct
-      - total_liquidity
-      - trend_history
-      - top_tickers
-      - country
-      title: PolymarketTrendingCountry
-      description: Trending country on Polymarket.
-      examples:
-      - buzz_score: 70.1
-        trend: stable
-        trade_count: 712
-        market_count: 265
-        current_market_count: 129
-        unique_tickers: 10
-        unique_traders: 402
-        sentiment_score: 0.18
-        bullish_pct: 58
-        bearish_pct: 42
-        total_liquidity: 472000.0
-        trend_history:
-        - 52.1
-        - 54.0
-        - 56.8
-        - 59.2
-        - 61.0
-        - 60.1
-        - 70.1
-        top_tickers:
-        - AAPL
-        - TSLA
-        - NVDA
-        - AMZN
-        - GOOGL
-        country: United States
-    UnsupportedAssetErrorDetail:
-      properties:
-        error_code:
-          type: string
-          title: Error Code
-          description: Machine-readable unsupported asset error code
-          examples:
-          - unsupported_ticker
-        message:
-          type: string
-          title: Message
-          description: Human-readable unsupported asset message
-      type: object
-      required:
-      - error_code
-      - message
-      title: UnsupportedAssetErrorDetail
-      description: Structured detail for unsupported v1 stock/crypto asset requests.
-    HTTPValidationError:
-      properties:
-        detail:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ValidationError'
-            type: array
-          - type: 'null'
-          title: Detail
-          description: Validation error details
-      type: object
-      title: HTTPValidationError
-      description: FastAPI/Pydantic validation error response.
-      examples:
-      - detail:
-        - loc:
-          - query
-          - days
-          msg: Input should be greater than or equal to 1
-          type: greater_than_equal
     ValidationError:
       properties:
         loc:
@@ -4635,101 +4730,6 @@ components:
         - days
         msg: Input should be greater than or equal to 1
         type: greater_than_equal
-    PolymarketPulseEvidence:
-      properties:
-        directional_coverage:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Directional Coverage
-          description: Share of current open snapshot markets with outcome-aware directional evidence
-        traded_market_pct:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Traded Market Pct
-          description: Share of current open snapshot markets with trades in the latest UTC day
-        zero_trade_market_pct:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Zero Trade Market Pct
-          description: Share of current open snapshot markets without trades in the latest UTC day
-        avg_spread:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: 'null'
-          title: Avg Spread
-          description: Average YES-token spread across current open snapshot markets with bid/ask spread evidence
-        snapshot_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Snapshot At
-          description: Latest stored snapshot timestamp used by the pulse read model
-      type: object
-      title: PolymarketPulseEvidence
-      description: Compact data-quality evidence for the ticker-level Polymarket pulse.
-    RateLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Limit
-          description: Applied request limit for the window
-        used:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Used
-          description: Requests used in the current window
-        remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Remaining
-          description: Requests remaining in the current window
-        account_type:
-          type: string
-          title: Account Type
-          description: Resolved account type or fallback tier
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-          description: ISO 8601 timestamp when the current window resets
-        contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact
-          description: Plan or support URL for resolving the limit
-      type: object
-      required:
-      - error
-      - message
-      - account_type
-      title: RateLimitErrorDetail
-      description: Structured rate-limit error detail.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
