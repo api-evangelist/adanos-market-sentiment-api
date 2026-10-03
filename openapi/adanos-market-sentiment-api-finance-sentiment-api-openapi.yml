@@ -279,6 +279,75 @@ paths:
       x-operation-id-original: analyzeSentimentText
 components:
   schemas:
+    SentimentAnalyzeRequest:
+      properties:
+        text:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Text
+          description: Financial or trading text to analyze.
+          examples:
+          - TSLA looks like a short squeeze setup, loading calls
+      type: object
+      required:
+      - text
+      title: SentimentAnalyzeRequest
+      description: Direct text sentiment analysis request.
+      examples:
+      - text: TSLA looks like a short squeeze setup, loading calls
+    RateLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        limit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+          description: Applied request limit for the window
+        used:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Used
+          description: Requests used in the current window
+        remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Remaining
+          description: Requests remaining in the current window
+        account_type:
+          type: string
+          title: Account Type
+          description: Resolved account type or fallback tier
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+          description: ISO 8601 timestamp when the current window resets
+        contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact
+          description: Plan or support URL for resolving the limit
+      type: object
+      required:
+      - error
+      - message
+      - account_type
+      title: RateLimitErrorDetail
+      description: Structured rate-limit error detail.
     SentimentComponents:
       properties:
         engine_version:
@@ -342,6 +411,24 @@ components:
       - phrase_adjustment
       title: SentimentComponents
       description: Whitelisted sentiment engine components exposed publicly.
+    ErrorResponse:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          description: Human-readable error message
+          examples:
+          - Invalid API key.
+      type: object
+      required:
+      - detail
+      title: ErrorResponse
+      description: Standard error response.
+      examples:
+      - detail: Missing API key. Include 'X-API-Key' header.
+      - detail: Invalid API key.
+      - detail: API key has been revoked.
+      - detail: 'Rate limit exceeded: 100 per 1 minute'
     HTTPValidationError:
       properties:
         detail:
@@ -362,58 +449,67 @@ components:
           - days
           msg: Input should be greater than or equal to 1
           type: greater_than_equal
-    RateLimitErrorDetail:
+    ValidationError:
       properties:
-        error:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Loc
+          description: Location of the invalid input
+        msg:
           type: string
-          title: Error
-          description: Error type identifier
-        message:
+          title: Msg
+          description: Validation failure message
+        type:
           type: string
-          title: Message
-          description: Human-readable error message
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Limit
-          description: Applied request limit for the window
-        used:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Used
-          description: Requests used in the current window
-        remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Remaining
-          description: Requests remaining in the current window
-        account_type:
-          type: string
-          title: Account Type
-          description: Resolved account type or fallback tier
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-          description: ISO 8601 timestamp when the current window resets
-        contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact
-          description: Plan or support URL for resolving the limit
+          title: Type
+          description: Validation error type
       type: object
       required:
-      - error
-      - message
-      - account_type
-      title: RateLimitErrorDetail
-      description: Structured rate-limit error detail.
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      description: FastAPI/Pydantic validation error item.
+      examples:
+      - loc:
+        - query
+        - days
+        msg: Input should be greater than or equal to 1
+        type: greater_than_equal
+    RateLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/RateLimitErrorDetail'
+          description: Structured rate-limit details
+      type: object
+      required:
+      - detail
+      title: RateLimitError
+      description: Error response for rate-limit exceeded responses.
+    SentimentPhraseMatch:
+      properties:
+        phrase:
+          type: string
+          title: Phrase
+          description: Matched finance phrase
+          examples:
+          - short squeeze
+        score:
+          type: number
+          title: Score
+          description: Internal phrase sentiment score
+          examples:
+          - 3.5
+      type: object
+      required:
+      - phrase
+      - score
+      title: SentimentPhraseMatch
+      description: Whitelisted directional finance phrase metadata.
     SentimentAnalyzeResponse:
       properties:
         text:
@@ -463,102 +559,6 @@ components:
           - phrase: short squeeze
             score: 3.5
           contextual_finance_matches: []
-    RateLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/RateLimitErrorDetail'
-          description: Structured rate-limit details
-      type: object
-      required:
-      - detail
-      title: RateLimitError
-      description: Error response for rate-limit exceeded responses.
-    SentimentPhraseMatch:
-      properties:
-        phrase:
-          type: string
-          title: Phrase
-          description: Matched finance phrase
-          examples:
-          - short squeeze
-        score:
-          type: number
-          title: Score
-          description: Internal phrase sentiment score
-          examples:
-          - 3.5
-      type: object
-      required:
-      - phrase
-      - score
-      title: SentimentPhraseMatch
-      description: Whitelisted directional finance phrase metadata.
-    ErrorResponse:
-      properties:
-        detail:
-          type: string
-          title: Detail
-          description: Human-readable error message
-          examples:
-          - Invalid API key.
-      type: object
-      required:
-      - detail
-      title: ErrorResponse
-      description: Standard error response.
-      examples:
-      - detail: Missing API key. Include 'X-API-Key' header.
-      - detail: Invalid API key.
-      - detail: API key has been revoked.
-      - detail: 'Rate limit exceeded: 100 per 1 minute'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Loc
-          description: Location of the invalid input
-        msg:
-          type: string
-          title: Msg
-          description: Validation failure message
-        type:
-          type: string
-          title: Type
-          description: Validation error type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-      description: FastAPI/Pydantic validation error item.
-      examples:
-      - loc:
-        - query
-        - days
-        msg: Input should be greater than or equal to 1
-        type: greater_than_equal
-    SentimentAnalyzeRequest:
-      properties:
-        text:
-          type: string
-          maxLength: 2048
-          minLength: 1
-          title: Text
-          description: Financial or trading text to analyze.
-          examples:
-          - TSLA looks like a short squeeze setup, loading calls
-      type: object
-      required:
-      - text
-      title: SentimentAnalyzeRequest
-      description: Direct text sentiment analysis request.
-      examples:
-      - text: TSLA looks like a short squeeze setup, loading calls
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
