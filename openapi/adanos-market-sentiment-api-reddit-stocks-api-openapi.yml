@@ -2791,24 +2791,6 @@ paths:
         source: "import requests\n\nresponse = requests.get(\n    \"https://api.adanos.org/reddit/stocks/v1/stock/TSLA/mentions?from=2026-05-01&to=2026-05-07&limit=5\",\n    headers={\n        \"X-API-Key\": \"sk_live_your_key_here\",\n    },\n    timeout=30,\n)\nresponse.raise_for_status()\nprint(response.json())"
 components:
   schemas:
-    UnsupportedAssetErrorDetail:
-      properties:
-        error_code:
-          type: string
-          title: Error Code
-          description: Machine-readable unsupported asset error code
-          examples:
-          - unsupported_ticker
-        message:
-          type: string
-          title: Message
-          description: Human-readable unsupported asset message
-      type: object
-      required:
-      - error_code
-      - message
-      title: UnsupportedAssetErrorDetail
-      description: Structured detail for unsupported v1 stock/crypto asset requests.
     RedditMarketSentimentDriver:
       properties:
         ticker:
@@ -2851,16 +2833,1046 @@ components:
       - buzz_score
       title: RedditMarketSentimentDriver
       description: Top asset contributing to the service-level Reddit market sentiment.
-    CompareLimitError:
+    TrendingCountry:
+      properties:
+        buzz_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100)
+          examples:
+          - 78.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total attributed mentions, including inherited thread-context mentions
+          examples:
+          - 4523
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers mentioned
+          examples:
+          - 34
+        subreddit_count:
+          type: integer
+          title: Subreddit Count
+          description: Number of subreddits with mentions
+          examples:
+          - 15
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Weighted average sentiment (-1 bearish to +1 bullish)
+          examples:
+          - 0.28
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Percentage of sentiment-labeled mentions that are bullish
+          examples:
+          - 54
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Percentage of sentiment-labeled mentions that are bearish
+          examples:
+          - 22
+        total_upvotes:
+          type: integer
+          title: Total Upvotes
+          description: Total upvotes across attributed mentions
+          examples:
+          - 128450
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 78.4
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by mentions
+          examples:
+          - - NVDA
+            - AAPL
+            - MSFT
+            - AMD
+            - GOOGL
+        country:
+          type: string
+          title: Country
+          description: Country name
+          examples:
+          - United States
+      type: object
+      required:
+      - buzz_score
+      - trend
+      - mentions
+      - unique_tickers
+      - subreddit_count
+      - sentiment_score
+      - bullish_pct
+      - bearish_pct
+      - total_upvotes
+      - trend_history
+      - top_tickers
+      - country
+      title: TrendingCountry
+      description: Trending country with aggregated buzz metrics from Reddit.
+      examples:
+      - buzz_score: 82.3
+        trend: stable
+        mentions: 8934
+        unique_tickers: 156
+        subreddit_count: 18
+        sentiment_score: 0.21
+        bullish_pct: 48
+        bearish_pct: 26
+        total_upvotes: 245000
+        trend_history:
+        - 52.1
+        - 54.0
+        - 56.8
+        - 59.2
+        - 61.0
+        - 60.1
+        - 82.3
+        top_tickers:
+        - NVDA
+        - TSLA
+        - AAPL
+        - AMD
+        - PLTR
+        country: United States
+    TopMention:
+      properties:
+        text_snippet:
+          type: string
+          title: Text Snippet
+          description: Clean Reddit paragraph around the detected ticker mention (up to 500 chars)
+          examples:
+          - TSLA looking strong after...
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Sentiment score (-1 to +1)
+          examples:
+          - 0.85
+        sentiment_label:
+          type: string
+          title: Sentiment Label
+          description: Sentiment label (positive/negative/neutral)
+          examples:
+          - positive
+        upvotes:
+          type: integer
+          title: Upvotes
+          description: Number of upvotes
+          examples:
+          - 1234
+        subreddit:
+          type: string
+          title: Subreddit
+          description: Source subreddit
+          examples:
+          - wallstreetbets
+        created_utc:
+          type: string
+          format: date-time
+          title: Created Utc
+          description: ISO timestamp of creation
+          examples:
+          - '2025-12-28T10:30:00'
+      type: object
+      required:
+      - text_snippet
+      - sentiment_score
+      - sentiment_label
+      - upvotes
+      - subreddit
+      - created_utc
+      title: TopMention
+      description: Top mention by upvotes.
+    TrendingSector:
+      properties:
+        buzz_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Buzz Score
+          description: Aggregated Buzz Score (0-100)
+          examples:
+          - 78.4
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total attributed mentions, including inherited thread-context mentions
+          examples:
+          - 4523
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers mentioned
+          examples:
+          - 34
+        subreddit_count:
+          type: integer
+          title: Subreddit Count
+          description: Number of subreddits with mentions
+          examples:
+          - 15
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Weighted average sentiment (-1 bearish to +1 bullish)
+          examples:
+          - 0.28
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Percentage of sentiment-labeled mentions that are bullish
+          examples:
+          - 54
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Percentage of sentiment-labeled mentions that are bearish
+          examples:
+          - 22
+        total_upvotes:
+          type: integer
+          title: Total Upvotes
+          description: Total upvotes across attributed mentions
+          examples:
+          - 128450
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
+          examples:
+          - - 45.2
+            - 48.1
+            - 52.3
+            - 55.0
+            - 58.2
+            - 61.5
+            - 78.4
+        top_tickers:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          title: Top Tickers
+          description: Top 5 tickers by mentions
+          examples:
+          - - NVDA
+            - AAPL
+            - MSFT
+            - AMD
+            - GOOGL
+        sector:
+          type: string
+          title: Sector
+          description: Industry sector name
+          examples:
+          - Technology
+      type: object
+      required:
+      - buzz_score
+      - trend
+      - mentions
+      - unique_tickers
+      - subreddit_count
+      - sentiment_score
+      - bullish_pct
+      - bearish_pct
+      - total_upvotes
+      - trend_history
+      - top_tickers
+      - sector
+      title: TrendingSector
+      description: Trending sector with aggregated buzz metrics from Reddit.
+      examples:
+      - buzz_score: 78.4
+        trend: rising
+        mentions: 4523
+        unique_tickers: 34
+        subreddit_count: 15
+        sentiment_score: 0.28
+        bullish_pct: 54
+        bearish_pct: 22
+        total_upvotes: 128450
+        trend_history:
+        - 45.2
+        - 48.1
+        - 52.3
+        - 55.0
+        - 58.2
+        - 61.5
+        - 78.4
+        top_tickers:
+        - NVDA
+        - AAPL
+        - MSFT
+        - AMD
+        - GOOGL
+        sector: Technology
+    TrendingStock:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference (null if not found)
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Buzz Score
+          description: Buzz Score (0-100). Asymptotic scaling above 50.
+          examples:
+          - 87.5
+        trend:
+          type: string
+          enum:
+          - rising
+          - falling
+          - stable
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total attributed mentions, including inherited thread-context mentions
+          examples:
+          - 342
+        unique_posts:
+          type: integer
+          title: Unique Posts
+          description: Number of unique posts
+          examples:
+          - 45
+        subreddit_count:
+          type: integer
+          title: Subreddit Count
+          description: Number of subreddits with mentions
+          examples:
+          - 8
+        sentiment_score:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Sentiment Score
+          description: Average sentiment score (-1 bearish to +1 bullish)
+          examples:
+          - 0.23
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 45
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 18
+        total_upvotes:
+          type: integer
+          title: Total Upvotes
+          description: Total upvotes across attributed mentions
+          examples:
+          - 15234
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Values 0-100.
+          examples:
+          - - 12.3
+            - 15.2
+            - 18.7
+            - 22.1
+            - 28.5
+            - 35.2
+            - 42.8
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - trend
+      - mentions
+      - unique_posts
+      - subreddit_count
+      - sentiment_score
+      - bullish_pct
+      - bearish_pct
+      - total_upvotes
+      title: TrendingStock
+      description: Trending stock with buzz metrics from Reddit.
+      examples:
+      - ticker: TSLA
+        company_name: Tesla, Inc.
+        buzz_score: 87.5
+        trend: rising
+        mentions: 342
+        unique_posts: 45
+        subreddit_count: 8
+        sentiment_score: 0.23
+        bullish_pct: 45
+        bearish_pct: 18
+        total_upvotes: 15234
+        trend_history:
+        - 45.2
+        - 52.1
+        - 48.7
+        - 67.3
+        - 72.1
+        - 78.4
+        - 87.5
+    HTTPValidationError:
       properties:
         detail:
-          $ref: '#/components/schemas/CompareLimitErrorDetail'
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ValidationError'
+            type: array
+          - type: 'null'
+          title: Detail
+          description: Validation error details
+      type: object
+      title: HTTPValidationError
+      description: FastAPI/Pydantic validation error response.
+      examples:
+      - detail:
+        - loc:
+          - query
+          - days
+          msg: Input should be greater than or equal to 1
+          type: greater_than_equal
+    RedditMarketSentimentResponse:
+      properties:
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Service-wide Reddit heat score relative to the service's trailing 90-day baseline. Around 50 = normal activity, higher values = hotter-than-usual service activity.
+          examples:
+          - 57.4
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          examples:
+          - stable
+        mentions:
+          type: integer
+          minimum: 0.0
+          title: Mentions
+          description: Total Reddit mentions across the selected period, including inherited thread-context mentions
+          examples:
+          - 3992
+        unique_posts:
+          type: integer
+          minimum: 0.0
+          title: Unique Posts
+          description: Exact distinct Reddit post count across the selected UTC period
+          examples:
+          - 418
+        subreddit_count:
+          type: integer
+          minimum: 0.0
+          title: Subreddit Count
+          description: Distinct subreddits contributing in the selected period
+          examples:
+          - 21
+        total_upvotes:
+          type: integer
+          minimum: 0.0
+          title: Total Upvotes
+          description: Total upvotes across attributed mentions in the selected period
+          examples:
+          - 15234
+        active_tickers:
+          type: integer
+          minimum: 0.0
+          title: Active Tickers
+          description: Number of tickers with qualifying attributed Reddit activity in the selected period
+          examples:
+          - 1000
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Service-wide average sentiment score across all qualifying mentions in the selected period
+          examples:
+          - 0.045
+        positive_count:
+          type: integer
+          minimum: 0.0
+          title: Positive Count
+          description: Deprecated. Prefer bullish_pct with mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 1440
+        negative_count:
+          type: integer
+          minimum: 0.0
+          title: Negative Count
+          description: Deprecated. Prefer bearish_pct with mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 998
+        neutral_count:
+          type: integer
+          minimum: 0.0
+          title: Neutral Count
+          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for public analysis; retained for v1 compatibility.
+          deprecated: true
+          examples:
+          - 1554
+        bullish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bullish Pct
+          description: Bullish mention percentage
+          examples:
+          - 36
+        bearish_pct:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Bearish Pct
+          description: Bearish mention percentage
+          examples:
+          - 25
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily service-wide buzz scores (oldest→newest) using the same relative baseline calibration. Length = max(requested_days, 7) for successful requests; windows before platform availability return HTTP 422.
+          examples:
+          - - 49.8
+            - 52.1
+            - 50.7
+            - 55.6
+            - 58.3
+            - 60.2
+            - 57.4
+        drivers:
+          items:
+            $ref: '#/components/schemas/RedditMarketSentimentDriver'
+          type: array
+          title: Drivers
+          description: Top assets by current buzz_score driving the service-level reading
+      type: object
+      required:
+      - buzz_score
+      - mentions
+      - unique_posts
+      - subreddit_count
+      - total_upvotes
+      - active_tickers
+      - positive_count
+      - negative_count
+      - neutral_count
+      - bullish_pct
+      - bearish_pct
+      title: RedditMarketSentimentResponse
+      description: Service-level Reddit market sentiment across all tracked stocks.
+      examples:
+      - buzz_score: 57.4
+        trend: stable
+        mentions: 3992
+        unique_posts: 418
+        subreddit_count: 21
+        total_upvotes: 15234
+        active_tickers: 1000
+        sentiment_score: 0.045
+        positive_count: 1440
+        negative_count: 998
+        neutral_count: 1554
+        bullish_pct: 36
+        bearish_pct: 25
+        trend_history:
+        - 49.8
+        - 52.1
+        - 50.7
+        - 55.6
+        - 58.3
+        - 60.2
+        - 57.4
+        drivers:
+        - ticker: SPY
+          mentions: 129
+          buzz_score: 74.1
+          sentiment_score: 0.009
+        - ticker: GOOGL
+          mentions: 106
+          buzz_score: 71.8
+          sentiment_score: 0.029
+    UnsupportedAssetErrorDetail:
+      properties:
+        error_code:
+          type: string
+          title: Error Code
+          description: Machine-readable unsupported asset error code
+          examples:
+          - unsupported_ticker
+        message:
+          type: string
+          title: Message
+          description: Human-readable unsupported asset message
+      type: object
+      required:
+      - error_code
+      - message
+      title: UnsupportedAssetErrorDetail
+      description: Structured detail for unsupported v1 stock/crypto asset requests.
+    RateLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        limit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+          description: Applied request limit for the window
+        used:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Used
+          description: Requests used in the current window
+        remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Remaining
+          description: Requests remaining in the current window
+        account_type:
+          type: string
+          title: Account Type
+          description: Resolved account type or fallback tier
+        reset_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Reset At
+          description: ISO 8601 timestamp when the current window resets
+        contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact
+          description: Plan or support URL for resolving the limit
+      type: object
+      required:
+      - error
+      - message
+      - account_type
+      title: RateLimitErrorDetail
+      description: Structured rate-limit error detail.
+    ErrorResponse:
+      properties:
+        detail:
+          type: string
+          title: Detail
+          description: Human-readable error message
+          examples:
+          - Invalid API key.
+      type: object
+      required:
+      - detail
+      title: ErrorResponse
+      description: Standard error response.
+      examples:
+      - detail: Missing API key. Include 'X-API-Key' header.
+      - detail: Invalid API key.
+      - detail: API key has been revoked.
+      - detail: 'Rate limit exceeded: 100 per 1 minute'
+    SearchResultItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        name:
+          type: string
+          title: Name
+          description: Company name
+          examples:
+          - Tesla Inc.
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+          description: Asset type (Stock, ETF, etc.)
+          examples:
+          - Stock
+        exchange:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Exchange
+          description: Stock exchange (NYSE, NASDAQ, etc.)
+          examples:
+          - NASDAQ
+        sector:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sector
+          description: Industry sector
+          examples:
+          - Consumer Discretionary
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+          description: Country of headquarters
+          examples:
+          - United States
+        aliases:
+          items:
+            type: string
+          type: array
+          title: Aliases
+          description: Alternative names/aliases
+          examples:
+          - - Tesla
+            - Elon
+        summary:
+          $ref: '#/components/schemas/StockSearchSummary'
+          description: Last-7-days Reddit summary for this asset
+      type: object
+      required:
+      - ticker
+      - name
+      - summary
+      title: SearchResultItem
+      description: Individual search result item.
+    CompareResponse:
+      properties:
+        period_days:
+          type: integer
+          title: Period Days
+          description: Analysis period in days
+          examples:
+          - 7
+        stocks:
+          items:
+            $ref: '#/components/schemas/CompareStockItem'
+          type: array
+          title: Stocks
+          description: Stocks sorted by buzz_score descending
+      type: object
+      required:
+      - period_days
+      - stocks
+      title: CompareResponse
+      description: Comparison of multiple stocks.
+      examples:
+      - period_days: 7
+        stocks:
+        - ticker: TSLA
+          company_name: Tesla, Inc.
+          buzz_score: 87.5
+          trend: rising
+          mentions: 342
+          unique_posts: 45
+          subreddit_count: 8
+          sentiment_score: 0.23
+          bullish_pct: 45
+          bearish_pct: 18
+          total_upvotes: 15234
+          trend_history:
+          - 45.2
+          - 52.1
+          - 48.7
+          - 67.3
+          - 72.1
+          - 78.4
+          - 87.5
+        - ticker: NVDA
+          company_name: NVIDIA Corporation
+          buzz_score: 72.3
+          trend: stable
+          mentions: 189
+          unique_posts: 31
+          subreddit_count: 6
+          sentiment_score: 0.45
+          bullish_pct: 52
+          bearish_pct: 17
+          total_upvotes: 8921
+          trend_history:
+          - 38.1
+          - 40.7
+          - 44.9
+          - 51.5
+          - 57.4
+          - 63.0
+          - 72.3
+    InvalidPeriodError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/InvalidPeriodErrorDetail'
           description: Structured error details
       type: object
       required:
       - detail
-      title: CompareLimitError
-      description: Error response for compare item-count violations (HTTP 400).
+      title: InvalidPeriodError
+      description: Error response for invalid period requests (HTTP 422).
+    UnsupportedAssetError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
+          description: Structured unsupported asset details
+      type: object
+      required:
+      - detail
+      title: UnsupportedAssetError
+      description: Error response for unsupported v1 stock/crypto asset requests.
+    HistoricalLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        requested_days:
+          type: integer
+          title: Requested Days
+          description: Number of days requested
+        enforced_quantity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Enforced Quantity
+          description: Quantity checked against the account tier limit
+        max_days:
+          type: integer
+          title: Max Days
+          description: Maximum days allowed for account tier
+        account_type:
+          type: string
+          title: Account Type
+          description: User's account type (free, hobby, professional, premium)
+      type: object
+      required:
+      - error
+      - message
+      - requested_days
+      - max_days
+      - account_type
+      title: HistoricalLimitErrorDetail
+      description: Structured error detail for historical data limit exceeded.
+    InvalidSearchParametersErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        unsupported_parameters:
+          items:
+            type: string
+          type: array
+          title: Unsupported Parameters
+          description: Search query parameters that are not supported
+      type: object
+      required:
+      - error
+      - message
+      - unsupported_parameters
+      title: InvalidSearchParametersErrorDetail
+      description: Structured error detail for unsupported search query parameters.
+    InvalidSearchParametersError:
+      properties:
+        detail:
+          anyOf:
+          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
+          - type: string
+          title: Detail
+          description: Structured search-parameter error or normalized-query validation message
+      type: object
+      required:
+      - detail
+      title: InvalidSearchParametersError
+      description: Error response for invalid search query parameters.
+    CompareLimitErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Machine-readable error code
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        max_items:
+          type: integer
+          title: Max Items
+          description: Maximum accepted compare items
+        item_name:
+          type: string
+          title: Item Name
+          description: Compared item type, such as ticker or symbol
+      type: object
+      required:
+      - error
+      - message
+      - max_items
+      - item_name
+      title: CompareLimitErrorDetail
+      description: Structured error detail for compare item-count violations.
+    RedditStatsResponse:
+      properties:
+        total_mentions:
+          type: integer
+          title: Total Mentions
+          description: Rollup-backed all-time stock mention total; current-day raw rows may be used only as a bounded freshness fallback
+          examples:
+          - 12833
+        unique_tickers:
+          type: integer
+          title: Unique Tickers
+          description: Number of unique tickers with mentions
+          examples:
+          - 65
+        mentions_today:
+          type: integer
+          title: Mentions Today
+          description: Stock mention rows created since today's UTC midnight, including posts, comments and inherited thread-context mentions
+          default: 0
+          examples:
+          - 342
+        unique_tickers_today:
+          type: integer
+          title: Unique Tickers Today
+          description: Unique tickers (detected using case-sensitive, uppercase-only patterns) including posts, comments and inherited thread-context mentions
+          default: 0
+          examples:
+          - 21
+        supported_tickers:
+          type: integer
+          title: Supported Tickers
+          description: Number of supported ticker patterns (from ticker_reference)
+          examples:
+          - 35000
+      type: object
+      required:
+      - total_mentions
+      - unique_tickers
+      - supported_tickers
+      title: RedditStatsResponse
+      description: Service statistics.
+      examples:
+      - total_mentions: 12833
+        unique_tickers: 65
+        mentions_today: 342
+        unique_tickers_today: 21
+        supported_tickers: 35000
     StockSearchSummary:
       properties:
         mentions:
@@ -2908,6 +3920,294 @@ components:
       - buzz_score
       title: StockSearchSummary
       description: Compact last-7-days summary attached to stock search results.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Loc
+          description: Location of the invalid input
+        msg:
+          type: string
+          title: Msg
+          description: Validation failure message
+        type:
+          type: string
+          title: Type
+          description: Validation error type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      description: FastAPI/Pydantic validation error item.
+      examples:
+      - loc:
+        - query
+        - days
+        msg: Input should be greater than or equal to 1
+        type: greater_than_equal
+    InvalidPeriodErrorDetail:
+      properties:
+        error:
+          type: string
+          title: Error
+          description: Error type identifier
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        field:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field
+          description: Invalid query parameter name
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: 'null'
+          title: Value
+          description: Invalid query parameter value
+        today:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Today
+          description: Current UTC date used for validation
+        period_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period From
+          description: Resolved inclusive UTC start date
+        period_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Period To
+          description: Resolved inclusive UTC end date
+        available_since:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Available Since
+          description: Earliest public data date for the platform
+        retention_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Retention From
+          description: Earliest date retained for the endpoint
+        requested_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Requested Days
+          description: Number of days requested
+        max_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Days
+          description: Maximum days accepted by the endpoint
+        platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Platform
+          description: Platform identifier
+      type: object
+      required:
+      - error
+      - message
+      title: InvalidPeriodErrorDetail
+      description: Structured error detail for invalid period windows.
+    SearchResponse:
+      properties:
+        query:
+          type: string
+          title: Query
+          description: Original search query
+          examples:
+          - tesla
+        count:
+          type: integer
+          title: Count
+          description: Total number of matching results before the limit is applied
+          examples:
+          - 1
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Fixed lookback window used for each summary block
+          examples:
+          - 7
+        results:
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+          type: array
+          title: Results
+          description: Top matching stocks capped by the requested limit
+      type: object
+      required:
+      - query
+      - count
+      - period_days
+      - results
+      title: SearchResponse
+      description: Search results for stocks.
+      examples:
+      - query: tesla
+        count: 1
+        period_days: 7
+        results:
+        - ticker: TSLA
+          name: Tesla Inc.
+          type: Stock
+          exchange: NASDAQ
+          sector: Consumer Discretionary
+          country: United States
+          aliases:
+          - Tesla
+          - Elon
+          summary:
+            mentions: 342
+            buzz_score: 87.5
+            trend: rising
+            sentiment_score: 0.23
+            bearish_pct: 18
+            bullish_pct: 45
+            subreddit_count: 8
+            total_upvotes: 15234
+            unique_posts: 45
+    CompareStockItem:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+          description: Company name from ticker_reference
+          examples:
+          - Tesla, Inc.
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz Score (0-100). Asymptotic scaling above 50.
+          examples:
+          - 87.5
+        trend:
+          anyOf:
+          - type: string
+            enum:
+            - rising
+            - falling
+            - stable
+          - type: 'null'
+          title: Trend
+          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying Reddit data exists.
+          examples:
+          - rising
+        mentions:
+          type: integer
+          title: Mentions
+          description: Total attributed mentions in period, including inherited thread-context mentions
+          examples:
+          - 342
+        unique_posts:
+          type: integer
+          title: Unique Posts
+          description: Number of unique posts in period
+          examples:
+          - 45
+        subreddit_count:
+          type: integer
+          title: Subreddit Count
+          description: Number of subreddits with mentions in period
+          examples:
+          - 8
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment (-1 to +1, null if no mentions)
+          examples:
+          - 0.23
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Percentage of bullish mentions
+          examples:
+          - 45
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Percentage of bearish mentions
+          examples:
+          - 18
+        total_upvotes:
+          type: integer
+          title: Total Upvotes
+          description: Total upvotes from attributed mentions
+          examples:
+          - 15234
+        trend_history:
+          items:
+            type: number
+          type: array
+          title: Trend History
+          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Empty when no qualifying data exists.
+          examples:
+          - - 45.2
+            - 52.1
+            - 48.7
+            - 67.3
+            - 72.1
+            - 78.4
+            - 87.5
+      type: object
+      required:
+      - ticker
+      - buzz_score
+      - mentions
+      - unique_posts
+      - subreddit_count
+      - total_upvotes
+      title: CompareStockItem
+      description: Individual stock in comparison.
     StockSentiment:
       properties:
         ticker:
@@ -3119,393 +4419,21 @@ components:
           upvotes: 1234
           subreddit: wallstreetbets
           created_utc: '2025-12-28T10:30:00'
-    TrendingCountry:
+    SubredditCount:
       properties:
-        buzz_score:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Buzz Score
-          description: Aggregated Buzz Score (0-100)
-          examples:
-          - 78.4
-        trend:
+        subreddit:
           type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
+          title: Subreddit
+          description: Subreddit name
           examples:
-          - rising
+          - wallstreetbets
         mentions:
           type: integer
+          minimum: 0.0
           title: Mentions
-          description: Total attributed mentions, including inherited thread-context mentions
+          description: Attributed mentions in this subreddit
           examples:
-          - 4523
-        unique_tickers:
-          type: integer
-          title: Unique Tickers
-          description: Number of unique tickers mentioned
-          examples:
-          - 34
-        subreddit_count:
-          type: integer
-          title: Subreddit Count
-          description: Number of subreddits with mentions
-          examples:
-          - 15
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Weighted average sentiment (-1 bearish to +1 bullish)
-          examples:
-          - 0.28
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Percentage of sentiment-labeled mentions that are bullish
-          examples:
-          - 54
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Percentage of sentiment-labeled mentions that are bearish
-          examples:
-          - 22
-        total_upvotes:
-          type: integer
-          title: Total Upvotes
-          description: Total upvotes across attributed mentions
-          examples:
-          - 128450
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
-          examples:
-          - - 45.2
-            - 48.1
-            - 52.3
-            - 55.0
-            - 58.2
-            - 61.5
-            - 78.4
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by mentions
-          examples:
-          - - NVDA
-            - AAPL
-            - MSFT
-            - AMD
-            - GOOGL
-        country:
-          type: string
-          title: Country
-          description: Country name
-          examples:
-          - United States
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - mentions
-      - unique_tickers
-      - subreddit_count
-      - sentiment_score
-      - bullish_pct
-      - bearish_pct
-      - total_upvotes
-      - trend_history
-      - top_tickers
-      - country
-      title: TrendingCountry
-      description: Trending country with aggregated buzz metrics from Reddit.
-      examples:
-      - buzz_score: 82.3
-        trend: stable
-        mentions: 8934
-        unique_tickers: 156
-        subreddit_count: 18
-        sentiment_score: 0.21
-        bullish_pct: 48
-        bearish_pct: 26
-        total_upvotes: 245000
-        trend_history:
-        - 52.1
-        - 54.0
-        - 56.8
-        - 59.2
-        - 61.0
-        - 60.1
-        - 82.3
-        top_tickers:
-        - NVDA
-        - TSLA
-        - AAPL
-        - AMD
-        - PLTR
-        country: United States
-    SearchResponse:
-      properties:
-        query:
-          type: string
-          title: Query
-          description: Original search query
-          examples:
-          - tesla
-        count:
-          type: integer
-          title: Count
-          description: Total number of matching results before the limit is applied
-          examples:
-          - 1
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Fixed lookback window used for each summary block
-          examples:
-          - 7
-        results:
-          items:
-            $ref: '#/components/schemas/SearchResultItem'
-          type: array
-          title: Results
-          description: Top matching stocks capped by the requested limit
-      type: object
-      required:
-      - query
-      - count
-      - period_days
-      - results
-      title: SearchResponse
-      description: Search results for stocks.
-      examples:
-      - query: tesla
-        count: 1
-        period_days: 7
-        results:
-        - ticker: TSLA
-          name: Tesla Inc.
-          type: Stock
-          exchange: NASDAQ
-          sector: Consumer Discretionary
-          country: United States
-          aliases:
-          - Tesla
-          - Elon
-          summary:
-            mentions: 342
-            buzz_score: 87.5
-            trend: rising
-            sentiment_score: 0.23
-            bearish_pct: 18
-            bullish_pct: 45
-            subreddit_count: 8
-            total_upvotes: 15234
-            unique_posts: 45
-    TrendingStock:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference (null if not found)
-          examples:
-          - Tesla, Inc.
-        buzz_score:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Buzz Score
-          description: Buzz Score (0-100). Asymptotic scaling above 50.
-          examples:
-          - 87.5
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        mentions:
-          type: integer
-          title: Mentions
-          description: Total attributed mentions, including inherited thread-context mentions
-          examples:
-          - 342
-        unique_posts:
-          type: integer
-          title: Unique Posts
-          description: Number of unique posts
-          examples:
-          - 45
-        subreddit_count:
-          type: integer
-          title: Subreddit Count
-          description: Number of subreddits with mentions
-          examples:
-          - 8
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Average sentiment score (-1 bearish to +1 bullish)
-          examples:
-          - 0.23
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Percentage of bullish mentions
-          examples:
-          - 45
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Percentage of bearish mentions
-          examples:
-          - 18
-        total_upvotes:
-          type: integer
-          title: Total Upvotes
-          description: Total upvotes across attributed mentions
-          examples:
-          - 15234
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values. Values 0-100.
-          examples:
-          - - 12.3
-            - 15.2
-            - 18.7
-            - 22.1
-            - 28.5
-            - 35.2
-            - 42.8
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - trend
-      - mentions
-      - unique_posts
-      - subreddit_count
-      - sentiment_score
-      - bullish_pct
-      - bearish_pct
-      - total_upvotes
-      title: TrendingStock
-      description: Trending stock with buzz metrics from Reddit.
-      examples:
-      - ticker: TSLA
-        company_name: Tesla, Inc.
-        buzz_score: 87.5
-        trend: rising
-        mentions: 342
-        unique_posts: 45
-        subreddit_count: 8
-        sentiment_score: 0.23
-        bullish_pct: 45
-        bearish_pct: 18
-        total_upvotes: 15234
-        trend_history:
-        - 45.2
-        - 52.1
-        - 48.7
-        - 67.3
-        - 72.1
-        - 78.4
-        - 87.5
-    CompareStockItem:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        company_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Name
-          description: Company name from ticker_reference
-          examples:
-          - Tesla, Inc.
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz Score (0-100). Asymptotic scaling above 50.
-          examples:
-          - 87.5
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today). Null when no qualifying Reddit data exists.
-          examples:
-          - rising
-        mentions:
-          type: integer
-          title: Mentions
-          description: Total attributed mentions in period, including inherited thread-context mentions
-          examples:
-          - 342
-        unique_posts:
-          type: integer
-          title: Unique Posts
-          description: Number of unique posts in period
-          examples:
-          - 45
-        subreddit_count:
-          type: integer
-          title: Subreddit Count
-          description: Number of subreddits with mentions in period
-          examples:
-          - 8
+          - 89
         sentiment_score:
           anyOf:
           - type: number
@@ -3513,122 +4441,9 @@ components:
             minimum: -1.0
           - type: 'null'
           title: Sentiment Score
-          description: Average sentiment (-1 to +1, null if no mentions)
+          description: Average sentiment score for this subreddit in the selected period
           examples:
-          - 0.23
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Percentage of bullish mentions
-          examples:
-          - 45
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Percentage of bearish mentions
-          examples:
-          - 18
-        total_upvotes:
-          type: integer
-          title: Total Upvotes
-          description: Total upvotes from attributed mentions
-          examples:
-          - 15234
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily buzz scores (oldest→newest). Length follows the resolved period, with a minimum of 7 values when data exists. Empty when no qualifying data exists.
-          examples:
-          - - 45.2
-            - 52.1
-            - 48.7
-            - 67.3
-            - 72.1
-            - 78.4
-            - 87.5
-      type: object
-      required:
-      - ticker
-      - buzz_score
-      - mentions
-      - unique_posts
-      - subreddit_count
-      - total_upvotes
-      title: CompareStockItem
-      description: Individual stock in comparison.
-    ErrorResponse:
-      properties:
-        detail:
-          type: string
-          title: Detail
-          description: Human-readable error message
-          examples:
-          - Invalid API key.
-      type: object
-      required:
-      - detail
-      title: ErrorResponse
-      description: Standard error response.
-      examples:
-      - detail: Missing API key. Include 'X-API-Key' header.
-      - detail: Invalid API key.
-      - detail: API key has been revoked.
-      - detail: 'Rate limit exceeded: 100 per 1 minute'
-    InvalidSearchParametersErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        unsupported_parameters:
-          items:
-            type: string
-          type: array
-          title: Unsupported Parameters
-          description: Search query parameters that are not supported
-      type: object
-      required:
-      - error
-      - message
-      - unsupported_parameters
-      title: InvalidSearchParametersErrorDetail
-      description: Structured error detail for unsupported search query parameters.
-    UnsupportedAssetError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/UnsupportedAssetErrorDetail'
-          description: Structured unsupported asset details
-      type: object
-      required:
-      - detail
-      title: UnsupportedAssetError
-      description: Error response for unsupported v1 stock/crypto asset requests.
-    HistoricalLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
-          description: Structured error details
-      type: object
-      required:
-      - detail
-      title: HistoricalLimitError
-      description: Error response for historical data limit exceeded (HTTP 403).
-    RedditMarketSentimentResponse:
-      properties:
+          - 0.31
         buzz_score:
           anyOf:
           - type: number
@@ -3636,331 +4451,24 @@ components:
             minimum: 0.0
           - type: 'null'
           title: Buzz Score
-          description: Service-wide Reddit heat score relative to the service's trailing 90-day baseline. Around 50 = normal activity, higher values = hotter-than-usual service activity.
+          description: Contributor-level buzz score for this subreddit in the selected period
           examples:
-          - 57.4
-        trend:
-          anyOf:
-          - type: string
-            enum:
-            - rising
-            - falling
-            - stable
-          - type: 'null'
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - stable
-        mentions:
-          type: integer
-          minimum: 0.0
-          title: Mentions
-          description: Total Reddit mentions across the selected period, including inherited thread-context mentions
-          examples:
-          - 3992
-        unique_posts:
-          type: integer
-          minimum: 0.0
-          title: Unique Posts
-          description: Exact distinct Reddit post count across the selected UTC period
-          examples:
-          - 418
-        subreddit_count:
-          type: integer
-          minimum: 0.0
-          title: Subreddit Count
-          description: Distinct subreddits contributing in the selected period
-          examples:
-          - 21
-        total_upvotes:
-          type: integer
-          minimum: 0.0
-          title: Total Upvotes
-          description: Total upvotes across attributed mentions in the selected period
-          examples:
-          - 15234
-        active_tickers:
-          type: integer
-          minimum: 0.0
-          title: Active Tickers
-          description: Number of tickers with qualifying attributed Reddit activity in the selected period
-          examples:
-          - 1000
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Service-wide average sentiment score across all qualifying mentions in the selected period
-          examples:
-          - 0.045
-        positive_count:
-          type: integer
-          minimum: 0.0
-          title: Positive Count
-          description: Deprecated. Prefer bullish_pct with mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 1440
-        negative_count:
-          type: integer
-          minimum: 0.0
-          title: Negative Count
-          description: Deprecated. Prefer bearish_pct with mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 998
-        neutral_count:
-          type: integer
-          minimum: 0.0
-          title: Neutral Count
-          description: Deprecated. Prefer bullish_pct, bearish_pct and mentions for public analysis; retained for v1 compatibility.
-          deprecated: true
-          examples:
-          - 1554
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Bullish mention percentage
-          examples:
-          - 36
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Bearish mention percentage
-          examples:
-          - 25
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily service-wide buzz scores (oldest→newest) using the same relative baseline calibration. Length = max(requested_days, 7) for successful requests; windows before platform availability return HTTP 422.
-          examples:
-          - - 49.8
-            - 52.1
-            - 50.7
-            - 55.6
-            - 58.3
-            - 60.2
-            - 57.4
-        drivers:
-          items:
-            $ref: '#/components/schemas/RedditMarketSentimentDriver'
-          type: array
-          title: Drivers
-          description: Top assets by current buzz_score driving the service-level reading
-      type: object
-      required:
-      - buzz_score
-      - mentions
-      - unique_posts
-      - subreddit_count
-      - total_upvotes
-      - active_tickers
-      - positive_count
-      - negative_count
-      - neutral_count
-      - bullish_pct
-      - bearish_pct
-      title: RedditMarketSentimentResponse
-      description: Service-level Reddit market sentiment across all tracked stocks.
-      examples:
-      - buzz_score: 57.4
-        trend: stable
-        mentions: 3992
-        unique_posts: 418
-        subreddit_count: 21
-        total_upvotes: 15234
-        active_tickers: 1000
-        sentiment_score: 0.045
-        positive_count: 1440
-        negative_count: 998
-        neutral_count: 1554
-        bullish_pct: 36
-        bearish_pct: 25
-        trend_history:
-        - 49.8
-        - 52.1
-        - 50.7
-        - 55.6
-        - 58.3
-        - 60.2
-        - 57.4
-        drivers:
-        - ticker: SPY
-          mentions: 129
-          buzz_score: 74.1
-          sentiment_score: 0.009
-        - ticker: GOOGL
-          mentions: 106
-          buzz_score: 71.8
-          sentiment_score: 0.029
-    RedditRawMentionsResponse:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        period_days:
-          type: integer
-          minimum: 1.0
-          title: Period Days
-          description: Lookback window used for the query
-          examples:
-          - 7
+          - 64.2
         count:
           type: integer
           minimum: 0.0
           title: Count
-          description: Total number of matching raw rows for the requested include_inherited filter before limit and offset are applied; only the requested page is returned
+          description: Deprecated alias for mentions. Use mentions instead.
+          deprecated: true
           examples:
-          - 1
-        results:
-          items:
-            $ref: '#/components/schemas/RedditRawMentionItem'
-          type: array
-          title: Results
-          description: Raw mention rows ordered by newest first
+          - 89
       type: object
       required:
-      - ticker
-      - period_days
+      - subreddit
+      - mentions
       - count
-      - results
-      title: RedditRawMentionsResponse
-      description: Paginated raw Reddit mentions for a single ticker.
-      examples:
-      - ticker: TSLA
-        period_days: 7
-        count: 1
-        results:
-        - post_id: abc123
-          comment_id: def456
-          subreddit: wallstreetbets
-          author: user123
-          text_snippet: TSLA looks strong into earnings...
-          created_utc: '2026-03-20T18:42:10Z'
-          upvotes: 381
-          sentiment_score: 0.62
-          sentiment_label: positive
-          is_inherited: false
-    InvalidPeriodErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        field:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Field
-          description: Invalid query parameter name
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: 'null'
-          title: Value
-          description: Invalid query parameter value
-        today:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Today
-          description: Current UTC date used for validation
-        period_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period From
-          description: Resolved inclusive UTC start date
-        period_to:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Period To
-          description: Resolved inclusive UTC end date
-        available_since:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Available Since
-          description: Earliest public data date for the platform
-        retention_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Retention From
-          description: Earliest date retained for the endpoint
-        requested_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Requested Days
-          description: Number of days requested
-        max_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Days
-          description: Maximum days accepted by the endpoint
-        platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Platform
-          description: Platform identifier
-      type: object
-      required:
-      - error
-      - message
-      title: InvalidPeriodErrorDetail
-      description: Structured error detail for invalid period windows.
-    CompareLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Machine-readable error code
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        max_items:
-          type: integer
-          title: Max Items
-          description: Maximum accepted compare items
-        item_name:
-          type: string
-          title: Item Name
-          description: Compared item type, such as ticker or symbol
-      type: object
-      required:
-      - error
-      - message
-      - max_items
-      - item_name
-      title: CompareLimitErrorDetail
-      description: Structured error detail for compare item-count violations.
+      title: SubredditCount
+      description: Subreddit contributor metrics for a stock detail response.
     StockExplanationResponse:
       properties:
         ticker:
@@ -4018,605 +4526,16 @@ components:
         cached: true
         generated_at: '2026-01-13T14:30:00+00:00'
         model: meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
-    SubredditCount:
-      properties:
-        subreddit:
-          type: string
-          title: Subreddit
-          description: Subreddit name
-          examples:
-          - wallstreetbets
-        mentions:
-          type: integer
-          minimum: 0.0
-          title: Mentions
-          description: Attributed mentions in this subreddit
-          examples:
-          - 89
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average sentiment score for this subreddit in the selected period
-          examples:
-          - 0.31
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Contributor-level buzz score for this subreddit in the selected period
-          examples:
-          - 64.2
-        count:
-          type: integer
-          minimum: 0.0
-          title: Count
-          description: Deprecated alias for mentions. Use mentions instead.
-          deprecated: true
-          examples:
-          - 89
-      type: object
-      required:
-      - subreddit
-      - mentions
-      - count
-      title: SubredditCount
-      description: Subreddit contributor metrics for a stock detail response.
-    HistoricalLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        requested_days:
-          type: integer
-          title: Requested Days
-          description: Number of days requested
-        enforced_quantity:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Enforced Quantity
-          description: Quantity checked against the account tier limit
-        max_days:
-          type: integer
-          title: Max Days
-          description: Maximum days allowed for account tier
-        account_type:
-          type: string
-          title: Account Type
-          description: User's account type (free, hobby, professional, premium)
-      type: object
-      required:
-      - error
-      - message
-      - requested_days
-      - max_days
-      - account_type
-      title: HistoricalLimitErrorDetail
-      description: Structured error detail for historical data limit exceeded.
-    InvalidPeriodError:
+    HistoricalLimitError:
       properties:
         detail:
-          $ref: '#/components/schemas/InvalidPeriodErrorDetail'
+          $ref: '#/components/schemas/HistoricalLimitErrorDetail'
           description: Structured error details
       type: object
       required:
       - detail
-      title: InvalidPeriodError
-      description: Error response for invalid period requests (HTTP 422).
-    RateLimitErrorDetail:
-      properties:
-        error:
-          type: string
-          title: Error
-          description: Error type identifier
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Limit
-          description: Applied request limit for the window
-        used:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Used
-          description: Requests used in the current window
-        remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Remaining
-          description: Requests remaining in the current window
-        account_type:
-          type: string
-          title: Account Type
-          description: Resolved account type or fallback tier
-        reset_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Reset At
-          description: ISO 8601 timestamp when the current window resets
-        contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact
-          description: Plan or support URL for resolving the limit
-      type: object
-      required:
-      - error
-      - message
-      - account_type
-      title: RateLimitErrorDetail
-      description: Structured rate-limit error detail.
-    RedditStatsResponse:
-      properties:
-        total_mentions:
-          type: integer
-          title: Total Mentions
-          description: Rollup-backed all-time stock mention total; current-day raw rows may be used only as a bounded freshness fallback
-          examples:
-          - 12833
-        unique_tickers:
-          type: integer
-          title: Unique Tickers
-          description: Number of unique tickers with mentions
-          examples:
-          - 65
-        mentions_today:
-          type: integer
-          title: Mentions Today
-          description: Stock mention rows created since today's UTC midnight, including posts, comments and inherited thread-context mentions
-          default: 0
-          examples:
-          - 342
-        unique_tickers_today:
-          type: integer
-          title: Unique Tickers Today
-          description: Unique tickers (detected using case-sensitive, uppercase-only patterns) including posts, comments and inherited thread-context mentions
-          default: 0
-          examples:
-          - 21
-        supported_tickers:
-          type: integer
-          title: Supported Tickers
-          description: Number of supported ticker patterns (from ticker_reference)
-          examples:
-          - 35000
-      type: object
-      required:
-      - total_mentions
-      - unique_tickers
-      - supported_tickers
-      title: RedditStatsResponse
-      description: Service statistics.
-      examples:
-      - total_mentions: 12833
-        unique_tickers: 65
-        mentions_today: 342
-        unique_tickers_today: 21
-        supported_tickers: 35000
-    InvalidSearchParametersError:
-      properties:
-        detail:
-          anyOf:
-          - $ref: '#/components/schemas/InvalidSearchParametersErrorDetail'
-          - type: string
-          title: Detail
-          description: Structured search-parameter error or normalized-query validation message
-      type: object
-      required:
-      - detail
-      title: InvalidSearchParametersError
-      description: Error response for invalid search query parameters.
-    CompareResponse:
-      properties:
-        period_days:
-          type: integer
-          title: Period Days
-          description: Analysis period in days
-          examples:
-          - 7
-        stocks:
-          items:
-            $ref: '#/components/schemas/CompareStockItem'
-          type: array
-          title: Stocks
-          description: Stocks sorted by buzz_score descending
-      type: object
-      required:
-      - period_days
-      - stocks
-      title: CompareResponse
-      description: Comparison of multiple stocks.
-      examples:
-      - period_days: 7
-        stocks:
-        - ticker: TSLA
-          company_name: Tesla, Inc.
-          buzz_score: 87.5
-          trend: rising
-          mentions: 342
-          unique_posts: 45
-          subreddit_count: 8
-          sentiment_score: 0.23
-          bullish_pct: 45
-          bearish_pct: 18
-          total_upvotes: 15234
-          trend_history:
-          - 45.2
-          - 52.1
-          - 48.7
-          - 67.3
-          - 72.1
-          - 78.4
-          - 87.5
-        - ticker: NVDA
-          company_name: NVIDIA Corporation
-          buzz_score: 72.3
-          trend: stable
-          mentions: 189
-          unique_posts: 31
-          subreddit_count: 6
-          sentiment_score: 0.45
-          bullish_pct: 52
-          bearish_pct: 17
-          total_upvotes: 8921
-          trend_history:
-          - 38.1
-          - 40.7
-          - 44.9
-          - 51.5
-          - 57.4
-          - 63.0
-          - 72.3
-    SearchResultItem:
-      properties:
-        ticker:
-          type: string
-          title: Ticker
-          description: Stock ticker symbol
-          examples:
-          - TSLA
-        name:
-          type: string
-          title: Name
-          description: Company name
-          examples:
-          - Tesla Inc.
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-          description: Asset type (Stock, ETF, etc.)
-          examples:
-          - Stock
-        exchange:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Exchange
-          description: Stock exchange (NYSE, NASDAQ, etc.)
-          examples:
-          - NASDAQ
-        sector:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sector
-          description: Industry sector
-          examples:
-          - Consumer Discretionary
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-          description: Country of headquarters
-          examples:
-          - United States
-        aliases:
-          items:
-            type: string
-          type: array
-          title: Aliases
-          description: Alternative names/aliases
-          examples:
-          - - Tesla
-            - Elon
-        summary:
-          $ref: '#/components/schemas/StockSearchSummary'
-          description: Last-7-days Reddit summary for this asset
-      type: object
-      required:
-      - ticker
-      - name
-      - summary
-      title: SearchResultItem
-      description: Individual search result item.
-    HTTPValidationError:
-      properties:
-        detail:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ValidationError'
-            type: array
-          - type: 'null'
-          title: Detail
-          description: Validation error details
-      type: object
-      title: HTTPValidationError
-      description: FastAPI/Pydantic validation error response.
-      examples:
-      - detail:
-        - loc:
-          - query
-          - days
-          msg: Input should be greater than or equal to 1
-          type: greater_than_equal
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Loc
-          description: Location of the invalid input
-        msg:
-          type: string
-          title: Msg
-          description: Validation failure message
-        type:
-          type: string
-          title: Type
-          description: Validation error type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-      description: FastAPI/Pydantic validation error item.
-      examples:
-      - loc:
-        - query
-        - days
-        msg: Input should be greater than or equal to 1
-        type: greater_than_equal
-    TrendingSector:
-      properties:
-        buzz_score:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Buzz Score
-          description: Aggregated Buzz Score (0-100)
-          examples:
-          - 78.4
-        trend:
-          type: string
-          enum:
-          - rising
-          - falling
-          - stable
-          title: Trend
-          description: Activity momentum over the current 3 UTC days vs previous 3 UTC days using mentions, upvotes and subreddit breadth; not price movement. For `from`/`to`, anchors at `to` (or now when `to` is today).
-          examples:
-          - rising
-        mentions:
-          type: integer
-          title: Mentions
-          description: Total attributed mentions, including inherited thread-context mentions
-          examples:
-          - 4523
-        unique_tickers:
-          type: integer
-          title: Unique Tickers
-          description: Number of unique tickers mentioned
-          examples:
-          - 34
-        subreddit_count:
-          type: integer
-          title: Subreddit Count
-          description: Number of subreddits with mentions
-          examples:
-          - 15
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Weighted average sentiment (-1 bearish to +1 bullish)
-          examples:
-          - 0.28
-        bullish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bullish Pct
-          description: Percentage of sentiment-labeled mentions that are bullish
-          examples:
-          - 54
-        bearish_pct:
-          type: integer
-          maximum: 100.0
-          minimum: 0.0
-          title: Bearish Pct
-          description: Percentage of sentiment-labeled mentions that are bearish
-          examples:
-          - 22
-        total_upvotes:
-          type: integer
-          title: Total Upvotes
-          description: Total upvotes across attributed mentions
-          examples:
-          - 128450
-        trend_history:
-          items:
-            type: number
-          type: array
-          title: Trend History
-          description: Daily dimension buzz scores (oldest to newest). Length follows the resolved period, with a minimum of 7 values. Every slot describes only its UTC calendar day. The live final value describes today so far and can differ from period buzz_score. Closed historical windows end at `to`.
-          examples:
-          - - 45.2
-            - 48.1
-            - 52.3
-            - 55.0
-            - 58.2
-            - 61.5
-            - 78.4
-        top_tickers:
-          items:
-            type: string
-          type: array
-          maxItems: 5
-          title: Top Tickers
-          description: Top 5 tickers by mentions
-          examples:
-          - - NVDA
-            - AAPL
-            - MSFT
-            - AMD
-            - GOOGL
-        sector:
-          type: string
-          title: Sector
-          description: Industry sector name
-          examples:
-          - Technology
-      type: object
-      required:
-      - buzz_score
-      - trend
-      - mentions
-      - unique_tickers
-      - subreddit_count
-      - sentiment_score
-      - bullish_pct
-      - bearish_pct
-      - total_upvotes
-      - trend_history
-      - top_tickers
-      - sector
-      title: TrendingSector
-      description: Trending sector with aggregated buzz metrics from Reddit.
-      examples:
-      - buzz_score: 78.4
-        trend: rising
-        mentions: 4523
-        unique_tickers: 34
-        subreddit_count: 15
-        sentiment_score: 0.28
-        bullish_pct: 54
-        bearish_pct: 22
-        total_upvotes: 128450
-        trend_history:
-        - 45.2
-        - 48.1
-        - 52.3
-        - 55.0
-        - 58.2
-        - 61.5
-        - 78.4
-        top_tickers:
-        - NVDA
-        - AAPL
-        - MSFT
-        - AMD
-        - GOOGL
-        sector: Technology
-    RateLimitError:
-      properties:
-        detail:
-          $ref: '#/components/schemas/RateLimitErrorDetail'
-          description: Structured rate-limit details
-      type: object
-      required:
-      - detail
-      title: RateLimitError
-      description: Error response for rate-limit exceeded responses.
-    DailyTrendItem:
-      properties:
-        date:
-          type: string
-          format: date
-          title: Date
-          description: Date in YYYY-MM-DD format
-          examples:
-          - '2025-12-28'
-        mentions:
-          type: integer
-          title: Mentions
-          description: Attributed mention count for this date, including inherited thread-context mentions
-          examples:
-          - 52
-        sentiment_score:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: -1.0
-          - type: 'null'
-          title: Sentiment Score
-          description: Average sentiment score for this date
-          examples:
-          - 0.31
-        buzz_score:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Buzz Score
-          description: Buzz score for this date (0-100)
-          examples:
-          - 42.8
-        bullish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bullish Pct
-          description: Bullish mention percentage for this date, calculated from positive sentiment-classified mentions
-          examples:
-          - 62
-        bearish_pct:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Bearish Pct
-          description: Bearish mention percentage for this date, calculated from negative sentiment-classified mentions
-          examples:
-          - 18
-      type: object
-      required:
-      - date
-      - mentions
-      title: DailyTrendItem
-      description: Daily trend data point.
+      title: HistoricalLimitError
+      description: Error response for historical data limit exceeded (HTTP 403).
     RedditRawMentionItem:
       properties:
         post_id:
@@ -4702,57 +4621,138 @@ components:
       - is_inherited
       title: RedditRawMentionItem
       description: Raw Reddit mention row for one ticker.
-    TopMention:
+    CompareLimitError:
       properties:
-        text_snippet:
-          type: string
-          title: Text Snippet
-          description: Clean Reddit paragraph around the detected ticker mention (up to 500 chars)
-          examples:
-          - TSLA looking strong after...
-        sentiment_score:
-          type: number
-          maximum: 1.0
-          minimum: -1.0
-          title: Sentiment Score
-          description: Sentiment score (-1 to +1)
-          examples:
-          - 0.85
-        sentiment_label:
-          type: string
-          title: Sentiment Label
-          description: Sentiment label (positive/negative/neutral)
-          examples:
-          - positive
-        upvotes:
-          type: integer
-          title: Upvotes
-          description: Number of upvotes
-          examples:
-          - 1234
-        subreddit:
-          type: string
-          title: Subreddit
-          description: Source subreddit
-          examples:
-          - wallstreetbets
-        created_utc:
-          type: string
-          format: date-time
-          title: Created Utc
-          description: ISO timestamp of creation
-          examples:
-          - '2025-12-28T10:30:00'
+        detail:
+          $ref: '#/components/schemas/CompareLimitErrorDetail'
+          description: Structured error details
       type: object
       required:
-      - text_snippet
-      - sentiment_score
-      - sentiment_label
-      - upvotes
-      - subreddit
-      - created_utc
-      title: TopMention
-      description: Top mention by upvotes.
+      - detail
+      title: CompareLimitError
+      description: Error response for compare item-count violations (HTTP 400).
+    RateLimitError:
+      properties:
+        detail:
+          $ref: '#/components/schemas/RateLimitErrorDetail'
+          description: Structured rate-limit details
+      type: object
+      required:
+      - detail
+      title: RateLimitError
+      description: Error response for rate-limit exceeded responses.
+    RedditRawMentionsResponse:
+      properties:
+        ticker:
+          type: string
+          title: Ticker
+          description: Stock ticker symbol
+          examples:
+          - TSLA
+        period_days:
+          type: integer
+          minimum: 1.0
+          title: Period Days
+          description: Lookback window used for the query
+          examples:
+          - 7
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+          description: Total number of matching raw rows for the requested include_inherited filter before limit and offset are applied; only the requested page is returned
+          examples:
+          - 1
+        results:
+          items:
+            $ref: '#/components/schemas/RedditRawMentionItem'
+          type: array
+          title: Results
+          description: Raw mention rows ordered by newest first
+      type: object
+      required:
+      - ticker
+      - period_days
+      - count
+      - results
+      title: RedditRawMentionsResponse
+      description: Paginated raw Reddit mentions for a single ticker.
+      examples:
+      - ticker: TSLA
+        period_days: 7
+        count: 1
+        results:
+        - post_id: abc123
+          comment_id: def456
+          subreddit: wallstreetbets
+          author: user123
+          text_snippet: TSLA looks strong into earnings...
+          created_utc: '2026-03-20T18:42:10Z'
+          upvotes: 381
+          sentiment_score: 0.62
+          sentiment_label: positive
+          is_inherited: false
+    DailyTrendItem:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+          description: Date in YYYY-MM-DD format
+          examples:
+          - '2025-12-28'
+        mentions:
+          type: integer
+          title: Mentions
+          description: Attributed mention count for this date, including inherited thread-context mentions
+          examples:
+          - 52
+        sentiment_score:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Sentiment Score
+          description: Average sentiment score for this date
+          examples:
+          - 0.31
+        buzz_score:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Buzz Score
+          description: Buzz score for this date (0-100)
+          examples:
+          - 42.8
+        bullish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bullish Pct
+          description: Bullish mention percentage for this date, calculated from positive sentiment-classified mentions
+          examples:
+          - 62
+        bearish_pct:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Bearish Pct
+          description: Bearish mention percentage for this date, calculated from negative sentiment-classified mentions
+          examples:
+          - 18
+      type: object
+      required:
+      - date
+      - mentions
+      title: DailyTrendItem
+      description: Daily trend data point.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
