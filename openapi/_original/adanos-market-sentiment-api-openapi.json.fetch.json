@@ -1,0 +1,12 @@
+{
+ "url": "https://api.adanos.org/openapi.yaml",
+ "requested_url": "https://api.adanos.org/openapi.yaml",
+ "status": 200,
+ "content_type": "text/yaml; charset=utf-8",
+ "bytes": 797962,
+ "sha256": "a694a5562faeb84e4ae9b24a345b82c20f64a7fde5e6da1836527af493179e97",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "equivalent",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the provider's current document describes the same operations (Jaccard 1.0), but the bytes differ, so the archive is an earlier or reformatted copy."
+}
