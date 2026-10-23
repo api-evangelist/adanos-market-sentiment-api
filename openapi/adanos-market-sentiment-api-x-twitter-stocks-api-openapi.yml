@@ -4694,3 +4694,9 @@ components:
         Format: `sk_live_` followed by 32 hexadecimal characters. Example: `REDACTED_STRIPE_KEY`.'
       in: header
       name: X-API-Key
+x-provenance:
+  method: harvested
+  publisher: Adanos Market Sentiment API
+  source: https://api.adanos.org/openapi.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
