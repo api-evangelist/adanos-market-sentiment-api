@@ -1,4 +1,4 @@
-# adanos-market-sentiment-api
+# Adanos Market Sentiment API
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -65,3 +65,131 @@
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
 Key-authenticated REST/JSON API for financial market sentiment analytics across Reddit, X.com, news, and Polymarket, plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment signals for traders, fintech, quant/research teams, and AI agents.
+
+**Areas:** Markets · Sentiment · Stocks · Cryptocurrency · Finance · Trading · Social Data · News · Prediction Markets · Reddit · X / Twitter · Polymarket
+
+## Adanos Market Sentiment API on APIs.io
+
+Everything profiled for Adanos Market Sentiment API is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/adanos-market-sentiment-api/](https://apis.io/providers/adanos-market-sentiment-api/)** — or go straight to one of the APIs or properties below.
+
+### APIs (7)
+
+- [Adanos Market Sentiment API Finance Sentiment API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-finance-sentiment-api/) — Direct finance-tuned sentiment analysis for client-provided trading, market and investment text.
+- [Adanos Market Sentiment API Health Check API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-health-check-api/) — Operational health and freshness checks. Useful for monitoring, not required for normal client integrations.
+- [Adanos Market Sentiment API News Stocks API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-news-stocks-api/) — Editorial/news sentiment with source breadth. Use `source` on supported endpoints to isolate a publisher or canonical source id.
+- [Adanos Market Sentiment API Polymarket Stocks API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-polymarket-stocks-api/) — Prediction-market based stock sentiment and attention from Polymarket prices, trades, liquidity and orderbook signals. Metrics are market-centric rather…
+- [Adanos Market Sentiment API Reddit Crypto API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-reddit-crypto-api/) — Crypto sentiment on Reddit with the same discovery/search/compare pattern as the stock APIs.
+- [Adanos Market Sentiment API Reddit Stocks API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-reddit-stocks-api/) — Retail stock discussion data from Reddit. Start with `/trending`, then drill into `/stock/{ticker}` or build watchlists with `/compare`.
+- [Adanos Market Sentiment API X/Twitter Stocks API](https://apis.io/apis/adanos-market-sentiment-api/adanos-market-sentiment-api-x-twitter-stocks-api/) — Fast-moving stock attention from X/Twitter cashtags and tweet engagement, useful for momentum discovery and validation.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [adanos-market-sentiment-api-mcp.yml](https://apis.io/servers/adanos-market-sentiment-api/adanos-market-sentiment-api-mcp-yml/)
+
+#### Agent skills (1)
+
+Agent skills built on the API.
+
+- [adanos-market-sentiment](https://apis.io/agent-skills/adanos-market-sentiment-api/adanos-market-sentiment/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Adanos Market Sentiment Api Openapi Overlay](https://apis.io/overlays/adanos-market-sentiment-api/adanos-market-sentiment-api-openapi-overlay/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Adanos Market Sentiment Api Authentication](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-authentication/)
+- [Adanos Market Sentiment Api Domain Security](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-domain-security/)
+- [Adanos Market Sentiment Api Vulnerability Disclosure](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-vulnerability-disclosure/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Adanos Market Sentiment Api Plans Pricing](https://apis.io/plans/adanos-market-sentiment-api/adanos-market-sentiment-api-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Adanos Market Sentiment Api Rate Limits](https://apis.io/rate-limits/adanos-market-sentiment-api/adanos-market-sentiment-api-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://adanos.org)
+- [API reference](https://api.adanos.org/docs)
+- [Pricing](https://adanos.org/pricing)
+- [Sign up](https://adanos.org/register)
+- [Support](https://adanos.org/contact)
+- [Blog](https://adanos.org/insights/)
+- [Terms of service](https://adanos.org/terms)
+- [Privacy policy](https://adanos.org/privacy)
+- [GitHub](https://github.com/adanos-software)
+- [Status](https://status.adanos.org/)
+
+## API Evangelist rating
+
+**Kin Score 59.8** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 55.1 |
+| Contract governance | 4.5 |
+| Operational transparency | 76.3 |
+| Developer ergonomics | 57.1 |
+| Access clarity | 76.3 |
+
+**Agent readiness 36.4** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | verified |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | yes |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | — |
+
+**Regulatory alignment 34.3** — Securities & Market Data
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/adanos-market-sentiment-api/](https://apis.io/providers/adanos-market-sentiment-api/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Adanos Market Sentiment API: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/adanos-market-sentiment-api/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
