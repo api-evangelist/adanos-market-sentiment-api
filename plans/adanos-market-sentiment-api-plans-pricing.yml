@@ -1,0 +1,117 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-10-28'
+method: searched
+source: https://adanos.com/pricing
+sources:
+- https://adanos.com/pricing
+- https://adanos.org/pricing
+provenance:
+  tool: engine/economics/harvest_pricing.py
+  run: 20261028T141238
+  grounding: every price_text was found verbatim in the fetched page text
+audience: developer-api
+pricing_basis: tiered-subscription
+delivery:
+  delivery: managed
+  method: page
+  read: '2026-10-28'
+published: true
+note: Monthly/yearly toggle; yearly billing advertised as 2 months free −17%. Non-profit/education free
+  access available on application.
+plan_count: 6
+currency: USD
+plans:
+- name: Free
+  price_text: $0
+  price: 0
+  currency: USD
+  period: month
+  included_quota: 100 requests per minute, 250 requests per month, 30 days historical data, no commercial
+    use, all 5 APIs, 41 endpoints, email support
+- name: Hobby
+  price_text: $29
+  price: 29
+  currency: USD
+  period: month
+  included_quota: 1,000 requests per minute, 250,000 requests per month, 90 days historical, no commercial
+    use, 41 endpoints, email support
+- name: Hobby (yearly)
+  price_text: $290/yr
+  price: 290
+  currency: USD
+  period: year
+  included_quota: Save $58 with yearly billing; $24.17/mo equivalent
+- name: Professional
+  price_text: $299
+  price: 299
+  currency: USD
+  period: month
+  included_quota: 1,000 requests per minute, 2,500,000 requests per month, up to 365 days historical,
+    commercial use, 47 endpoints, raw mention data, priority support, SLA
+- name: Professional (yearly)
+  price_text: $2,990/yr
+  price: 2990
+  currency: USD
+  period: year
+  included_quota: Save $598 with yearly billing; $249.17/mo equivalent
+- name: Enterprise
+  price_text: Contact us →
+  period: none
+  included_quota: API access, higher rate limits or custom data feeds
+rate_limit_statements:
+- Requests per minute 100
+- Requests per minute 1,000
+- Requests per month 250
+- Requests per month 250,000
+- Requests per month 2,500,000
+- Rate limits and monthly quotas apply across all endpoints combined.
+x-canonical:
+  generated: '2026-11-01'
+  vocabulary: engine/economics/plans-canonical.yml
+  models:
+  - free
+  - subscription
+  units: []
+  plans:
+  - name: Free
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Hobby
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Hobby (yearly)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - year
+  - name: Professional
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Professional (yearly)
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - year
+  - name: Enterprise
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods:
+    - none
