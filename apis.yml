@@ -1,0 +1,279 @@
+name: Adanos Market Sentiment API
+description: Key-authenticated REST/JSON API for financial market sentiment analytics across Reddit, X.com, news,
+  and Polymarket, plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment
+  signals for traders, fintech, quant/research teams, and AI agents.
+url: https://raw.githubusercontent.com/api-evangelist/adanos-market-sentiment-api/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted commercial API (SaaS) with published Free/Hobby/Professional plans
+  confidence: high
+  source:
+  - https://adanos.org/pricing
+  generated: '2026-09-03'
+  method: searched
+accessModel:
+  pricing: freemium
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  gated: none
+  gated_source:
+  - onboarding
+  label: Freemium · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  - rate-limits
+  - security
+  generated: '2026-11-06'
+  method: derived
+created: '2026-07-17'
+modified: '2026-09-03'
+specificationVersion: '0.23'
+tags:
+- Markets
+- Sentiment
+- Stocks
+- Cryptocurrency
+- Finance
+- Trading
+- Social Data
+- News
+- Prediction Markets
+- Reddit
+- X / Twitter
+- Polymarket
+- AI Agents
+- REST API
+- OpenAPI
+- Llms.txt
+- Agent Skills
+tags_raw:
+- market
+- sentiment
+- stocks
+- crypto
+- finance
+- trading
+- social-data
+- news
+- prediction-markets
+- reddit
+- x-twitter
+- polymarket
+- ai-agents
+- rest-api
+- openapi
+- llms-txt
+- agent-skills
+apis:
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-finance-sentiment-api
+  name: Adanos Market Sentiment API Finance Sentiment API
+  description: >-
+    Direct finance-tuned sentiment analysis for client-provided trading, market and investment text.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Finance Sentiment
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-finance-sentiment-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-health-check-api
+  name: Adanos Market Sentiment API Health Check API
+  description: >-
+    Operational health and freshness checks. Useful for monitoring, not required for normal client integrations.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Health Check
+  tags_raw:
+  - Health-Check
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-health-check-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-news-stocks-api
+  name: Adanos Market Sentiment API News Stocks API
+  description: >-
+    Editorial/news sentiment with source breadth. Use `source` on supported endpoints to isolate a publisher
+    or canonical source id.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - News Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-news-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-polymarket-stocks-api
+  name: Adanos Market Sentiment API Polymarket Stocks API
+  description: >-
+    Prediction-market based stock sentiment and attention from Polymarket prices, trades, liquidity and
+    orderbook signals. Metrics are market-centric rather than mention-based.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Polymarket Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-polymarket-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-reddit-crypto-api
+  name: Adanos Market Sentiment API Reddit Crypto API
+  description: >-
+    Crypto sentiment on Reddit with the same discovery/search/compare pattern as the stock APIs.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Reddit Crypto
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-reddit-crypto-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-reddit-stocks-api
+  name: Adanos Market Sentiment API Reddit Stocks API
+  description: >-
+    Retail stock discussion data from Reddit. Start with `/trending`, then drill into `/stock/{ticker}`
+    or build watchlists with `/compare`.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - Reddit Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-reddit-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+- aid: adanos-market-sentiment-api:adanos-market-sentiment-api-x-twitter-stocks-api
+  name: Adanos Market Sentiment API X/Twitter Stocks API
+  description: >-
+    Fast-moving stock attention from X/Twitter cashtags and tweet engagement, useful for momentum discovery
+    and validation.
+  humanURL: https://api.adanos.org/docs
+  baseURL: https://api.adanos.org
+  tags:
+  - X/Twitter Stocks
+  properties:
+  - type: OpenAPI
+    url: openapi/adanos-market-sentiment-api-x-twitter-stocks-api-openapi.yml
+  - type: LLMsTxt
+    url: https://api.adanos.org/llms.txt
+  - type: Documentation
+    url: https://api.adanos.org/docs
+  - type: Documentation
+    url: https://api.adanos.org/changelog
+maintainers:
+- FN: Adanos Software GmbH
+  url: https://adanos.org
+  email: support@adanos.org
+generated:
+  by: apis.io/add
+  model: claude-opus-4-8
+  confidence: 90
+  at: '2026-07-17T12:12:12.906Z'
+common:
+- type: CapabilityMap
+  url: capabilities/adanos-market-sentiment-api-capability-edges.yml
+  name: Adanos Market Sentiment API Business Capability Map
+- type: Website
+  url: https://adanos.org
+- type: VulnerabilityDisclosure
+  url: security/adanos-market-sentiment-api-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/adanos-market-sentiment-api-domain-security.yml
+- type: Authentication
+  url: authentication/adanos-market-sentiment-api-authentication.yml
+- type: Packages
+  url: packages/adanos-market-sentiment-api-packages.yml
+- type: SDKs
+  url: packages/adanos-market-sentiment-api-packages.yml
+- type: CLI
+  url: cli/adanos-market-sentiment-api-cli.yml
+- type: WellKnown
+  url: well-known/adanos-market-sentiment-api-well-known.yml
+- type: SecurityTxt
+  url: well-known/adanos-market-sentiment-api-security.txt
+- type: Security
+  url: security/adanos-market-sentiment-api-vulnerability-disclosure.yml
+- type: Conformance
+  url: conformance/adanos-market-sentiment-api-conformance.yml
+- type: ErrorCatalog
+  url: errors/adanos-market-sentiment-api-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/adanos-market-sentiment-api-lifecycle.yml
+- type: StatusPage
+  url: https://status.adanos.org/
+- type: Deprecation
+  url: lifecycle/adanos-market-sentiment-api-lifecycle.yml
+- type: Conventions
+  url: conventions/adanos-market-sentiment-api-conventions.yml
+- type: ChangeLog
+  url: changelog/adanos-market-sentiment-api-changelog.yml
+- type: Plans
+  url: plans/adanos-market-sentiment-api-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/adanos-market-sentiment-api-rate-limits.yml
+- type: DataModel
+  url: data-model/adanos-market-sentiment-api-data-model.yml
+- type: Components
+  url: components/adanos-market-sentiment-api-components.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Overlay
+  url: overlays/adanos-market-sentiment-api-openapi-overlay.yaml
+- type: GitHubOrganization
+  url: https://github.com/adanos-software
+- type: Pricing
+  url: https://adanos.org/pricing
+- type: SignUp
+  url: https://adanos.org/register
+- type: TermsOfService
+  url: https://adanos.org/terms
+- type: PrivacyPolicy
+  url: https://adanos.org/privacy
+- type: Support
+  url: https://adanos.org/contact
+- type: Blog
+  url: https://adanos.org/insights/
+- type: APIReference
+  url: https://api.adanos.org/docs
+x-enrichment:
+  date: '2026-09-03'
+  status: enriched
+  artifacts_added: 28
+  pass: local-v2
