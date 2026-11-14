@@ -30,7 +30,7 @@ accessModel:
   - authentication
   - rate-limits
   - security
-  generated: '2026-11-06'
+  generated: '2026-11-13'
   method: derived
 created: '2026-07-17'
 modified: '2026-09-03'
@@ -272,6 +272,16 @@ common:
   url: https://adanos.org/insights/
 - type: APIReference
   url: https://api.adanos.org/docs
+- type: UsageTerms
+  url: terms/adanos-market-sentiment-api-terms-of-service.yml
+- type: DataProcessing
+  url: privacy/adanos-market-sentiment-api-privacy-policy.yml
+- type: Eligibility
+  url: eligibility/adanos-market-sentiment-api-eligibility.yml
+- type: AIPreferences
+  url: ai-preferences/adanos-market-sentiment-api-ai-preferences.yml
+- type: DataLicense
+  url: data-license/adanos-market-sentiment-api-data-license.yml
 x-enrichment:
   date: '2026-09-03'
   status: enriched
