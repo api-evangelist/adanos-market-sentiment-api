@@ -1,3 +1,4 @@
+aid: adanos-market-sentiment-api
 name: Adanos Market Sentiment API
 description: Key-authenticated REST/JSON API for financial market sentiment analytics across Reddit, X.com, news,
   and Polymarket, plus stock news and crypto sentiment. Provides Buzz Score, Trend Detection, and directional Sentiment
@@ -30,7 +31,7 @@ accessModel:
   - authentication
   - rate-limits
   - security
-  generated: '2026-11-13'
+  generated: '2026-11-20'
   method: derived
 created: '2026-07-17'
 modified: '2026-09-03'
