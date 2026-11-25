@@ -102,27 +102,40 @@ Agent skills built on the API.
 
 OpenAPI overlays, including conversational phrasing for each operation.
 
-- [Adanos Market Sentiment Api Openapi Overlay](https://apis.io/overlays/adanos-market-sentiment-api/adanos-market-sentiment-api-openapi-overlay/)
+- [Adanos Market Sentiment API Openapi Overlay](https://apis.io/overlays/adanos-market-sentiment-api/adanos-market-sentiment-api-openapi-overlay/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Adanos Market Sentiment API API Rules](https://apis.io/rules/adanos-market-sentiment-api/adanos-market-sentiment-api-rules/)
 
 #### Security (3)
 
 Authentication, trust centre, and vulnerability disclosure.
 
-- [Adanos Market Sentiment Api Authentication](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-authentication/)
-- [Adanos Market Sentiment Api Domain Security](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-domain-security/)
-- [Adanos Market Sentiment Api Vulnerability Disclosure](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-vulnerability-disclosure/)
+- [Adanos Market Sentiment API Authentication](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-authentication/)
+- [Adanos Market Sentiment API Domain Security](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-domain-security/)
+- [Adanos Market Sentiment API Vulnerability Disclosure](https://apis.io/security/adanos-market-sentiment-api/adanos-market-sentiment-api-vulnerability-disclosure/)
 
-#### Plans and pricing (1)
+#### Plans and pricing (2)
 
 Published plans, tiers and prices.
 
-- [Adanos Market Sentiment Api Plans Pricing](https://apis.io/plans/adanos-market-sentiment-api/adanos-market-sentiment-api-plans-pricing/)
+- [Adanos Market Sentiment API Plans Pricing](https://apis.io/plans/adanos-market-sentiment-api/adanos-market-sentiment-api-plans-pricing/)
+- [Adanos Market Sentiment API Price Estimates](https://apis.io/plans/adanos-market-sentiment-api/adanos-market-sentiment-api-price-estimates/)
 
 #### Rate limits (1)
 
 Published request limits.
 
-- [Adanos Market Sentiment Api Rate Limits](https://apis.io/rate-limits/adanos-market-sentiment-api/adanos-market-sentiment-api-rate-limits/)
+- [Adanos Market Sentiment API Rate Limits](https://apis.io/rate-limits/adanos-market-sentiment-api/adanos-market-sentiment-api-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Adanos Market Sentiment API Finops](https://apis.io/finops/adanos-market-sentiment-api/adanos-market-sentiment-api-finops/)
 
 ## Where to find this API
 
@@ -141,18 +154,18 @@ Links to the company's own pages. This repository publishes no copy of their spe
 
 ## API Evangelist rating
 
-**Kin Score 59.8** — strong · rubric 0.25.0 · scored 2026-10-23
+**Kin Score 63.0** — strong · rubric 0.28.1 · scored 2026-11-21
 
 | Facet | Score |
 |---|---|
 | Discoverability | 75.0 |
-| Contract quality | 55.1 |
-| Contract governance | 4.5 |
-| Operational transparency | 76.3 |
+| Contract quality | 58.6 |
+| Contract governance | 18.2 |
+| Operational transparency | 71.4 |
 | Developer ergonomics | 57.1 |
-| Access clarity | 76.3 |
+| Access clarity | 83.0 |
 
-**Agent readiness 36.4** — agent-ready
+**Agent readiness 36.7** — agent-ready
 
 | Agent-readiness dimension | Result |
 |---|---|
@@ -168,7 +181,7 @@ Links to the company's own pages. This repository publishes no copy of their spe
 | Event Surface Described | — |
 | Agent Skills | yes |
 | Well Known Catalog | — |
-| Consent Identity | — |
+| Consent Identity | signal |
 | Agent Card | — |
 | Dry Run Mode | — |
 | Delegated Identity | — |
@@ -177,6 +190,10 @@ Links to the company's own pages. This repository publishes no copy of their spe
 | Agentic Commerce | — |
 | Pagination Ratio | paginated |
 | Operation Distinctiveness | — |
+| MCP Tool Quality | na |
+| Onboarding Descriptor | — |
+| Dns Aid Index | na |
+| Markdown Negotiation | na |
 
 **Regulatory alignment 34.3** — Securities & Market Data
 
